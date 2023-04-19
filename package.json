@@ -1,0 +1,16 @@
+{
+  "name": "keywitch",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "scripts": {
+    "dev:desktop": "pnpm -C apps/keywitch-desktop run dev",
+    "dev:gui": "pnpm -C packages/keywitch-gui run dev",
+
+    "build:desktop": "pnpm -C apps/keywitch-desktop run build",
+    "build:gui": "pnpm -C packages/keywitch-gui run build"
+  }
+}

@@ -1,10 +1,10 @@
 {
-  "$schema": "../node_modules/@tauri-apps/cli/schema.json",
+  "$schema": "../../packages/keywitch-gui/node_modules/@tauri-apps/cli/schema.json",
   "build": {
-    "beforeBuildCommand": "npm run build",
-    "beforeDevCommand": "npm run dev",
+    "beforeBuildCommand": "pnpm -C ../../packages/keywitch-gui run build",
+    "beforeDevCommand": "pnpm -C ../../packages/keywitch-gui run dev",
     "devPath": "http://localhost:5173",
-    "distDir": "../build"
+    "distDir": "../../packages/keywitch-gui/build"
   },
   "package": {
     "productName": "Keywitch",

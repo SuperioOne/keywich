@@ -3,13 +3,23 @@
   import "@skeletonlabs/skeleton/styles/all.css";
   import "../app.postcss";
   import { ActivityIcon, SettingsIcon, HomeIcon, KeyIcon } from "$lib/icons";
+  import {
+    computePosition,
+    autoUpdate,
+    flip,
+    shift,
+    offset,
+    arrow,
+  } from "@floating-ui/dom";
 
   import type { Writable } from "svelte/store";
   import { AppRail, AppRailTile } from "@skeletonlabs/skeleton";
   import { AppShell } from "@skeletonlabs/skeleton";
   import { writable } from "svelte/store";
+  import { storePopup } from "@skeletonlabs/skeleton";
 
   const pageId: Writable<number> = writable(0);
+  storePopup.set({ computePosition, autoUpdate, flip, shift, offset, arrow });
 </script>
 
 <AppShell class="h-screen">

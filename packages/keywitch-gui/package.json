@@ -36,6 +36,8 @@
   },
   "type": "module",
   "dependencies": {
-    "@tauri-apps/api": "^1.2.0"
+    "@floating-ui/dom": "^1.2.6",
+    "@tauri-apps/api": "^1.2.0",
+    "install": "^0.13.0"
   }
 }
