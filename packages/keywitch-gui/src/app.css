@@ -1,3 +1,7 @@
+html,
+  body {
+    @apply h-full overflow-hidden;
+  }
 
 :root {
 	/* =~= Theme Properties =~= */

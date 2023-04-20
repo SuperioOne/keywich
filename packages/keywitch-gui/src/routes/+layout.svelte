@@ -11,7 +11,6 @@
     offset,
     arrow,
   } from "@floating-ui/dom";
-
   import type { Writable } from "svelte/store";
   import { AppRail, AppRailTile } from "@skeletonlabs/skeleton";
   import { AppShell } from "@skeletonlabs/skeleton";
@@ -19,36 +18,39 @@
   import { storePopup } from "@skeletonlabs/skeleton";
 
   const pageId: Writable<number> = writable(0);
+
   storePopup.set({ computePosition, autoUpdate, flip, shift, offset, arrow });
 </script>
 
-<AppShell class="h-screen">
+<AppShell class="h-full">
   <svelte:fragment slot="sidebarLeft">
-    <AppRail selected={pageId}>
-      <div slot="lead" class="flex justify-center align-middle py-7">
-        <HomeIcon />
-      </div>
-      <AppRailTile tag="a" href="/" label="Keys" value={0}>
-        <KeyIcon />
-      </AppRailTile>
-      <AppRailTile tag="a" href="/history" label="History" value={1}>
-        <ActivityIcon />
-      </AppRailTile>
-      <AppRailTile slot="trail" tag="a" href="/settings" value={2}>
-        <SettingsIcon />
-      </AppRailTile>
-    </AppRail>
-  </svelte:fragment>
-  <div class="p-10 flex align-middle justify-center">
-    <div class="flex-row w-full max-w-screen-lg">
-      <slot />
+    <div class="h-full overflow-hidden">
+      <AppRail selected={pageId}>
+        <AppRailTile tag="a" href="/" label="Main" value={0}>
+          <HomeIcon />
+        </AppRailTile>
+        <AppRailTile tag="a" href="/key-list" label="Keys" value={1}>
+          <KeyIcon />
+        </AppRailTile>
+        <AppRailTile tag="a" href="/history" label="History" value={2}>
+          <ActivityIcon />
+        </AppRailTile>
+
+        <AppRailTile
+          slot="trail"
+          tag="a"
+          href="/settings"
+          value={3}
+          label="Settings"
+        >
+          <SettingsIcon />
+        </AppRailTile>
+      </AppRail>
     </div>
-  </div>
+  </svelte:fragment>
+
+  <slot />
 </AppShell>
 
 <style>
-  html,
-  body {
-    @apply h-full overflow-hidden;
-  }
 </style>
