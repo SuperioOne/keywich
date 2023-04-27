@@ -1,3 +1,5 @@
+const defaultTheme = require('tailwindcss/defaultTheme')
+
 /** @type {import('tailwindcss').Config} */
 module.exports = {
     // 1. Apply the dark mode class setting:
@@ -6,12 +8,15 @@ module.exports = {
         './src/**/*.{html,js,svelte,ts}',
         // 2. Append the path for the Skeleton NPM package and files:
         require('path').join(require.resolve(
-                '@skeletonlabs/skeleton'),
+            '@skeletonlabs/skeleton'),
             '../**/*.{html,js,svelte,ts}'
         )
     ],
     theme: {
-        extend: {},
+        screens: {
+            'xs': { max:'450px'},
+            ...defaultTheme.screens,
+          },
     },
     plugins: [
         require('@tailwindcss/forms'),
@@ -19,4 +24,3 @@ module.exports = {
         ...require('@skeletonlabs/skeleton/tailwind/skeleton.cjs')()
     ]
 }
-			
