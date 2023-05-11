@@ -1,4 +1,4 @@
-import { KeyIcon, UserIcon, SettingsIcon } from "$lib/icons";
+import { KeyIcon, UserIcon, SettingsIcon, ActivityIcon} from "$lib/icons";
 import type { ComponentType } from "svelte";
 
 export interface MenuItem
@@ -10,8 +10,13 @@ export interface MenuItem
 
 const menuConfig: MenuItem[] = [
   {
-    label: "Keys",
+    label: "Dashboard",
     target: "/",
+    icon: ActivityIcon,
+  },
+  {
+    label: "Keys",
+    target: "/keys",
     icon: KeyIcon,
   },
   {

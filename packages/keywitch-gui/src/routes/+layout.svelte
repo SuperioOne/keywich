@@ -14,25 +14,23 @@
   import { AppShell, storePopup, AppBar } from "@skeletonlabs/skeleton";
   import { CenteredLayout } from "$lib/components";
 
+  let activePage: number = 0;
   storePopup.set({ computePosition, autoUpdate, flip, shift, offset, arrow });
 </script>
 
 <AppShell class="h-full">
   <svelte:fragment slot="header">
-    <AppBar
-      gridColumns="grid-cols-3"
-      slotDefault="place-self-center"
-      slotTrail="place-content-end"
-      padding="p-0"
-    >
-      <svelte:fragment slot="lead"><div /></svelte:fragment>
-      <div class="grid grid-flow-col auto-cols-max hover:auto-cols-min">
-        {#each MenuItems as item, i (i)}
+    <div class="grid grid-flow-col grid-cols-8 bg-surface-200-700-token">
+      <div />
+      <div class="col-span-6 flex flex-row justify-center">
+        {#each MenuItems as item, index (index)}
           <a
-            class:bg-initial={true}
             href={item.target}
-            class="btn bg-initial bg-primary-hover-token rounded-none w-full"
+            class:bg-initial={true}
+            class="btn bg-initial bg-primary-hover-token rounded-none w-36 xs:w-fit"
+            class:bg-primary-active-token={activePage === index}
             data-sveltekit-preload-data="hover"
+            on:click={() => (activePage = index)}
           >
             <div class="flex flex-col gap-1 align-middle justify-center w-full">
               <div class="flex justify-center">
@@ -47,8 +45,8 @@
           </a>
         {/each}
       </div>
-      <svelte:fragment slot="trail"><div /></svelte:fragment>
-    </AppBar>
+      <div />
+    </div>
   </svelte:fragment>
   <CenteredLayout>
     <slot />

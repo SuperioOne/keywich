@@ -1,9 +1,16 @@
 <script lang="ts">
-  import { ClipboardIcon, TrashIcon, KeyIcon, TagIcon } from "$lib/icons";
+  import {
+    ClipboardIcon,
+    TrashIcon,
+    KeyIcon,
+    PlusCircleIcon,
+    StarIcon,
+    EditIcon,
+  } from "$lib/icons";
   import { InputChip } from "@skeletonlabs/skeleton";
 
   const tableArr: any[] = [];
-  let list: string[] = ["foo", "bar", "fizz", "buzz"];
+  let list: string[] = [];
   for (let i = 0; i < 50; i++) {
     tableArr.push({
       preset: `preset${i}`,
@@ -17,10 +24,17 @@
   <div>
     <InputChip
       bind:value={list}
-      name="chips"
+      name="filter"
       chips="chip font-bold text-xs variant-soft-secondary"
-      placeholder="Filter by tags"
+      placeholder="filter..."
     />
+  </div>
+
+  <div class="flex flex-row xs:justify-center justify-end gap-1">
+    <button type="button" class="btn variant-filled-primary xs:w-full"
+      ><PlusCircleIcon />
+      <span class="font-bold"> New </span>
+    </button>
   </div>
 
   <div class="card p-4 xs:p-1">
@@ -31,7 +45,7 @@
             <div
               class="text-primary-500 bg-surface-200-700-token p-3 btn-sm btn h-fit"
             >
-              <KeyIcon/>
+              <KeyIcon />
             </div>
             <div class="w-full overflow-hidden flex flex-col gap-3">
               <div>
@@ -69,15 +83,21 @@
           >
             <button
               type="button"
-              class="btn btn-sm variant-soft btn-icon-base h-fit"
+              class="btn btn-sm variant-filled-secondary btn-icon-base h-fit"
             >
-              <TagIcon />
+              <ClipboardIcon />
             </button>
             <button
               type="button"
-              class="btn btn-sm variant-soft-secondary btn-icon-base h-fit"
+              class="btn btn-sm variant-soft btn-icon-base h-fit"
             >
-              <ClipboardIcon />
+              <StarIcon />
+            </button>
+            <button
+              type="button"
+              class="btn btn-sm variant-soft-tertiary btn-icon-base h-fit"
+            >
+              <EditIcon />
             </button>
             <button
               type="button"
