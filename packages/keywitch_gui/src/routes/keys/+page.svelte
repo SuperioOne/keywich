@@ -83,7 +83,7 @@
           >
             <button
               type="button"
-              class="btn btn-sm variant-filled-secondary btn-icon-base h-fit"
+              class="btn btn-sm variant-soft-secondary btn-icon-base h-fit"
             >
               <ClipboardIcon />
             </button>
@@ -95,7 +95,7 @@
             </button>
             <button
               type="button"
-              class="btn btn-sm variant-soft-tertiary btn-icon-base h-fit"
+              class="btn btn-sm variant-soft btn-icon-base h-fit"
             >
               <EditIcon />
             </button>

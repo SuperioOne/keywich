@@ -1,3 +1,3 @@
 packages:
-  - packages/keywitch-gui
-  - apps/keywitch-desktop
+  - packages/keywitch_gui
+  - apps/keywitch_desktop
