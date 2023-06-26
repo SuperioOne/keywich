@@ -1,45 +1,20 @@
 pub mod charset;
 pub mod errors;
-mod transform;
+mod hash;
 
-use crate::charset::{Charset};
+use crate::charset::Charset;
 use crate::errors::KeywitchError;
-use scrypt::Params;
-use scrypt::errors::InvalidOutputLen;
-use scrypt::{scrypt};
-use std::fmt::Error;
-use crate::transform::transform;
 
-
-pub fn calculate_password(
-    domain: &[u8],
-    password: &[u8],
-    salt: &[u8],
-    target_lenght: usize,
-    // charset: Charset)
-) -> Result<(), KeywitchError>
+pub struct Configuration<'a>
 {
-    let separator_idx = password.len();
-    let size = separator_idx + domain.len();
-    let mut input: Vec<u8> = vec![0u8; size];
-
-    let password_part = &mut input[0..separator_idx];
-    password_part.copy_from_slice(password);
-
-    let domain_part = &mut input[separator_idx..];
-    domain_part.copy_from_slice(domain);
-
-    let params: Params = Params::new(
-        SCRYPT_LOG_N,
-        SCRYPT_R,
-        SCRYPT_P,
-        target_lenght)
-        .map_err(|err| ErrMe())?;
-
-    let mut output = vec![0u8; target_lenght];
-    scrypt(&input, salt, &params, &mut output).map_err(|err| ErrMe())?;
-
-    Ok(())
+  pub domain: &'a [u8],
+  pub password: &'a [u8],
+  pub profile_salt: &'a [u8],
+  pub charset: &'a Charset,
+  pub target_len: usize,
 }
 
-
+pub fn generate_password(options: &Configuration) -> Result<(), KeywitchError>
+{
+  Ok(())
+}

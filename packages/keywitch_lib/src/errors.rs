@@ -1,21 +1,22 @@
 use core::result::Result;
+use std::error::Error;
 
 #[derive(Debug)]
 pub enum KeywitchError
 {
-    EmptyInput,
-    InvalidPasswordLength,
-    InvalidInput,
+  EmptyInput,
+  InvalidPasswordLength,
+  InvalidInput,
 }
 
-pub trait CustomErrorExt
+pub trait CustomErrorExt<T>
 {
-    fn map_keywitch_err<T>(&self) -> Result<T, KeywitchError>;
+  fn map_keywitch_err(&self) -> Result<T, KeywitchError>;
 }
 
-impl<T, E> CustomErrorExt for Result<T, E>
+impl<T, E> CustomErrorExt<T> for Result<T, E> where E: Error
 {
-    fn map_keywitch_err<T>(&self) -> Result<T, KeywitchError> {
-        todo!()
-    }
+  fn map_keywitch_err(&self) -> Result<T, KeywitchError> {
+    todo!()
+  }
 }

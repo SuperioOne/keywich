@@ -1,23 +1,15 @@
-pub struct Charset<'a>
+pub struct Charset
 {
-    charset: &'a [u8],
+  charset: String,
+  
 }
 
-impl<'a> Charset<'_>
+// [a-zA-Z0-9!"34]
+
+impl Charset
 {
-    fn new() -> Charset<'a>
-    {
-        let test = &[0u8; 16];
-
-        Charset {
-            charset: test
-        }
-    }
-
-    fn normalize(&self, content: &[u8]) -> String
-    {
-        self.charset;
-
-        "".into()
-    }
+  pub fn transform(&self, content: &str)
+  {
+        
+  }
 }
