@@ -1,22 +1,34 @@
 use crate::Configuration;
+use crate::errors::KeywitchError;
 
-mod scrypt_transformer;
+mod scrypt;
 
-use scrypt_transformer::{transform};
+use self::scrypt::{hash_scrypt};
 
 pub enum PasswordAlgo
 {
-  ScryptFunc
+  ScryptV1
 }
 
-pub trait PasswordFunc
+impl PasswordAlgo
 {
-  fn generate_hash(options: &Configuration);
-}
+  pub fn generate_hash(&self, options: &Configuration) -> Result<Vec<u8>, KeywitchError> {
+    match self {
+      PasswordAlgo::ScryptV1 => hash_scrypt(options),
+    }
+  }
 
-impl PasswordFunc for PasswordAlgo
-{
-  fn generate_hash(options: &Configuration) {
-    transform(options)
+  pub fn name(&self) -> String
+  {
+    match self {
+      PasswordAlgo::ScryptV1 => "scrypt".into(),
+    }
+  }
+
+  pub fn version(&self) -> String
+  {
+    match self {
+      PasswordAlgo::ScryptV1 => "v1".into(),
+    }
   }
 }

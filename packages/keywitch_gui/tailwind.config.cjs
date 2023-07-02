@@ -1,4 +1,4 @@
-const defaultTheme = require('tailwindcss/defaultTheme')
+const defaultTheme = require('tailwindcss/defaultTheme');
 
 /** @type {import('tailwindcss').Config} */
 module.exports = {
@@ -12,15 +12,10 @@ module.exports = {
             '../**/*.{html,js,svelte,ts}'
         )
     ],
-    theme: {
-        screens: {
-            'xs': { max:'450px'},
-            ...defaultTheme.screens,
-          },
-    },
+    theme: defaultTheme,
     plugins: [
         require('@tailwindcss/forms'),
         // 3. Append the Skeleton plugin to the end of this list
         ...require('@skeletonlabs/skeleton/tailwind/skeleton.cjs')()
     ]
-}
+};

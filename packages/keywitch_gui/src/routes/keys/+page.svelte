@@ -30,18 +30,18 @@
     />
   </div>
 
-  <div class="flex flex-row xs:justify-center justify-end gap-1">
-    <button type="button" class="btn variant-filled-primary xs:w-full"
+  <div class="flex flex-row justify-center sm:justify-end gap-1">
+    <button type="button" class="btn variant-filled-primary w-full sm:w-auto"
       ><PlusCircleIcon />
       <span class="font-bold"> New </span>
     </button>
   </div>
 
-  <div class="card p-4 xs:p-1">
+  <div class="card p-1 sm:p-4">
     <dl>
       {#each tableArr as row, i (i)}
         <div class="grid grid-cols-4 gap-3 w-full p-3">
-          <div class="col-span-3 flex flex-row gap-8 xs:gap-2 items-center">
+          <div class="col-span-3 flex flex-row sm:gap-8 gap-3 items-center">
             <div
               class="text-primary-500 bg-surface-200-700-token p-3 btn-sm btn h-fit"
             >
@@ -79,7 +79,7 @@
             </div>
           </div>
           <div
-            class="flex xs:flex-col flex-wrap gap-1 justify-end items-center"
+            class="flex flex-col md:flex-row flex-wrap gap-1 sm:gap-2 justify-end items-center"
           >
             <button
               type="button"

@@ -1,4 +1,4 @@
-<div class="card p-4 xs:p-1">
+<div class="card sm:p-4 p-1">
   <dl class="list-dl">
     <div>
       <span class="badge bg-primary-500">💀</span>

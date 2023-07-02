@@ -1,5 +1,7 @@
 <script lang="ts">
   import "../app.css";
+  import "../themes/blue_theme.css";
+  import "../themes/dt_theme.css";
   import "@skeletonlabs/skeleton/styles/all.css";
   import "../app.postcss";
   import MenuItems from "./menu.config";
@@ -11,7 +13,7 @@
     offset,
     arrow,
   } from "@floating-ui/dom";
-  import { AppShell, storePopup, AppBar } from "@skeletonlabs/skeleton";
+  import { AppShell, storePopup } from "@skeletonlabs/skeleton";
   import { CenteredLayout } from "$lib/components";
 
   let activePage: number = 0;
@@ -27,8 +29,8 @@
           <a
             href={item.target}
             class:bg-initial={true}
-            class="btn bg-initial bg-primary-hover-token rounded-none w-36 xs:w-fit"
-            class:bg-primary-active-token={activePage === index}
+            class="btn bg-surface-active-token bg-primary-hover-token rounded-none sm:w-36 w-fit"
+            class:bg-surface-active-token={activePage === index}
             data-sveltekit-preload-data="hover"
             on:click={() => (activePage = index)}
           >
@@ -36,7 +38,7 @@
               <div class="flex justify-center">
                 <svelte:component this={item.icon} />
               </div>
-              <div class="xs:hidden flex justify-center">
+              <div class="hidden sm:flex justify-center">
                 <span class="font-bold">
                   {item.label}
                 </span>
