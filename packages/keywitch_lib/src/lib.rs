@@ -19,9 +19,9 @@ pub struct Configuration<'a>
 
 pub struct PasswordResult
 {
-  pass: String,
-  alg: String,
-  ver: String,
+  pub pass: String,
+  pub alg: String,
+  pub ver: String,
 }
 
 impl Display for PasswordResult
@@ -39,7 +39,7 @@ pub fn generate_password(options: &Configuration) -> Result<PasswordResult, Keyw
 {
   let hash = PasswordAlgo::ScryptV1.generate_hash(options)?;
   let pass = options.charset.transform_bytes(&hash);
-  
+
   Ok(
     PasswordResult {
       ver: PasswordAlgo::ScryptV1.version(),
