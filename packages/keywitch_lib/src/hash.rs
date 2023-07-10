@@ -7,6 +7,7 @@ use self::scrypt::{hash_scrypt};
 
 pub enum PasswordAlgo
 {
+  // For future implementations
   ScryptV1
 }
 

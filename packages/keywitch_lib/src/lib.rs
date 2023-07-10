@@ -35,10 +35,12 @@ impl Display for PasswordResult
   }
 }
 
-pub fn generate_password(options: &Configuration) -> Result<PasswordResult, KeywitchError>
+pub fn generate_password(config: &Configuration) -> Result<PasswordResult, KeywitchError>
 {
-  let hash = PasswordAlgo::ScryptV1.generate_hash(options)?;
-  let pass = options.charset.transform_bytes(&hash);
+  // TODO: validate configuration
+
+  let hash = PasswordAlgo::ScryptV1.generate_hash(config)?;
+  let pass = config.charset.transform_bytes(&hash);
 
   Ok(
     PasswordResult {
