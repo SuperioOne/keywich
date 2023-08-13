@@ -7,4 +7,7 @@ pub enum KeywitchError
   InvalidPasswordLength,
   InvalidInput,
   InvalidHashOutput,
+  ParserInvalidRange,
+  EmptyCharset,
 }
+

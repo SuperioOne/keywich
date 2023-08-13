@@ -46,7 +46,7 @@ pub fn generate_password(config: &Configuration) -> Result<PasswordResult, Keywi
     PasswordResult {
       ver: PasswordAlgo::ScryptV1.version(),
       alg: PasswordAlgo::ScryptV1.name(),
-      pass: pass,
+      pass,
     }
   )
 }
