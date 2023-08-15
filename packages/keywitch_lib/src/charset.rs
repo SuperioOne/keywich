@@ -1,3 +1,6 @@
+use crate::charset::parser::parse;
+use crate::errors::KeywitchError;
+
 pub mod parser;
 
 pub struct Charset
@@ -7,12 +10,18 @@ pub struct Charset
 
 impl Charset
 {
-  pub(crate) fn transform_str(&self, content: &str) -> String
+  pub fn new(dictionary_text: &str) -> Result<Charset, KeywitchError>
+  {
+    let characters = parse(dictionary_text)?;
+    Ok(Charset { charset: characters })
+  }
+
+  pub fn transform_str(&self, content: &str) -> String
   {
     self.transform_bytes(content.as_bytes())
   }
 
-  pub(crate) fn transform_bytes(&self, content: &[u8]) -> String
+  pub fn transform_bytes(&self, content: &[u8]) -> String
   {
     let lookup_table: Vec<char> = self.charset.chars().collect();
     let modulus = lookup_table.len();
