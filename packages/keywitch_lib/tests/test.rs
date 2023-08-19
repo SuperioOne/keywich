@@ -1,31 +1,36 @@
 #[cfg(test)]
 mod tests {
+  use keywitch_lib::{generate_password, charset, Configuration};
   use scrypt::Params;
   use scrypt::{scrypt};
   use base64::{Engine as _, engine::{self, general_purpose}, alphabet};
 
-  // #[test]
-  // fn it_works() {
-  //     let pass = b"1234";
-  //     let salt = b"salt";
-  //     let dmn = b"dmn";
-  //     calculate_password(dmn ,pass, salt, 32_usize);
-  // }
-
   #[test]
-  fn benchmark()
-  {
-    let pass = b"12345678901112aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaasdddssssssssssssssssssssssssssssssssssaa";
-    let salt = b"salt";
-    let params: Params = Params::new(10, 8, 1, 64).unwrap();
-    let mut output: Vec<u8> = vec![0u8; 64];
+  fn it_works() {
+    // let dictionary = "a-zA-Z@:/\\£5^&0-9\\-";
 
-    scrypt(pass, salt, &params, output.as_mut_slice()).unwrap();
+    let parsed = charset::parser::parse("a..zA..Z0..9-_@,.@&*+!\"'");
+    println!("{:?}", parsed);
 
-    let mut buf = String::new();
-    general_purpose::STANDARD.encode_string(&output, &mut buf);
-    println!("{}", buf);
+    let charset = charset::Charset {
+      charset: parsed.unwrap()
+    };
 
-    println!("{:?}", buf);
+    let p_pass = String::from("SuperSecretPassword");
+    let p_domain = String::from("x");
+    let p_salt = String::from("SuperiorOne");
+
+    let config = Configuration {
+      charset: &charset,
+      password: p_pass.as_bytes(),
+      domain: p_domain.as_bytes(),
+      profile_salt: p_salt.as_bytes(),
+      target_len: 5,
+    };
+
+    let pass = generate_password(&config).unwrap();
+
+    println!("ver: {}, alg: {}, pass: {}", pass.ver, pass.alg, pass.pass);
+    println!("{}", pass);
   }
 }

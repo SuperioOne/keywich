@@ -9,3 +9,5 @@ edition = "2021"
 base64 = "0.21.2"
 log = "0.4.19"
 scrypt = { version = "0.11.0", default-features = false }
+serde = "1.0.183"
+serde_json = "1.0.105"

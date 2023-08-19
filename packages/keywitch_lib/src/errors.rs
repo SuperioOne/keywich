@@ -3,11 +3,20 @@ use std::fmt::Debug;
 #[derive(Debug)]
 pub enum KeywitchError
 {
-  EmptyInput,
-  InvalidPasswordLength,
-  InvalidInput,
   InvalidHashOutput,
   ParserInvalidRange,
-  EmptyCharset,
+  InvalidInput,
+  InvalidConfiguration(Vec<ValidationError>),
 }
+
+#[derive(Debug)]
+pub enum ValidationError
+{
+  EmptyCharset,
+  EmptySalt,
+  EmptyPassword,
+  EmptyDomain,
+  InvalidTargetLength,
+}
+
 
