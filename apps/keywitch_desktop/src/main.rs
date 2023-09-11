@@ -3,11 +3,13 @@ all(not(debug_assertions), target_os = "windows"),
 windows_subsystem = "windows"
 )]
 
+use std::env::args;
 use clap::{Parser, Subcommand, ValueEnum};
 use std::ffi::OsString;
+use std::fmt::Debug;
 use keywitch_lib::{generate_password, Configuration, PasswordResult, OutputType};
 use keywitch_lib::errors::KeywitchError;
-
+use keywitch_lib::profile::models::{CharsetItem, PassMetadataItem};
 
 /// A fictional versioning CLI
 #[derive(Debug, Parser)] // requires `derive` feature
@@ -68,6 +70,39 @@ impl Into<OutputType> for PasswordOutputType
 }
 
 fn main() {
+  if args().len() == 1
+  {
+    start_gui()
+  } else {
+    start_cli()
+  }
+}
+
+#[tauri::command(rename_all = "snake_case")]
+fn get_passwords() -> Result<Vec<PassMetadataItem>, String> {
+  keywitch_lib::profile::get_pass_metadata_collection().map_err(|e| format!("{:?}", e))
+}
+
+#[tauri::command(rename_all = "snake_case")]
+fn get_pinned() -> Result<Vec<PassMetadataItem>, String> {
+  keywitch_lib::profile::get_pinned_pass_collection().map_err(|e| format!("{:?}", e))
+}
+
+#[tauri::command(rename_all = "snake_case")]
+fn get_charsets() -> Result<Vec<CharsetItem>, String> {
+  keywitch_lib::profile::get_charset_collection().map_err(|e| format!("{:?}", e))
+}
+
+fn start_gui()
+{
+  tauri::Builder::default()
+    .invoke_handler(tauri::generate_handler![get_charsets, get_pinned, get_passwords])
+    .run(tauri::generate_context!())
+    .expect("error while running tauri application");
+}
+
+fn start_cli()
+{
   let args = KeywitchCli::parse();
   match args.command
   {
@@ -96,9 +131,7 @@ fn main() {
       }
     }
     KeywitchCommand::GUI => {
-      tauri::Builder::default()
-        .run(tauri::generate_context!())
-        .expect("error while running tauri application");
+      start_gui()
     }
   };
 }

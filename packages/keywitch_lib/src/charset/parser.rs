@@ -1,4 +1,4 @@
-use std::collections::{BTreeSet, HashSet};
+use std::collections::{BTreeSet};
 use crate::errors::KeywitchError;
 
 // "A..Za..z0..9-=#./,£$%~[](){} "

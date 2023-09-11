@@ -20,11 +20,6 @@ const menuConfig: MenuItem[] = [
     icon: KeyIcon,
   },
   {
-    label: "Profiles",
-    target: "/profiles",
-    icon: UserIcon,
-  },
-  {
     label: "Settings",
     target: "/settings",
     icon: SettingsIcon,

@@ -1,14 +1,15 @@
 pub mod charset;
 pub mod errors;
 mod hash;
+pub mod profile;
 
-use std::fmt;
+use base64::{Engine as _, engine::general_purpose};
+use serde::{Serialize};
 use std::fmt::{Display, Formatter};
+use std::fmt;
 use crate::charset::Charset;
 use crate::errors::{KeywitchError, ValidationError};
 use crate::hash::{PasswordAlgo};
-use base64::{Engine as _, engine::general_purpose};
-use serde::{Serialize};
 
 pub struct Configuration<'a>
 {
