@@ -4,8 +4,8 @@
     AccordionItem,
     SlideToggle,
   } from "@skeletonlabs/skeleton";
-  import { UserIcon, ToolIcon, TypeIcon } from "$lib/icons";
-  import { lightSwitchController } from "$lib/settings/lightswitch";
+  import {UserIcon, ToolIcon, TypeIcon} from "$lib/icons";
+  import {lightSwitchController} from "$lib/settings/lightswitch";
 
   let value: number = 0;
 </script>
@@ -13,7 +13,7 @@
 <Accordion autocollapse>
   <AccordionItem open>
     <svelte:fragment slot="lead">
-      <ToolIcon />
+      <ToolIcon/>
     </svelte:fragment>
     <svelte:fragment slot="summary">General</svelte:fragment>
     <svelte:fragment slot="content">
@@ -47,10 +47,10 @@
       </div>
     </svelte:fragment>
   </AccordionItem>
-  <hr />
+  <hr/>
   <AccordionItem>
     <svelte:fragment slot="lead">
-      <UserIcon />
+      <UserIcon/>
     </svelte:fragment>
     <svelte:fragment slot="summary">Data</svelte:fragment>
     <svelte:fragment slot="content">
@@ -61,10 +61,10 @@
       </div>
     </svelte:fragment>
   </AccordionItem>
-  <hr />
+  <hr/>
   <AccordionItem>
     <svelte:fragment slot="lead">
-      <TypeIcon />
+      <TypeIcon/>
     </svelte:fragment>
     <svelte:fragment slot="summary">Import/Exports</svelte:fragment>
     <svelte:fragment slot="content">
@@ -75,10 +75,10 @@
       </div>
     </svelte:fragment>
   </AccordionItem>
-  <hr />
+  <hr/>
   <AccordionItem>
     <svelte:fragment slot="lead">
-      <TypeIcon />
+      <TypeIcon/>
     </svelte:fragment>
     <svelte:fragment slot="summary">Shortcuts</svelte:fragment>
     <svelte:fragment slot="content">

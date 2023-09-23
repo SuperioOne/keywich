@@ -10,13 +10,16 @@
     offset,
     arrow,
   } from "@floating-ui/dom";
-  import {AppShell, storePopup} from "@skeletonlabs/skeleton";
+  import {AppShell, storePopup, initializeStores, Modal, Toast} from "@skeletonlabs/skeleton";
   import {CenteredLayout} from "$lib";
 
+  initializeStores();
   let activePage: number = 0;
   storePopup.set({computePosition, autoUpdate, flip, shift, offset, arrow});
 </script>
 
+<Modal/>
+<Toast/>
 <AppShell class="h-full">
   <svelte:fragment slot="header">
     <div class="grid grid-flow-col grid-cols-8 bg-surface-200-700-token">
@@ -51,3 +54,4 @@
     <slot/>
   </CenteredLayout>
 </AppShell>
+

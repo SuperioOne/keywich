@@ -26,6 +26,7 @@ export default {
     tailwindFormPlugin,
     skeleton({
       themes: {
+        // preset: ["skeleton"]
         custom: [keywitch_theme]
       }
     })

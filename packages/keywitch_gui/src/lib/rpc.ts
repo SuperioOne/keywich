@@ -1,7 +1,9 @@
+import {TestRpc} from "$lib/rpc/test_rpc";
+
 export * from "./rpc/rpc";
 
 import {env} from "$env/dynamic/public";
-import {TauriRpc} from "./rpc/tauri-rpc";
+import {TauriRpc} from "./rpc/tauri_rpc";
 import type {KeyManagerRpc} from "./rpc/rpc";
 
 export function get_rpc(): KeyManagerRpc {
@@ -13,5 +15,5 @@ export function get_rpc(): KeyManagerRpc {
 }
 
 export class RPC {
-  public static instance = get_rpc();
+  public static instance = new TestRpc();
 }

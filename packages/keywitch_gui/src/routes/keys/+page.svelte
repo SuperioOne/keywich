@@ -6,50 +6,132 @@
     PlusCircleIcon,
     StarIcon,
     EditIcon,
+    TypeIcon,
+    TerminalIcon,
+    CodeIcon,
+    QrIcon
   } from "$lib/icons";
-  import {InputChip} from "@skeletonlabs/skeleton";
+  import type {ModalActionResult} from "./types";
   import type {PageData} from "./$types";
+  import {ModalAction} from "./types";
+  import {RPC} from "$lib";
+  import type {KeyMetadataItem} from "$lib";
+  import {default as KeyForm} from "./create_key_form.svelte"
+  import {getModalStore, getToastStore, popup} from "@skeletonlabs/skeleton";
+  import {invalidateAll} from "$app/navigation";
 
   export let data: PageData;
-  let searchValue: any[];
-  let focused: number = -1;
+  const modalStore = getModalStore();
+  const toastStore = getToastStore();
 
-  async function shortcut_handler(event: KeyboardEvent) {
-    if (event.code === "KeyJ" && focused < data.passwords.length - 1) {
-      focused += 1;
-    } else if (event.code === "KeyK" && focused > 0) {
-      focused -= 1;
+  async function new_key() {
+    const response = await new Promise<ModalActionResult>((resolve) => {
+      modalStore.trigger({
+        component: {
+          ref: KeyForm,
+        },
+        title: "Create New Key",
+        backdropClasses: "backdrop-blur-sm",
+        type: "component",
+        response: (r: ModalActionResult) => resolve(r)
+      });
+    });
+
+    if (response.type === ModalAction.submit) {
+      await RPC.instance.add_key({
+        charset: response.data.get("charset"),
+        domain: response.data.get("domain"),
+        custom_icon: response.data.get("custom_icon"),
+        notes: response.data.get("notes"),
+        revision: response.data.get("revision") ?? 0,
+        tags: response.data.getAll("tags"),
+        target_size: response.data.get("target_size"),
+        user_name: response.data.get("username")
+      });
+
+      await invalidateAll();
+
+      toastStore.trigger({
+        message: "New key created successfully.",
+        background: "variant-filled-success",
+        timeout: 3000
+      });
+    }
+  }
+
+  function quick_copy(id: number, event) {
+    console.debug(event);
+  }
+
+  async function advanced_copy(id: KeyMetadataItem, event) {
+    console.debug(event);
+  }
+
+  async function delete_key(id: number) {
+    const confirmation = await new Promise((resolve) => {
+      modalStore.trigger({
+        type: "confirm",
+        title: "Confirm Action",
+        body: `Are you sure to delete key?`,
+        buttonTextConfirm: "Delete",
+        response: (r: boolean) => resolve(r),
+      });
+    });
+
+    if (confirmation) {
+      const success = await RPC.instance.remove_key(id);
+      if (success) {
+        await invalidateAll();
+        toastStore.trigger({
+          message: "Key removed from store",
+          background: "variant-filled-warning",
+          timeout: 3000
+        });
+      }
     }
   }
 </script>
 
-<svelte:window on:keydown={shortcut_handler}></svelte:window>
+<div class="card p-5 shadow-xl" data-popup="copyPopupMenu">
+  <div class="grid grid-cols-2 gap-3">
+    <button type="button"
+            class="btn p-1 w-16 h-16 variant-ghost-tertiary flex flex-col gap-1 justify-center align-middle">
+      <TypeIcon/>
+      <span class="font-mono text-xs text-center w-full !m-0">TEXT</span>
+    </button>
+    <button type="button"
+            class="btn p-1 w-16 h-16 variant-ghost-tertiary flex flex-col gap-1 justify-center align-middle">
+      <QrIcon/>
+      <span class="font-mono text-xs text-center w-full !m-0">QR</span>
+    </button>
+    <button type="button"
+            class="btn p-1 w-16 h-16 variant-ghost-tertiary flex flex-col gap-1 justify-center align-middle">
+      <CodeIcon/>
+      <span class="font-mono text-xs text-center w-full !m-0">JSON</span>
+    </button>
+    <button type="button"
+            class="btn p-1 w-16 h-16 variant-ghost-tertiary flex flex-col gap-1 justify-center align-middle">
+      <TerminalIcon/>
+      <span class="font-mono text-xs text-center w-full !m-0">BASE64</span>
+    </button>
 
-{focused}
-<div class="flex gap-6 flex-col">
-  <div>
-    <InputChip
-      bind:value={searchValue}
-      name="filter"
-      chips="chip font-bold text-xs variant-soft-secondary"
-      placeholder="filter..."
-    />
   </div>
+  <div class="arrow bg-surface-100-800-token border-1 border-amber-50"/>
+</div>
 
-  <div class="flex flex-row justify-center sm:justify-end gap-1">
-    <button type="button" class="btn variant-filled-primary w-full sm:w-auto"
+<div class="flex gap-6 flex-col">
+  <div class="flex flex-row gap-1">
+    <button on:click={new_key} type="button" class="btn variant-filled w-full sm:w-auto"
     >
       <PlusCircleIcon/>
-      <span class="font-bold"> New </span>
+      <span class="font-bold"> Create </span>
     </button>
   </div>
 
-  <dl on:mouseleave={()=> {focused= -1}} class="flex flex-col gap-1">
-    {#each data.passwords as row,index (row.id)}
+  <dl class="flex flex-col gap-1">
+    {#each data.keys as row,index (row.id)}
       <div
         role="none"
-        on:mouseenter={()=> {focused= row.id}}
-        class:bg-surface-400-500-token={focused === index}
         class="card grid grid-cols-4 gap-3 w-full p-4">
         <div class="col-span-3 flex flex-row sm:gap-8 gap-3 items-center">
           <div
@@ -93,6 +175,14 @@
         >
           <button
             type="button"
+            on:contextmenu|preventDefault={(ev) => advanced_copy(row, ev)}
+            use:popup={{
+              event: 'click',
+              target: 'copyPopupMenu',
+              placement: 'bottom',
+            }}
+            on:auxclick={quick_copy}
+            on:click={quick_copy}
             class="btn btn-sm variant-soft-primary btn-icon-base h-fit"
           >
             <ClipboardIcon/>
@@ -112,6 +202,7 @@
             <EditIcon/>
           </button>
           <button
+            on:click={async () => delete_key(row.id)}
             type="button"
             class="btn btn-sm variant-soft-error btn-icon-base h-fit"
           >
