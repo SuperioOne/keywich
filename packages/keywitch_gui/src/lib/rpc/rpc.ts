@@ -5,14 +5,18 @@ export interface KeyManagerRpc {
 
   get_key_collection(): Promise<KeyMetadataItem[]>;
 
-  calculate_password(): Promise<string>;
+  calculate_password(id: number, outputType?: PasswordOutputType): Promise<string>;
 
-  add_key(request: NewKeyRequest): Promise<KeyMetadataItem>
+  add_key(options: KeyOptions): Promise<KeyMetadataItem>;
 
   remove_key(id: number): Promise<boolean>;
+
+  save_file(fileData: Uint8Array, path?: string): Promise<void>;
 }
 
-export interface NewKeyRequest {
+export type  PasswordOutputType = "json" | "base64" | "text" | "qr";
+
+export interface KeyOptions {
   target_size: number;
   revision: number;
   charset: string;
@@ -20,7 +24,7 @@ export interface NewKeyRequest {
   user_name: string;
   notes?: string;
   tags?: string[];
-  custom_icon?: File
+  custom_icon?: File;
 }
 
 export interface KeyMetadataItem {
@@ -33,10 +37,12 @@ export interface KeyMetadataItem {
   notes?: string;
   pinned: boolean;
   createdAt: number;
+  tags: string[];
 }
 
 export interface CharsetItem {
   id: number;
   charset: string;
+  name: string;
   description?: string;
 }

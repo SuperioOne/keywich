@@ -7,6 +7,8 @@ use base64::{Engine as _, engine::general_purpose};
 use serde::{Serialize};
 use std::fmt::{Display, Formatter};
 use std::fmt;
+use qrcode::{EcLevel, QrCode, Version};
+use qrcode::render::svg;
 use crate::charset::Charset;
 use crate::errors::{KeywitchError, ValidationError};
 use crate::hash::{PasswordAlgo};
@@ -34,6 +36,7 @@ pub enum OutputType
   Text,
   Base64,
   Json,
+  QR,
 }
 
 impl PasswordResult
@@ -44,6 +47,14 @@ impl PasswordResult
       OutputType::Text => self.pass.clone(),
       OutputType::Json => serde_json::to_string(self).unwrap_or(String::from("Invalid JSON")),
       OutputType::Base64 => general_purpose::STANDARD_NO_PAD.encode(&self.pass),
+      OutputType::QR => {
+        let qr = QrCode::with_version(self.pass.as_bytes(), Version::Normal(3), EcLevel::Q).unwrap();
+        qr.render()
+          .min_dimensions(350, 350)
+          .dark_color(svg::Color("#000000"))
+          .light_color(svg::Color("#ffffff"))
+          .build()
+      }
       _ => self.to_string(),
     }
   }

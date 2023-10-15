@@ -14,6 +14,4 @@ export function get_rpc(): KeyManagerRpc {
     return TauriRpc
 }
 
-export class RPC {
-  public static instance = new TestRpc();
-}
+export const RPC = new TestRpc();

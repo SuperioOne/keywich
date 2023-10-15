@@ -11,13 +11,26 @@
     arrow,
   } from "@floating-ui/dom";
   import {AppShell, storePopup, initializeStores, Modal, Toast} from "@skeletonlabs/skeleton";
-  import {CenteredLayout} from "$lib";
+  import {LogPanel} from "$lib";
 
   initializeStores();
   let activePage: number = 0;
+  let displayLogger: boolean = true;
   storePopup.set({computePosition, autoUpdate, flip, shift, offset, arrow});
+
+  function on_log_panel_close() {
+    displayLogger = false;
+  }
+
+  function on_log_panel_flip(event: KeyboardEvent) {
+    console.debug(event)
+    if (event.code === "KeyL" && event.ctrlKey) {
+      displayLogger = !displayLogger;
+    }
+  }
 </script>
 
+<svelte:window on:keyup={on_log_panel_flip}/>
 <Modal/>
 <Toast/>
 <AppShell class="h-full">
@@ -50,8 +63,15 @@
       <div/>
     </div>
   </svelte:fragment>
-  <CenteredLayout>
-    <slot/>
-  </CenteredLayout>
+  <div class="flex justify-center w-full">
+    <div class="py-10 px-3 w-full max-w-screen-lg">
+      <slot/>
+    </div>
+  </div>
+  <svelte:fragment slot="footer">
+    {#if displayLogger}
+      <LogPanel on:close={on_log_panel_close}/>
+    {/if}
+  </svelte:fragment>
 </AppShell>
 

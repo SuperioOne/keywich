@@ -1,1 +1,1 @@
-export {default as CenteredLayout} from "./components/centered-layout.svelte";
+export {default as LogPanel} from "./components/log_panel.svelte";

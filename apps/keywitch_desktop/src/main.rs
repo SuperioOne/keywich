@@ -5,9 +5,9 @@ windows_subsystem = "windows"
 
 use std::env::args;
 use clap::{Parser, Subcommand, ValueEnum};
-use std::ffi::OsString;
 use std::fmt::Debug;
 use keywitch_lib::{generate_password, Configuration, PasswordResult, OutputType};
+use keywitch_lib::charset::Charset;
 use keywitch_lib::errors::KeywitchError;
 use keywitch_lib::profile::models::{CharsetItem, PassMetadataItem};
 
@@ -27,19 +27,19 @@ enum KeywitchCommand
   Generate {
     /// Password domain
     #[arg(short, long)]
-    domain: OsString,
+    domain: String,
     /// Password character set
     #[arg(short, long)]
-    charset: OsString,
+    charset: String,
     /// Password salt value
     #[arg(short, long)]
-    salt: OsString,
+    salt: String,
     /// Password salt value
     #[arg(short, long)]
     target_length: usize,
     /// Password
     #[arg(short, long)]
-    password: OsString,
+    password: String,
     /// Password
     #[arg(short, long, default_value_t = PasswordOutputType::Text, default_missing_value = "text", value_enum)]
     output_type: PasswordOutputType,
@@ -137,18 +137,18 @@ fn start_cli()
 }
 
 fn command_generate(
-  domain: &OsString,
-  password: &OsString,
-  salt: &OsString,
-  charset: &OsString,
+  domain: &str,
+  password: &str,
+  salt: &str,
+  charset: &str,
   target_length: usize,
 ) -> Result<PasswordResult, KeywitchError>
 {
   let configuration = Configuration::new(
-    domain.to_str().unwrap(),
-    password.to_str().unwrap(),
-    salt.to_str().unwrap(),
-    charset.to_str().unwrap(),
+    domain,
+    password,
+    salt,
+    charset,
     target_length,
   )?;
 
