@@ -82,33 +82,27 @@ impl<'a> Configuration<'a>
   {
     let mut errors: Vec<ValidationError> = vec!();
 
-    if target_len < 1 || target_len > 64
-    {
+    if target_len < 1 || target_len > 64 {
       errors.push(ValidationError::InvalidTargetLength);
     }
 
-    if domain.trim().is_empty()
-    {
+    if domain.trim().is_empty() {
       errors.push(ValidationError::EmptyDomain);
     }
 
-    if pass.trim().is_empty()
-    {
+    if pass.trim().is_empty() {
       errors.push(ValidationError::EmptyPassword);
     }
 
-    if salt.trim().is_empty()
-    {
+    if salt.trim().is_empty() {
       errors.push(ValidationError::EmptySalt);
     }
 
-    if charset_text.is_empty()
-    {
+    if charset_text.is_empty() {
       errors.push(ValidationError::EmptyCharset);
     }
 
-    if errors.is_empty() == false
-    {
+    if errors.is_empty() == false {
       return Err(KeywitchError::InvalidConfiguration(errors));
     }
 

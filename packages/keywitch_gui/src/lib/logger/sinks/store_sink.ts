@@ -4,7 +4,7 @@ import {writable, readonly} from "svelte/store";
 export type LogItem = {
   message: string | Error,
   level: LogLevelType,
-  timestamp: string
+  timestamp: number
 };
 
 const {subscribe, set, update} = writable<LogItem[]>([]);
@@ -18,11 +18,10 @@ export const ApplicationSink = (maxLevel: LogLevelType, maxHistory = 1000): Logg
     onLogEvent: (message, level) => {
       if (level <= maxLevel) {
         update((currentBuffer) => {
-          const now = new Date();
           currentBuffer.push({
             message,
             level,
-            timestamp: `${now.toLocaleDateString()} ${now.toLocaleTimeString()}`
+            timestamp: Date.now()
           });
 
           if (currentBuffer.length > maxHistory) {

@@ -84,12 +84,12 @@
 />
 <div
   bind:this={topBarElement}
-  class="py-1 px-3 grid grid-cols-2 w-full"
+  class="py-1 px-3 grid grid-cols-2 w-full bg-surface-200-700-token"
 >
   <div>
-    <span class="font-bold">
+    <h5 class="h5 font-bold">
     {title}
-    </span>
+    </h5>
   </div>
   <div class="w-full flex flex-row justify-end gap-2">
     <button
@@ -102,7 +102,7 @@
     <button
       on:click={on_close}
       type="button"
-      class="btn-icon-sm btn-icon variant-soft text-primary-500-400-token"
+      class="btn-icon-sm btn-icon variant-soft"
     >
       <CloseIcon/>
     </button>
@@ -115,8 +115,9 @@
 >
   <ol class="font-mono text-sm ">
     {#each $ApplicationLogReader as log}
+      {@const date = new Date(log.timestamp)}
       <li>
-        <span class="mr-1">{log.timestamp}:</span>
+        <span class="mr-0.5">{ `${date.toLocaleDateString()} ${date.toLocaleTimeString()}:`}</span>
         <span
           class:text-error-300-600-token={log.level ===  LogLevel.ERROR}
           class:text-warning-300-600-token={log.level === LogLevel.WARN}

@@ -52,11 +52,15 @@ export class TestRpc implements KeyManagerRpc {
   }
 
   get_charsets(): Promise<CharsetItem[]> {
-    return Promise.resolve([
-      {id: 1, charset: "a..zA..Z0..9", description: "Contains case insensitive alpha numeric characters", name: "alpha numeric"},
-      {id: 1, charset: "a..zA..Z", description: "Contains case insensitive alpha characters", name: "alpha"},
-      {id: 1, charset: "0..9", description: "number only characters", name: "numeric"}
-    ]);
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        resolve([
+          {id: 1, charset: "a..zA..Z0..9", description: "Contains case insensitive alpha numeric characters", name: "alpha numeric"},
+          {id: 1, charset: "a..zA..Z", description: "Contains case insensitive alpha characters", name: "alpha"},
+          {id: 1, charset: "0..9", description: "number only characters", name: "numeric"}
+        ]);
+      }, 200)
+    });
   }
 
   get_key_collection(): Promise<KeyMetadataItem[]> {

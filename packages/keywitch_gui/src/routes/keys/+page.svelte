@@ -6,24 +6,20 @@
     PlusCircleIcon,
     StarIcon,
     EditIcon,
-    TypeIcon,
-    TerminalIcon,
-    CodeIcon,
-    QrIcon,
   } from "$lib/icons";
   import type {ModalActionResult} from "./types";
   import type {PageData} from "./$types";
   import {ModalAction} from "./types";
-  import {RPC} from "$lib";
+  import {getExtendedToastStore, Log, RPC} from "$lib";
   import type {KeyMetadataItem} from "$lib";
   import {default as KeyForm} from "./create_key_form.svelte";
   import {default as AdvancedCopy} from "./advanced_copy.svelte";
-  import {getModalStore, getToastStore, popup} from "@skeletonlabs/skeleton";
+  import {getModalStore} from "@skeletonlabs/skeleton";
   import {invalidateAll} from "$app/navigation";
 
   export let data: PageData;
   const modalStore = getModalStore();
-  const toastStore = getToastStore();
+  const toastStore = getExtendedToastStore();
 
   async function new_key() {
     const response = await new Promise<ModalActionResult>((resolve) => {
@@ -38,43 +34,30 @@
       });
     });
 
-    if (response.type === ModalAction.submit) {
-      await RPC.add_key(response.data);
+    if (response.type === ModalAction.submitted) {
       await invalidateAll();
-
-      toastStore.trigger({
-        message: "New key created successfully.",
-        background: "variant-filled-success",
-        timeout: 3000,
-      });
+      toastStore.trigger_success("New key created successfully.");
     }
   }
 
-  async function quick_copy(id: number, event: Event) {
+  async function quick_copy(keyDetails: KeyMetadataItem) {
     try {
-      const key = await RPC.calculate_password(id, "text");
+      const key = await RPC.calculate_password(keyDetails.id, "text");
       await navigator.clipboard.writeText(key);
-      toastStore.trigger({
-        message: "Key copied",
-        background: "variant-filled-success",
-        timeout: 1500,
-      });
+      toastStore.trigger_success("Key copied to clipboard.");
     } catch (err) {
-      toastStore.trigger({
-        message: "Unable to get key",
-        background: "variant-filled-error",
-        timeout: 3000,
-      });
+      Log.error(err as Error);
+      toastStore.trigger_error("Key generation failed. See logs for more details.");
     }
   }
 
-  async function advanced_copy(rowInfo: KeyMetadataItem, event: Event) {
+  async function advanced_copy(keyDetails: KeyMetadataItem) {
     await new Promise<ModalActionResult>((resolve) => {
       modalStore.trigger({
         component: {
           ref: AdvancedCopy,
           props: {
-            keyId: rowInfo.id
+            keyId: keyDetails.id
           }
         },
         title: "Advanced options",
@@ -100,11 +83,7 @@
       const success = await RPC.remove_key(id);
       if (success) {
         await invalidateAll();
-        toastStore.trigger({
-          message: "Key removed from store",
-          background: "variant-filled-warning",
-          timeout: 3000,
-        });
+        toastStore.trigger_warning("Key removed from store.");
       }
     }
   }
@@ -154,9 +133,9 @@
         >
           <button
             type="button"
-            on:contextmenu|preventDefault={(ev) => advanced_copy(row, ev)}
-            on:auxclick|preventDefault={(ev) => quick_copy(row, ev)}
-            on:click|preventDefault={(ev) => quick_copy(row, ev)}
+            on:contextmenu|preventDefault={() => advanced_copy(row)}
+            on:auxclick|preventDefault={() => quick_copy(row)}
+            on:click|preventDefault={() => quick_copy(row)}
             class="btn btn-sm variant-soft-primary btn-icon-base h-fit"
           >
             <ClipboardIcon/>

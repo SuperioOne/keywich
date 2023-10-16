@@ -1,50 +1,54 @@
 <script lang="ts">
-  import type {CharsetItem, KeyOptions} from "$lib";
+  import type {KeyOptions} from "$lib";
   import type {ModalActionResult} from "./types";
-  import type {AutocompleteOption, PopupSettings} from "@skeletonlabs/skeleton";
-  import {CloseIcon, PlusIcon} from "$lib/icons"
-  import {InputChip, Autocomplete, popup, RangeSlider, getModalStore} from "@skeletonlabs/skeleton";
+  import {InputChip, RangeSlider, getModalStore} from "@skeletonlabs/skeleton";
   import {ModalAction} from "./types";
-  import {RPC} from "$lib";
+  import {Log, RPC} from "$lib";
 
   let noteValue: string;
-  let selectedCharset: string;
-  let selectedCharsetInfo: string;
   let sliderValue: number = 32;
-  let charsetInputElement: HTMLDivElement;
+  let formElement: HTMLFormElement;
 
   const modalStore = getModalStore();
   const maximumNoteLength: number = 200;
   const maximumPassLength: number = 64;
-  const popupSettings: PopupSettings = {
-    event: "focus-click",
-    target: "popupAutocomplete",
-    placement: "bottom"
-  };
-
-  function on_charset_select(event: CustomEvent<AutocompleteOption<string, CharsetItem>>): void {
-    selectedCharset = event.detail.label;
-  }
 
   function on_popup_close() {
+    const modalInstance = $modalStore[0];
+    if (!modalInstance) {
+      Log.error(new Error("Close action failed. Modal component is created but unable to access modal itself."));
+      return;
+    }
+
     const modalResult: ModalActionResult = {
       type: ModalAction.closed
     }
-    $modalStore[0].response(modalResult);
-    modalStore.close()
+    modalInstance.response?.(modalResult);
+    modalStore.close();
   }
 
   async function on_submit(event: Event) {
-    const formData = new FormData(event.target);
-
-    const keyData: KeyOptions = {};
-
-    const modalResult: ModalActionResult = {
-      type: ModalAction.submit,
-      data: keyData
+    const modalInstance = $modalStore[0];
+    if (!modalInstance) {
+      Log.error(new Error("Submit failed. Modal component is created but unable to access modal itself."));
+      return;
     }
 
-    $modalStore[0].response(modalResult);
+    if (!formElement) {
+      Log.error(new Error("Key form ref is empty."));
+      return;
+    }
+
+    const formData = new FormData(formElement);
+    Log.debug(JSON.stringify([...formData.values()], undefined, 2));
+    
+    const keyData: KeyOptions = {};
+    const newKey = await RPC.add_key(keyData);
+    const modalResult: ModalActionResult = {
+      type: ModalAction.submitted,
+      data: newKey
+    }
+    modalInstance.response?.(modalResult);
     modalStore.close();
   }
 </script>
@@ -54,7 +58,7 @@
     <h2 class="font-bold h2">
       {$modalStore[0].title}
     </h2>
-    <form id="new_key_form" class="flex gap-5 flex-col" on:submit|preventDefault={on_submit}>
+    <form bind:this={formElement} id="new_key_form" class="flex gap-5 flex-col" on:submit|preventDefault={on_submit}>
 
       <div>
         <label class="label">
@@ -83,39 +87,24 @@
       </div>
 
       <div>
-        <label class="label">
+        <label class="label" for="charset">
           <span class="font-bold">Charset</span>
-          <input
-            bind:this={charsetInputElement}
-            class="input autocomplete"
-            type="search"
+          <select
+            class="select"
             name="charset"
-            placeholder="Select a charset"
             required
-            bind:value={selectedCharset}
-            use:popup={popupSettings}
-          />
+          >
+            {#await RPC.get_charsets()}
+              <option disabled>Loading...</option>
+            {:then charsetCollection}
+              {#each charsetCollection as charsetItem (charsetItem.name)}
+                <option value={charsetItem.charset}>{charsetItem.name}</option>
+              {/each}
+            {:catch err}
+              <div>{err}</div>
+            {/await}
+          </select>
         </label>
-        <div>
-          {selectedCharsetInfo}
-        </div>
-        <div
-          style:width={charsetInputElement?.clientWidth ? `${charsetInputElement.clientWidth}px` : "auto"}
-          class="card variant-filled-surface p-1"
-          data-popup="popupAutocomplete"
-        >
-          {#await RPC.get_charsets()}
-            Loading charsets...
-          {:then options}
-            <Autocomplete
-              bind:input={selectedCharset}
-              options={options.map(e => ({ label: e.name, value: e.name, meta: e }))}
-              on:selection={on_charset_select}
-            />
-          {:catch err}
-            <div>{err}</div>
-          {/await}
-        </div>
       </div>
 
       <div>
@@ -187,12 +176,9 @@
     <div class="flex flex-row justify-between">
       <button
         type="button"
-        class="btn variant-soft-error"
+        class="btn variant-soft"
         on:click|preventDefault={on_popup_close}
       >
-        <span>
-          <CloseIcon/>
-        </span>
         <span>Cancel</span>
       </button>
 
@@ -201,9 +187,6 @@
         form="new_key_form"
         class="btn variant-soft-primary"
       >
-        <span>
-          <PlusIcon/>
-        </span>
         <span>Create</span>
       </button>
     </div>

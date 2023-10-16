@@ -2,9 +2,10 @@
   import {CodeIcon, QrIcon, TerminalIcon, TypeIcon, DownloadIcon} from "$lib/icons";
   import {CodeBlock, getModalStore, ProgressRadial} from "@skeletonlabs/skeleton";
   import type {PasswordOutputType} from "$lib";
-  import {RPC} from "$lib";
+  import {getExtendedToastStore, Log, RPC} from "$lib";
 
   const modalStore = getModalStore();
+  const toastStore = getExtendedToastStore();
   export let keyId: number;
   let displayData: Promise<{ type: PasswordOutputType, data: string }> | undefined = undefined;
 
@@ -14,13 +15,17 @@
         .then((data) => {
           resolve({type: output_type, data: data})
         })
-        .catch(reject);
+        .catch((err) => {
+          Log.error(err);
+          reject(err);
+        });
     });
   }
 
   async function save_qr(data: string) {
     const buffer = new TextEncoder().encode(data);
     await RPC.save_file(buffer);
+    toastStore.trigger_success("QR image saved.");
   }
 </script>
 
@@ -48,7 +53,7 @@
           </div>
         {/if}
       {:catch err}
-        <div>Failed</div>
+        <div class="text-error-300-600-token">Failed to load password: <span>{err?.message}</span></div>
       {/await}
     {:else}
       <p class="font-bold w-full text-center">

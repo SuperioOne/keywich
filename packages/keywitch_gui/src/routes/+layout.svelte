@@ -15,7 +15,7 @@
 
   initializeStores();
   let activePage: number = 0;
-  let displayLogger: boolean = true;
+  let displayLogger: boolean = false;
   storePopup.set({computePosition, autoUpdate, flip, shift, offset, arrow});
 
   function on_log_panel_close() {
@@ -31,7 +31,7 @@
 </script>
 
 <svelte:window on:keyup={on_log_panel_flip}/>
-<Modal/>
+<Modal buttonNeutral="variant-soft"  buttonPositive="variant-soft-primary" />
 <Toast/>
 <AppShell class="h-full">
   <svelte:fragment slot="header">
