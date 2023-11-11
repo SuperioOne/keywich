@@ -23,14 +23,14 @@
   }
 
   function on_log_panel_flip(event: KeyboardEvent) {
-    if (event.code === "KeyL" && event.ctrlKey) {
+    if (event.code === "KeyI" && event.ctrlKey) {
       displayLogger = !displayLogger;
     }
   }
 </script>
 
-<svelte:window on:keyup={on_log_panel_flip}/>
-<Modal buttonNeutral="variant-soft"  buttonPositive="variant-soft-primary" />
+<svelte:window on:keyup|preventDefault={on_log_panel_flip}/>
+<Modal buttonNeutral="variant-soft" buttonPositive="variant-soft-primary"/>
 <Toast/>
 <AppShell class="h-full">
   <svelte:fragment slot="header">

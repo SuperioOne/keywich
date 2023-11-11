@@ -1,12 +1,19 @@
+import RPC from "@keywitch/memory_rpc";
 import type {PageLoad} from './$types';
-import type {KeyMetadataItem} from "$lib"
-import {RPC} from "$lib/rpc";
-import charsetRPC from "$lib/rpc/test_rpc/charsets";
+import {Log} from "$lib";
 
 export const load: PageLoad = async ({}) => {
-  charsetRPC.charsets();
-  const passMetadataItems: KeyMetadataItem[] = await RPC.get_pinned_items();
-  return {
-    pinnedItems: passMetadataItems,
-  };
+  const result = await RPC.KeyMetadata.get_pinned_items();
+
+  if (result.success) {
+    return {
+      pinnedItems: result.data,
+    };
+  } else {
+    // TODO: show error panel instead of empty pinned list
+    Log.error(result.error);
+    return {
+      pinnedItems: []
+    }
+  }
 };

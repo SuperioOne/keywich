@@ -1,6 +1,6 @@
 import KeyIcon from "$lib/icons/key.svelte"
 import SettingsIcon from "$lib/icons/settings.svelte"
-import ActivityIcon from "$lib/icons/activity.svelte"
+import HomeIcon from "$lib/icons/home.svelte"
 import type {ComponentType} from "svelte";
 
 export interface MenuItem {
@@ -11,9 +11,9 @@ export interface MenuItem {
 
 const menuConfig: MenuItem[] = [
   {
-    label: "Dashboard",
+    label: "Home",
     target: "/",
-    icon: ActivityIcon,
+    icon: HomeIcon,
   },
   {
     label: "Keys",

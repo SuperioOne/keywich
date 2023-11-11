@@ -5,8 +5,9 @@
   import TypeIcon from "$lib/icons/type.svelte"
   import DownloadIcon from "$lib/icons/download.svelte"
   import {CodeBlock, getModalStore, ProgressRadial} from "@skeletonlabs/skeleton";
-  import type {PasswordOutputType} from "$lib";
-  import {getExtendedToastStore, Log, RPC} from "$lib";
+  import type {PasswordOutputType} from "@keywitch/rpc";
+  import RPC from "@keywitch/memory_rpc";
+  import {getExtendedToastStore, Log} from "$lib";
 
   const modalStore = getModalStore();
   const toastStore = getExtendedToastStore();
@@ -15,9 +16,14 @@
 
   async function get_password(output_type: PasswordOutputType) {
     displayData = new Promise((resolve, reject) => {
-      RPC.generate_password(keyId, output_type)
-        .then((data) => {
-          resolve({type: output_type, data: data})
+      RPC.KeyMetadata.generate_password(keyId, output_type)
+        .then((result) => {
+          if (result.success) {
+            resolve({type: output_type, data: result.data})
+          } else {
+            Log.error(result.error);
+            reject(new Error(result.error))
+          }
         })
         .catch((err) => {
           Log.error(err);
@@ -28,7 +34,7 @@
 
   async function save_qr(data: string) {
     const buffer = new TextEncoder().encode(data);
-    await RPC.save_file(buffer);
+    await RPC.Utility.save_file(buffer);
     toastStore.trigger_success("QR image saved.");
   }
 </script>

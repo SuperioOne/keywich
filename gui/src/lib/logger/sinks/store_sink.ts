@@ -1,5 +1,5 @@
 import type {LoggerSink, LogLevelType} from "../types";
-import {writable, readonly} from "svelte/store";
+import {writable} from "svelte/store";
 
 export type LogItem = {
   message: string | Error,
@@ -18,11 +18,9 @@ function format_message(value: any) {
     case "undefined":
       return "undefined"
     case "object":
-      if (value instanceof Error) {
-        return value.message;
-      } else {
-        return JSON.stringify(value, undefined, 2)
-      }
+      return value instanceof Error
+        ? value.message
+        : JSON.stringify(value, undefined, 2);
     case "string":
       return value;
     case "symbol":
@@ -36,7 +34,7 @@ export const ApplicationSink = (maxLevel: LogLevelType, maxHistory = 1000): Logg
   return {
     onLogEvent: (message, level) => {
       if (level <= maxLevel) {
-      let formattedMessage = format_message(message);
+        let formattedMessage = format_message(message);
         update((currentBuffer) => {
           currentBuffer.push({
             message: formattedMessage,

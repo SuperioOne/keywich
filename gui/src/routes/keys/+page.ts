@@ -1,10 +1,18 @@
-import type { PageLoad } from './$types';
-import { RPC } from "$lib";
-import type { KeyMetadataItem } from "$lib";
+import type {PageLoad} from './$types';
+import RPC from "@keywitch/memory_rpc";
+import {Log} from "$lib";
 
-export const load: PageLoad = async ({ }) => {
-  const keyMetadataItems: KeyMetadataItem[] = await RPC.get_key_collection();
-  return {
-    keys: keyMetadataItems,
-  };
+export const load: PageLoad = async ({}) => {
+  const result = await RPC.KeyMetadata.get_key_collection();
+  
+  if (result.success) {
+    return {
+      keys: result.data,
+    };
+  } else {
+    Log.error(result.error);
+    return {
+      keys: []
+    }
+  }
 };

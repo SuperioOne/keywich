@@ -1,17 +1,16 @@
 import {sveltekit} from '@sveltejs/kit/vite';
 import {defineConfig} from 'vitest/config';
 
-export function swap_rpc(from: string, target: string) {
-  const regex = new RegExp(`import.{0,500} from ["'].{0,500}\/(${from})\/.{0,500}["']`);
+export function swap_package(from: string, target: string) {
+  const regex = new RegExp(`import.{0,500} from ["'](${from}).{0,500}["']`);
   return {
-    name: 'swap_rpc',
+    name: 'swap_package',
     transform(src: string, id: string) {
       const match = regex.exec(src);
-
       if (match !== null && match[1] !== undefined) {
         const [allLine, part] = match;
         const newImport = allLine.replace(`/${from}/`, `/${target}/`);
-
+        
         return {
           code: src.replace(allLine, newImport),
           map: null,
@@ -21,8 +20,9 @@ export function swap_rpc(from: string, target: string) {
   }
 }
 
+// swap_package("@keywitch/memory_rpc", "@keywitch/memory_rpc")
 export default defineConfig({
-  plugins: [swap_rpc("test_rpc", "test_rpc_2"), sveltekit()],
+  plugins: [sveltekit()],
   test: {
     include: ['src/**/*.{test,spec}.{js,ts}'],
   }

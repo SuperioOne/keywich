@@ -6,13 +6,14 @@
   import KeyForm from "./create_key_form.svelte";
   import KeyIcon from "$lib/icons/key.svelte";
   import PlusCircleIcon from "$lib/icons/plus-circle.svelte";
+  import RPC from "@keywitch/memory_rpc";
   import StarIcon from "$lib/icons/star.svelte";
   import TrashIcon from "$lib/icons/trash-2.svelte";
-  import type {KeyMetadataItem} from "$lib";
+  import type {KeyMetadataItem} from "@keywitch/rpc";
   import type {ModalActionResult} from "./types";
   import type {PageData} from "./$types";
   import {ModalAction} from "./types";
-  import {getExtendedToastStore, Log, RPC} from "$lib";
+  import {getExtendedToastStore, Log} from "$lib";
   import {getModalStore} from "@skeletonlabs/skeleton";
   import {invalidateAll} from "$app/navigation";
 
@@ -39,11 +40,31 @@
     }
   }
 
+  async function flip_pin(item: KeyMetadataItem) {
+    const rpcAction = item.pinned
+      ? RPC.KeyMetadata.unpin_key
+      : RPC.KeyMetadata.pin_key;
+
+    const result = await rpcAction(item.id);
+
+    if (result.success) {
+      await invalidateAll();
+    } else {
+      Log.error(result.error);
+      toastStore.trigger_error("Unable to pin");
+    }
+  }
+
   async function quick_copy(keyDetails: KeyMetadataItem) {
     try {
-      const key = await RPC.generate_password(keyDetails.id, "text");
-      await navigator.clipboard.writeText(key);
-      toastStore.trigger_success("Key copied to clipboard.");
+      const result = await RPC.KeyMetadata.generate_password(keyDetails.id, "text");
+      if (result.success) {
+        await navigator.clipboard.writeText(result.data);
+        toastStore.trigger_success("Key copied to clipboard.");
+      } else {
+        Log.error(result.error);
+        toastStore.trigger_error("Key generation failed. See logs for more details.");
+      }
     } catch (err) {
       Log.error(err as Error);
       toastStore.trigger_error("Key generation failed. See logs for more details.");
@@ -79,10 +100,14 @@
     });
 
     if (confirmation) {
-      const success = await RPC.remove_key(id);
-      if (success) {
+      const result = await RPC.KeyMetadata.remove_key(id);
+
+      if (result.success) {
         await invalidateAll();
         toastStore.trigger_warning("Key removed from store.");
+      } else {
+        Log.warn(result.error);
+        toastStore.trigger_error("Unable to remove key.");
       }
     }
   }
@@ -109,7 +134,7 @@
       >
         <FilterIcon/>
         <span class="font-bold"> Sort </span>
-      </button> 
+      </button>
       <button
         on:click={new_key}
         type="button"
@@ -123,14 +148,19 @@
 
   <dl class="flex flex-col gap-1">
     {#each data.keys as row (row.id)}
-      <div role="none" class="card grid grid-cols-5 sm:grid-cols-8 md:grid-cols-12 gap-3 w-full p-4 items-stretch">
+      <div role="none"
+           class="card grid grid-cols-5 sm:grid-cols-8 md:grid-cols-12 gap-3 w-full p-4 items-stretch">
 
         <div class="flex col-span-1 items-center">
           <button
             type="button"
-            class="text-primary-500 bg-surface-200-700-token p-3 btn h-16 w-16"
+            class="text-primary-500 bg-surface-200-700-token p-3 btn btn-icon-xl"
           >
-            <KeyIcon/>
+            {#if row.custom_icon}
+              <img src={row.custom_icon} alt="Missing Icon"/>
+            {:else}
+              <KeyIcon/>
+            {/if}
           </button>
         </div>
 
@@ -154,7 +184,7 @@
           </div>
         </div>
         <div
-          class="col-span-1 sm:col-span-3 flex flex-col sm:flex-row gap-1 sm:gap-2 justify-end items-center"
+          class="col-span-1 sm:col-span-3 flex flex-col sm:flex-row gap-2 sm:gap-4 justify-end items-center"
         >
           <button
             type="button"
@@ -170,6 +200,7 @@
             class="btn btn-sm btn-icon-base h-fit"
             class:variant-ghost-warning={row.pinned}
             class:variant-soft={!row.pinned}
+            on:click|preventDefault={() => flip_pin(row)}
           >
             <StarIcon/>
           </button>

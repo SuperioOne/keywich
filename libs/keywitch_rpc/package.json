@@ -1,0 +1,31 @@
+{
+  "type": "module",
+  "name": "@keywitch/rpc",
+  "version": "1.0.0",
+  "description": "Standard definition and helper methods to implement platform specific RPC.",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "check": "tsc --noEmit"
+  },
+  "main": "src/index.js",
+  "types": "./src/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./src/index.js",
+      "types": "./src/index.d.ts"
+    },
+    "./parsers": {
+      "import": "./src/parsers/index.js",
+      "types": "./src/parsers/index.d.ts"
+    }
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "typescript": "^5.2.2"
+  }
+}

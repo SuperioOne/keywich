@@ -1,19 +1,33 @@
 <script lang="ts">
-  import type {ErrorType, KeyOptions} from "$lib";
+  import RPC from "@keywitch/memory_rpc";
   import type {ModalActionResult} from "./types";
+  import type {PropertyError, KeyOptions, CharsetItem} from "@keywitch/rpc";
   import {InputChip, RangeSlider, getModalStore} from "@skeletonlabs/skeleton";
   import {ModalAction} from "./types";
-  import {Log, RPC} from "$lib";
+  import {getExtendedToastStore, Log} from "$lib";
   import {or_default} from "$lib/utils/or_default.js";
+  import {onMount} from "svelte";
 
   let noteValue: string;
   let sliderValue: number = 32;
   let formElement: HTMLFormElement;
-  let errors: ErrorType<KeyOptions> = {};
+  let errors: PropertyError<KeyOptions> = {};
+  let charsetList: CharsetItem[] = [];
 
   const modalStore = getModalStore();
+  const toastStore = getExtendedToastStore();
   const maximumNoteLength: number = 200;
   const maximumPassLength: number = 64;
+
+  onMount(async () => {
+    const charsetResult = await RPC.Charset.get_charsets();
+    if (charsetResult.success) {
+      charsetList = charsetResult.data;
+    } else {
+      Log.error(charsetResult.error);
+      toastStore.trigger_error("Unable to load charset list.");
+    }
+  });
 
   function on_popup_close() {
     const modalInstance = $modalStore[0];
@@ -65,7 +79,7 @@
 
     const formData = new FormData(formElement);
     const keyData = form_to_object(formData) as unknown as KeyOptions;
-    const addResult = await RPC.add_key(keyData);
+    const addResult = await RPC.KeyMetadata.add_key(keyData);
 
     if (addResult.success) {
       const modalResult: ModalActionResult = {
@@ -75,7 +89,12 @@
       modalInstance.response?.(modalResult);
       modalStore.close();
     } else {
-      errors = addResult.errors;
+      if (typeof addResult.error === "string") {
+        Log.error(addResult.error);
+        toastStore.trigger_error(addResult.error);
+      } else {
+        errors = addResult.error;
+      }
     }
   }
 </script>
@@ -142,15 +161,9 @@
             name="charset"
             required
           >
-            {#await RPC.get_charsets()}
-              <option disabled>Loading...</option>
-            {:then charsetCollection}
-              {#each charsetCollection as charsetItem (charsetItem.name)}
-                <option value={charsetItem.charset}>{charsetItem.name}</option>
-              {/each}
-            {:catch err}
-              <div>{err}</div>
-            {/await}
+            {#each charsetList as charsetItem (charsetItem.name)}
+              <option value={charsetItem.charset}>{charsetItem.name}</option>
+            {/each}
           </select>
         </label>
         {#if errors.charset}
