@@ -1,3 +1,5 @@
 packages:
-  - packages/keywitch_gui
-  - apps/keywitch_desktop
+  - gui
+  - libs/*
+  - apps/*
+  - '!**/test/**'

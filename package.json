@@ -7,9 +7,9 @@
   "author": "",
   "license": "ISC",
   "scripts": {
-    "dev:desktop": "pnpm -C apps/keywitch_desktop run dev",
-    "dev:gui": "pnpm -C packages/keywitch_gui run dev",
-    "build:desktop": "pnpm -C apps/keywitch_desktop run build",
-    "build:gui": "pnpm -C packages/keywitch_gui run build"
+    "dev:desktop": "pnpm -C ./apps/desktop run dev",
+    "dev:gui": "pnpm -C ./gui run dev",
+    "build:desktop": "pnpm -C ./apps/desktop run build",
+    "build:gui": "pnpm -C ./gui run build"
   }
 }
