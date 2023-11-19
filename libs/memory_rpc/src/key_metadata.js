@@ -63,6 +63,31 @@ const module = {
 
     const key = MEMORY_STORE.find(e => e.id === id);
     if (key) {
+
+      if (options.custom_icon && options.custom_icon.size > 0) {
+        const newImageUrl = URL.createObjectURL(options.custom_icon);
+
+        // Evict old image url
+        if (key.custom_icon) {
+          const oldImageUrl = IMAGE_STORE.get(key);
+
+          if (oldImageUrl) {
+            URL.revokeObjectURL(oldImageUrl);
+          }
+        }
+
+        IMAGE_STORE.set(key, newImageUrl);
+        key.custom_icon = newImageUrl;
+      }
+
+      key.charset = options.charset;
+      key.domain = options.domain;
+      key.notes = options.notes;
+      key.revision = options.revision;
+      key.target_size = options.target_size;
+      key.user_name = options.user_name;
+      key.tags = options.tags ?? [];
+
       return Promise.resolve({
         success: true,
         data: structuredClone(key)

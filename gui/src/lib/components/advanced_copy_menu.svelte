@@ -1,12 +1,12 @@
 <script lang="ts">
   import CodeIcon from "$lib/icons/code.svelte"
+  import DownloadIcon from "$lib/icons/download.svelte"
   import QrIcon from "$lib/icons/qr.svelte"
+  import RPC from "@keywitch/memory_rpc";
   import TerminalIcon from "$lib/icons/terminal.svelte"
   import TypeIcon from "$lib/icons/type.svelte"
-  import DownloadIcon from "$lib/icons/download.svelte"
-  import {CodeBlock, getModalStore, ProgressRadial} from "@skeletonlabs/skeleton";
   import type {PasswordOutputType} from "@keywitch/rpc";
-  import RPC from "@keywitch/memory_rpc";
+  import {CodeBlock, getModalStore, ProgressRadial} from "@skeletonlabs/skeleton";
   import {getExtendedToastStore, Log} from "$lib";
 
   const modalStore = getModalStore();

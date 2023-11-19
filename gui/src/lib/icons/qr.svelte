@@ -1,6 +1,8 @@
+<script lang="ts"> export let size = 24;
+</script>
 <svg
   width="24"
-  height="24"
+  height={size}
   viewBox="0 0 16.5 16.5"
   fill="none"
   stroke="currentColor"

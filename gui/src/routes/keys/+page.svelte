@@ -1,120 +1,70 @@
 <script lang="ts">
-  import AdvancedCopy from "./advanced_copy.svelte";
-  import ClipboardIcon from "$lib/icons/clipboard.svelte";
-  import EditIcon from "$lib/icons/edit.svelte";
+  import ChevronsRightIcon from "$lib/icons/chevrons-right.svelte";
   import FilterIcon from "$lib/icons/filter.svelte";
-  import KeyForm from "./create_key_form.svelte";
-  import KeyIcon from "$lib/icons/key.svelte";
   import PlusCircleIcon from "$lib/icons/plus-circle.svelte";
-  import RPC from "@keywitch/memory_rpc";
-  import StarIcon from "$lib/icons/star.svelte";
-  import TrashIcon from "$lib/icons/trash-2.svelte";
+  import ZapIcon from "$lib/icons/zap.svelte";
   import type {KeyMetadataItem} from "@keywitch/rpc";
-  import type {ModalActionResult} from "./types";
   import type {PageData} from "./$types";
-  import {ModalAction} from "./types";
-  import {getExtendedToastStore, Log} from "$lib";
-  import {getModalStore} from "@skeletonlabs/skeleton";
+  import type {PopupSettings} from "@skeletonlabs/skeleton";
+  import {KeyRow, get_app_context} from "$lib";
   import {invalidateAll} from "$app/navigation";
+  import {popup} from "@skeletonlabs/skeleton";
 
   export let data: PageData;
-  const modalStore = getModalStore();
-  const toastStore = getExtendedToastStore();
+  const appContext = get_app_context();
+
+  let selected: number | undefined = undefined;
 
   async function new_key() {
-    const response = await new Promise<ModalActionResult>((resolve) => {
-      modalStore.trigger({
-        component: {
-          ref: KeyForm,
-        },
-        title: "Create New Key",
-        backdropClasses: "backdrop-blur-sm",
-        type: "component",
-        response: (r: ModalActionResult) => resolve(r),
-      });
-    });
-
-    if (response.type === ModalAction.submitted) {
+    const key = await appContext.AppEvents.new_key();
+    if (key) {
       await invalidateAll();
-      toastStore.trigger_success("New key created successfully.");
     }
   }
 
-  async function flip_pin(item: KeyMetadataItem) {
-    const rpcAction = item.pinned
-      ? RPC.KeyMetadata.unpin_key
-      : RPC.KeyMetadata.pin_key;
-
-    const result = await rpcAction(item.id);
-
-    if (result.success) {
+  async function update_key(event: CustomEvent<KeyMetadataItem>) {
+    const updated = await appContext.AppEvents.update_key(event.detail);
+    if (updated) {
       await invalidateAll();
-    } else {
-      Log.error(result.error);
-      toastStore.trigger_error("Unable to pin");
     }
   }
 
-  async function quick_copy(keyDetails: KeyMetadataItem) {
-    try {
-      const result = await RPC.KeyMetadata.generate_password(keyDetails.id, "text");
-      if (result.success) {
-        await navigator.clipboard.writeText(result.data);
-        toastStore.trigger_success("Key copied to clipboard.");
-      } else {
-        Log.error(result.error);
-        toastStore.trigger_error("Key generation failed. See logs for more details.");
-      }
-    } catch (err) {
-      Log.error(err as Error);
-      toastStore.trigger_error("Key generation failed. See logs for more details.");
+  async function flip_pin(event: CustomEvent<KeyMetadataItem>) {
+    const success = await appContext.AppEvents.flip_pin(event.detail);
+    if (success) {
+      await invalidateAll();
     }
   }
 
-  async function advanced_copy(keyDetails: KeyMetadataItem) {
-    await new Promise<ModalActionResult>((resolve) => {
-      modalStore.trigger({
-        component: {
-          ref: AdvancedCopy,
-          props: {
-            keyId: keyDetails.id
-          }
-        },
-        title: "Advanced options",
-        backdropClasses: "backdrop-blur-sm",
-        type: "component",
-        response: (r: ModalActionResult) => resolve(r),
-      });
-    });
+  async function quick_copy(event: CustomEvent<KeyMetadataItem>) {
+    return await appContext.AppEvents.quick_copy(event.detail);
   }
 
-  async function delete_key(id: number) {
-    const confirmation = await new Promise((resolve) => {
-      modalStore.trigger({
-        type: "confirm",
-        title: "Confirm Action",
-        body: `Are you sure to delete key?`,
-        buttonTextConfirm: "Delete",
-        response: (r: boolean) => resolve(r),
-      });
-    });
+  async function advanced_copy(event: CustomEvent<KeyMetadataItem>) {
+    return await appContext.AppEvents.advanced_copy(event.detail);
+  }
 
-    if (confirmation) {
-      const result = await RPC.KeyMetadata.remove_key(id);
-
-      if (result.success) {
-        await invalidateAll();
-        toastStore.trigger_warning("Key removed from store.");
-      } else {
-        Log.warn(result.error);
-        toastStore.trigger_error("Unable to remove key.");
-      }
+  async function delete_key(event: CustomEvent<KeyMetadataItem>) {
+    const success = await appContext.AppEvents.delete_key(event.detail);
+    if (success) {
+      await invalidateAll();
     }
   }
+
+  const filterPopup: PopupSettings = {
+    event: 'click',
+    target: 'filter_popup',
+    placement: 'bottom',
+  };
+
+  const sortPopup: PopupSettings = {
+    event: 'click',
+    target: 'sort_popup',
+    placement: 'bottom',
+  };
 </script>
 
 <div class="flex gap-6 flex-col">
-
   <div class="grid grid-cols-2 gap-6">
     <div class="col-span-full sm:col-span-1 flex flex-row flex-wrap gap-2">
       <button
@@ -128,97 +78,61 @@
     </div>
     <div class="col-span-full sm:col-span-1 flex flex-row flex-wrap gap-2 justify-end">
       <button
-        on:click={new_key}
         type="button"
         class="btn variant-soft w-full sm:w-auto"
+        use:popup={sortPopup}
       >
-        <FilterIcon/>
+        <ZapIcon size={16}/>
         <span class="font-bold"> Sort </span>
       </button>
       <button
-        on:click={new_key}
         type="button"
         class="btn variant-soft w-full sm:w-auto"
+        use:popup={filterPopup}
       >
-        <FilterIcon/>
+        <FilterIcon size={16}/>
         <span class="font-bold"> Filter </span>
       </button>
     </div>
   </div>
 
   <dl class="flex flex-col gap-1">
-    {#each data.keys as row (row.id)}
-      <div role="none"
-           class="card grid grid-cols-5 sm:grid-cols-8 md:grid-cols-12 gap-3 w-full p-4 items-stretch">
-
-        <div class="flex col-span-1 items-center">
-          <button
-            type="button"
-            class="text-primary-500 bg-surface-200-700-token p-3 btn btn-icon-xl"
-          >
-            {#if row.custom_icon}
-              <img src={row.custom_icon} alt="Missing Icon"/>
-            {:else}
-              <KeyIcon/>
-            {/if}
-          </button>
-        </div>
-
-        <div class="col-span-3 sm:col-span-4 md:col-span-8 flex flex-row sm:gap-8 gap-3 items-center">
-          <div class="w-full overflow-hidden flex flex-col gap-3">
-            <div>
-              <dt class="font-bold">{row.user_name}</dt>
-              <dd class="text-sm font-thin truncate">
-                {row.domain}
-              </dd>
+    {#each data.keys as row,index (row.id)}
+      <div
+        class="flex flex-row gap-1"
+      >
+        <div class="w-4 flex flex-col justify-center items-start">
+          {#if index === selected}
+            <div class="text-sm font-bold text-on-secondary-token">
+              {index + 1}
             </div>
-            <div class="flex flex-wrap gap-1 min-h-[24px]">
-              {#each row.tags as tag (tag)}
-                <span
-                  class="chip font-bold text-xs variant-soft-secondary w-fit px-2 py-1"
-                >
-                  {tag}
-                </span>
-              {/each}
-            </div>
-          </div>
+          {:else}
+            <span class="text-sm font-bold text-secondary-100-800-token select-none">
+              {index + 1}
+            </span>
+          {/if}
         </div>
-        <div
-          class="col-span-1 sm:col-span-3 flex flex-col sm:flex-row gap-2 sm:gap-4 justify-end items-center"
-        >
-          <button
-            type="button"
-            on:contextmenu|preventDefault={() => advanced_copy(row)}
-            on:auxclick|preventDefault={() => quick_copy(row)}
-            on:click|preventDefault={() => quick_copy(row)}
-            class="btn btn-sm variant-soft-primary btn-icon-base h-fit"
-          >
-            <ClipboardIcon/>
-          </button>
-          <button
-            type="button"
-            class="btn btn-sm btn-icon-base h-fit"
-            class:variant-ghost-warning={row.pinned}
-            class:variant-soft={!row.pinned}
-            on:click|preventDefault={() => flip_pin(row)}
-          >
-            <StarIcon/>
-          </button>
-          <button
-            type="button"
-            class="btn btn-sm variant-soft-secondary btn-icon-base h-fit"
-          >
-            <EditIcon/>
-          </button>
-          <button
-            on:click={async () => delete_key(row.id)}
-            type="button"
-            class="btn btn-sm variant-soft-error btn-icon-base h-fit"
-          >
-            <TrashIcon/>
-          </button>
-        </div>
+        <KeyRow
+          item={row}
+          active={index === selected}
+          on:copy={quick_copy}
+          on:copyAux={quick_copy}
+          on:copyAlt={advanced_copy}
+          on:delete={delete_key}
+          on:update={update_key}
+          on:pin={flip_pin}
+        />
       </div>
     {/each}
   </dl>
+</div>
+
+<div class="card p-5 m-w-md shadow-xl rounded-md" data-popup="sort_popup">
+  <div><p>Sort Content</p></div>
+  <div class="arrow bg-surface-100-800-token"/>
+</div>
+
+<div class="card p-5 max-w-md shadow-xl rounded-md" data-popup="filter_popup">
+  <div><p>Filter Content</p></div>
+  <div class="arrow bg-surface-100-800-token"/>
 </div>

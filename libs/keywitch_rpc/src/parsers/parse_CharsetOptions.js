@@ -11,7 +11,7 @@ const CharsetOptionSchema = z.object({
  * @param options The options to parse.
  * @return Returns undefined if parsing is successful,
  * otherwise returns an object with success set to false and a list of errors.
- * @type {import('./types.js').parse_CharsetOptions}
+ * @type {import('./index.js').parse_CharsetOptions}
  */
 export function parse_CharsetOptions(options) {
   const parseResult = CharsetOptionSchema.safeParse(options);

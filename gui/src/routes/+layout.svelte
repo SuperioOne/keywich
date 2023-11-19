@@ -11,12 +11,20 @@
     arrow,
   } from "@floating-ui/dom";
   import {AppShell, storePopup, initializeStores, Modal, Toast} from "@skeletonlabs/skeleton";
-  import {LogPanel} from "$lib";
+  import {create_event_manager, LogPanel, set_app_context} from "$lib";
+  import RPC from "@keywitch/memory_rpc";
 
   initializeStores();
+  const eventManager = create_event_manager();
+  storePopup.set({computePosition, autoUpdate, flip, shift, offset, arrow});
+
   let activePage: number = 0;
   let displayLogger: boolean = false;
-  storePopup.set({computePosition, autoUpdate, flip, shift, offset, arrow});
+
+  set_app_context({
+    RPC: RPC,
+    AppEvents: eventManager
+  });
 
   function on_log_panel_close() {
     displayLogger = false;
@@ -41,10 +49,10 @@
           <a
             href={item.target}
             class:bg-initial={true}
-            class="btn bg-surface-active-token bg-primary-hover-token rounded-none sm:w-36 w-fit"
-            class:bg-surface-active-token={activePage === index}
+            class="btn bg-surface-token hover:bg-primary-hover-token rounded-none sm:w-36 w-fit"
+            class:bg-primary-active-token={activePage === index}
             data-sveltekit-preload-data="hover"
-            on:click={() => (activePage = index)}
+            on:click={() => {activePage = index}}
           >
             <div class="flex flex-col gap-1 align-middle justify-center w-full">
               <div class="flex justify-center">

@@ -16,7 +16,7 @@ const KeyOptionsSchema = z.object({
  * @param options The options to parse.
  * @return Returns undefined if parsing is successful,
  * otherwise returns an object with success set to false and a list of errors.
- * @type {import('./types.js').parse_KeyOptions}
+ * @type {import('./index.js').parse_KeyOptions}
  */
 export function parse_KeyOptions(options) {
   const parseResult = KeyOptionsSchema.safeParse(options);

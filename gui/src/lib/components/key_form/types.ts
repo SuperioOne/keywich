@@ -1,4 +1,4 @@
-import type {KeyMetadataItem} from "$lib";
+import type {KeyMetadataItem} from "@keywitch/rpc";
 
 export const ModalAction = {
   submitted: 0,

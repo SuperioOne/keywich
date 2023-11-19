@@ -1,18 +1,23 @@
 <script lang="ts">
   import RPC from "@keywitch/memory_rpc";
+  import UploadIcon from "$lib/icons/upload.svelte";
   import type {ModalActionResult} from "./types";
-  import type {PropertyError, KeyOptions, CharsetItem} from "@keywitch/rpc";
-  import {InputChip, RangeSlider, getModalStore} from "@skeletonlabs/skeleton";
+  import type {PropertyError, KeyOptions, CharsetItem, KeyMetadataItem} from "@keywitch/rpc";
+  import {InputChip, RangeSlider, getModalStore, FileDropzone} from "@skeletonlabs/skeleton";
   import {ModalAction} from "./types";
-  import {getExtendedToastStore, Log} from "$lib";
-  import {or_default} from "$lib/utils/or_default.js";
-  import {onMount} from "svelte";
+  import {getExtendedToastStore, Log, or_default} from "$lib";
+  import {onDestroy, onMount} from "svelte";
 
-  let noteValue: string;
-  let sliderValue: number = 32;
-  let formElement: HTMLFormElement;
-  let errors: PropertyError<KeyOptions> = {};
+  export let data: KeyMetadataItem | undefined = undefined;
+
   let charsetList: CharsetItem[] = [];
+  let errors: PropertyError<KeyOptions> = {};
+  let formElement: HTMLFormElement;
+  let icon: File | null = null;
+  let iconUrl: string | null = data?.custom_icon ?? null;
+  let noteValue: string | null = data?.notes ?? null;
+  let sliderValue: number = data?.target_size ?? 32;
+  let tags: string[] = data?.tags ?? [];
 
   const modalStore = getModalStore();
   const toastStore = getExtendedToastStore();
@@ -28,6 +33,19 @@
       toastStore.trigger_error("Unable to load charset list.");
     }
   });
+
+  onDestroy(() => revoke_local_image());
+
+  function revoke_local_image() {
+    if (iconUrl && iconUrl !== data?.custom_icon) {
+      Log.debug(`Destoring: ${iconUrl}`);
+      URL.revokeObjectURL(iconUrl);
+    }
+
+    if (iconUrl && iconUrl === data?.custom_icon) {
+      Log.debug(`Url is provided by data: ${iconUrl}`);
+    }
+  }
 
   function on_popup_close() {
     const modalInstance = $modalStore[0];
@@ -79,24 +97,41 @@
 
     const formData = new FormData(formElement);
     const keyData = form_to_object(formData) as unknown as KeyOptions;
-    const addResult = await RPC.KeyMetadata.add_key(keyData);
 
-    if (addResult.success) {
+    const result = data && !isNaN(Number(data.id))
+      ? await RPC.KeyMetadata.update_key(data.id, keyData)
+      : await RPC.KeyMetadata.add_key(keyData);
+
+    if (result.success) {
       const modalResult: ModalActionResult = {
         type: ModalAction.submitted,
-        data: addResult.data
+        data: result.data
       }
       modalInstance.response?.(modalResult);
       modalStore.close();
     } else {
-      if (typeof addResult.error === "string") {
-        Log.error(addResult.error);
-        toastStore.trigger_error(addResult.error);
+      if (typeof result.error === "string") {
+        Log.error(result.error);
+        toastStore.trigger_error(result.error);
       } else {
-        errors = addResult.error;
+        errors = result.error;
       }
     }
   }
+
+  function on_custom_icon(event: Event) {
+    const inputElement = event.target as HTMLInputElement;
+
+    revoke_local_image();
+
+    if (inputElement.files && inputElement.files.length > 0) {
+      icon = inputElement.files.item(0);
+      if (icon) {
+        iconUrl = URL.createObjectURL(icon);
+      }
+    }
+  }
+
 </script>
 
 {#if $modalStore[0]}
@@ -104,8 +139,12 @@
     <h2 class="font-bold h2">
       {$modalStore[0].title}
     </h2>
-    <form bind:this={formElement} id="new_key_form" class="flex gap-5 flex-col" on:submit|preventDefault={on_submit}>
-
+    <form
+      bind:this={formElement}
+      id="new_key_form"
+      class="flex gap-5 flex-col"
+      on:submit|preventDefault={on_submit}
+    >
       <div>
         <label class="label">
           <span class="font-bold">Domain</span>
@@ -116,6 +155,7 @@
             type="text"
             placeholder="Ex: gitea.com, home, my secret storage"
             required
+            value={data?.domain ?? null}
           />
         </label>
         {#if errors.domain}
@@ -139,6 +179,7 @@
             name="user_name"
             placeholder="Ex: me@localhost"
             required
+            value={data?.user_name ?? null}
           />
         </label>
         {#if errors.user_name}
@@ -162,7 +203,12 @@
             required
           >
             {#each charsetList as charsetItem (charsetItem.name)}
-              <option value={charsetItem.charset}>{charsetItem.name}</option>
+              <option
+                selected="{data?.charset === charsetItem.charset}"
+                value={charsetItem.charset}
+              >
+                {charsetItem.name}
+              </option>
             {/each}
           </select>
         </label>
@@ -206,6 +252,7 @@
         <label class="label" for="tags">
           <span class="font-bold">Tags</span>
           <InputChip
+            bind:value={tags}
             name="tags"
             chips="variant-filled-primary"
             placeholder="(Optional) Enter tags"
@@ -260,6 +307,7 @@
             min="0"
             step="1"
             placeholder="(Optional) Password seed number"
+            value={data?.revision ?? 0}
           />
         </label>
         {#if errors.revision}
@@ -274,21 +322,35 @@
       </div>
 
       <div>
-        <label class="label">
+        <label class="label" for="custom_icon">
           <span class="font-bold">Custom Icon</span>
-          <input
-            class:input-error={errors.custom_icon}
-            class="input"
+          <FileDropzone
+            accept="image/png, image/jpeg, image/svg+xml"
+            on:change={on_custom_icon}
             name="custom_icon"
-            type="file"
-          />
+          >
+            <svelte:fragment slot="lead">
+              <div class="flex flex-row justify-center items-center">
+                {#if iconUrl}
+                  <img width="64px" src={iconUrl} alt="image"/>
+                {:else }
+                  <UploadIcon/>
+                {/if}
+              </div>
+            </svelte:fragment>
+            <svelte:fragment slot="message">
+              <p>
+                <b>Upload</b> a image or drag and drop.
+              </p>
+            </svelte:fragment>
+          </FileDropzone>
         </label>
         {#if errors.custom_icon}
           <ul
             class="m-1 font-light text-sm text-error-500-400-token list-disc list-inside"
           >
             {#each errors.custom_icon as error}
-              <li> {error}</li>
+              <li>{error}</li>
             {/each}
           </ul>
         {/if}
@@ -308,7 +370,7 @@
         form="new_key_form"
         class="btn variant-soft-primary"
       >
-        <span>Create</span>
+        <span>Confirm</span>
       </button>
     </div>
   </div>

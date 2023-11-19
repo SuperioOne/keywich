@@ -31,7 +31,7 @@ let NEXT_ID = 4;
 const module = {
   add_charset(charset) {
     const validationResult = parse_CharsetOptions(charset);
-    
+
     if (validationResult?.success === false) return Promise.resolve(validationResult);
 
     /**

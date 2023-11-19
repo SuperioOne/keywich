@@ -3,6 +3,7 @@
   import {onMount, tick, createEventDispatcher} from "svelte";
   import CloseIcon from "$lib/icons/x.svelte";
   import TrashIcon from "$lib/icons/trash-2.svelte";
+  import TerminalIcon from "$lib/icons/terminal.svelte";
   import {fly} from "svelte/transition";
 
   const dispatch = createEventDispatcher();
@@ -89,7 +90,10 @@
     bind:this={topBarElement}
     class="py-1 px-3 grid grid-cols-2 w-full bg-surface-200-700-token"
   >
-    <div>
+    <div class="flex flex-row gap-2 items-center">
+      <div>
+        <TerminalIcon size={20}/>
+      </div>
       <h5 class="h5 font-bold">
         {title}
       </h5>
@@ -98,16 +102,16 @@
       <button
         on:click={on_clear_logs}
         type="button"
-        class="btn-icon-sm btn-icon variant-soft"
+        class="btn-icon-sm btn-icon variant-soft-error"
       >
-        <TrashIcon/>
+        <TrashIcon size={18}/>
       </button>
       <button
         on:click={on_close}
         type="button"
         class="btn-icon-sm btn-icon variant-soft"
       >
-        <CloseIcon/>
+        <CloseIcon size={18}/>
       </button>
     </div>
   </div>
