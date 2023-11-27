@@ -1,4 +1,4 @@
-export type  PasswordOutputType = "json" | "base64" | "text" | "qr";
+export type  PasswordOutputType = "json" | "base64" | "text" | "qr" | "uri";
 
 export interface KeyOptions {
   /**

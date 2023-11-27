@@ -4,9 +4,11 @@
   import type {ModalActionResult} from "./types";
   import type {PropertyError, KeyOptions, CharsetItem, KeyMetadataItem} from "@keywitch/rpc";
   import {InputChip, RangeSlider, getModalStore, FileDropzone} from "@skeletonlabs/skeleton";
+  import {Log} from "$lib/logger";
   import {ModalAction} from "./types";
-  import {getExtendedToastStore, Log, or_default} from "$lib";
+  import {getExtendedToastStore} from "$lib/stores";
   import {onDestroy, onMount} from "svelte";
+  import {or_default} from "$lib/utils";
 
   export let data: KeyMetadataItem | undefined = undefined;
 
@@ -366,9 +368,9 @@
       </button>
 
       <button
-        type="submit"
-        form="new_key_form"
+        type="button"
         class="btn variant-soft-primary"
+        on:click={on_submit}
       >
         <span>Confirm</span>
       </button>

@@ -1,35 +1,60 @@
 <script lang="ts">
-  import CodeIcon from "$lib/icons/code.svelte"
   import DownloadIcon from "$lib/icons/download.svelte"
   import QrIcon from "$lib/icons/qr.svelte"
+  import LinkIcon from "$lib/icons/link.svelte"
   import RPC from "@keywitch/memory_rpc";
   import TerminalIcon from "$lib/icons/terminal.svelte"
   import TypeIcon from "$lib/icons/type.svelte"
   import type {PasswordOutputType} from "@keywitch/rpc";
   import {CodeBlock, getModalStore, ProgressRadial} from "@skeletonlabs/skeleton";
-  import {getExtendedToastStore, Log} from "$lib";
+  import {Log} from "$lib/logger";
+  import {getExtendedToastStore} from "$lib/stores";
 
   const modalStore = getModalStore();
   const toastStore = getExtendedToastStore();
+
+  type DisplayData =
+    { display: string, raw: string, type: PasswordOutputType, state: "completed" }
+    | { state: "loading" | "failed" }
   export let keyId: number;
-  let displayData: Promise<{ type: PasswordOutputType, data: string }> | undefined = undefined;
+  let data: DisplayData;
 
   async function get_password(output_type: PasswordOutputType) {
-    displayData = new Promise((resolve, reject) => {
-      RPC.KeyMetadata.generate_password(keyId, output_type)
-        .then((result) => {
-          if (result.success) {
-            resolve({type: output_type, data: result.data})
-          } else {
-            Log.error(result.error);
-            reject(new Error(result.error))
-          }
-        })
-        .catch((err) => {
-          Log.error(err);
-          reject(err);
-        });
-    });
+    try {
+      data = {state: "loading"};
+      const result = await RPC.KeyMetadata.generate_password(keyId, output_type);
+
+      if (result.success === false) {
+        Log.error(result.error);
+        data = {state: "failed"};
+        return;
+      }
+
+      let displayData: string;
+      switch (output_type) {
+        case "qr": {
+          displayData = `data:image/svg+xml;base64,${btoa(result.data)}`;
+          break;
+        }
+        case "text":
+        case "base64":
+        case "uri":
+        default:
+          displayData = result.data;
+          break;
+      }
+
+      data = {
+        type: output_type,
+        raw: result,
+        state: "completed",
+        display: displayData
+      };
+
+    } catch (err) {
+      Log.error(err);
+      data = {state: "failed"};
+    }
   }
 
   async function save_qr(data: string) {
@@ -42,68 +67,67 @@
 {#if $modalStore[0]}
   <div
     class="card variant-filled-surface bg-surface-100-800-token p-6 flex flex-col items-center gap-5 w-full sm:w-modal-slim">
-    {#if displayData}
-      {#await displayData}
-        <ProgressRadial stroke={160} meter="stroke-primary-500" track="stroke-primary-500/30"/>
-      {:then password}
-        {#if password.type === "qr" }
-          <div class="card overflow-hidden">
-            {@html password.data}
-          </div>
-          <button
-            class="btn variant-soft-primary cursor-pointer"
-            on:click={() => save_qr(password.data)}
-          >
-            <span><DownloadIcon/></span>
-            <span>Save</span>
-          </button>
-        {:else }
-          <div class="w-full">
-            <CodeBlock language={password.type} code={password.data}/>
-          </div>
-        {/if}
-      {:catch err}
-        <div class="text-error-300-600-token">Failed to load password: <span>{err?.message}</span></div>
-      {/await}
+    {#if data?.state === "loading"}
+      <ProgressRadial stroke={160} meter="stroke-primary-500" track="stroke-primary-500/30"/>
+    {:else if data?.state === "completed"}
+      {#if data.type === "qr" }
+        <div class="card w-full overflow-hidden aspect-square">
+          <img width="100%" src={data.display} alt="qr image"/>
+        </div>
+        <button
+          class="btn variant-soft-primary cursor-pointer"
+          on:click={() => save_qr(data.raw)}
+        >
+          <span><DownloadIcon/></span>
+          <span>Save</span>
+        </button>
+      {:else }
+        <div class="w-full">
+          <CodeBlock language={data.type} code={data.display}/>
+        </div>
+      {/if}
+    {:else if data?.state === "failed"}
+      <span class="text-error-300-600-token">Failed</span>
     {:else}
       <p class="font-bold w-full text-center">
         {$modalStore[0].title}
       </p>
       <hr class="!border-t-2 w-full"/>
-      <div class="grid grid-cols-2 gap-3 w-full">
+      <div class="grid grid-cols-2 gap-2 w-full">
         <button
           on:click={() => get_password("text")}
           type="button"
-          class="btn p-2 variant-soft-primary flex flex-col gap-1 justify-center align-middle"
+          class="aspect-square btn p-2 variant-soft-primary flex flex-col gap-2 justify-center align-middle"
         >
-          <TypeIcon/>
-          <span class="font-mono text-xs text-center w-full !m-0">TEXT</span>
+          <TypeIcon size={36}/>
+          <span class="font-mono text-center w-full !m-0">TEXT</span>
         </button>
         <button
           on:click={() => get_password("qr")}
           type="button"
-          class="btn p-2 variant-soft-primary flex flex-col gap-1 justify-center align-middle"
+          class="aspect-square btn p-2 variant-soft-primary flex flex-col gap-2 justify-center align-middle"
         >
-          <QrIcon/>
-          <span class="font-mono text-xs text-center w-full !m-0">QR</span>
-        </button>
-        <button
-          on:click={() => get_password("json")}
-          type="button"
-          class="btn p-2 variant-soft-primary flex flex-col gap-1 justify-center align-middle"
-        >
-          <CodeIcon/>
-          <span class="font-mono text-xs text-center w-full !m-0">JSON</span>
+          <QrIcon size={36}/>
+          <span class="font-mono text-center w-full !m-0">QR</span>
         </button>
         <button
           on:click={() => get_password("base64")}
           type="button"
-          class="btn p-2 variant-soft-primary flex flex-col gap-1 justify-center align-middle"
+          class="aspect-square btn p-2 variant-soft-primary flex flex-col gap-2 justify-center align-middle"
         >
-          <TerminalIcon/>
-          <span class="font-mono text-xs text-center w-full !m-0">BASE64</span>
+          <TerminalIcon size={36}/>
+          <span class="font-mono text-center w-full !m-0">BASE64</span>
+        </button>
+        <button
+          on:click={() => get_password("uri")}
+          type="button"
+          class="aspect-square btn p-2 variant-soft-primary flex flex-col gap-2 justify-center align-middle"
+        >
+          <LinkIcon size={36}/>
+          <span class="font-mono text-center w-full !m-0">URI Encoded</span>
         </button>
       </div>
     {/if}
   </div>
 {/if}
+

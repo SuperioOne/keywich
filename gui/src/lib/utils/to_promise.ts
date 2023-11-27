@@ -1,6 +1,6 @@
 import type {RPCResult} from "@keywitch/rpc";
 
-export function to_promise<TResult>(action: Promise<RPCResult<TResult, any>>): Promise<TResult> {
+export function to_promise<TResult, TError = string>(action: Promise<RPCResult<TResult, TError>>): Promise<TResult> {
   return new Promise((resolve, reject) => {
     action
       .then(result => {

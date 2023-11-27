@@ -1,19 +1,14 @@
 <script lang="ts">
-  import ChevronsRightIcon from "$lib/icons/chevrons-right.svelte";
-  import FilterIcon from "$lib/icons/filter.svelte";
   import PlusCircleIcon from "$lib/icons/plus-circle.svelte";
-  import ZapIcon from "$lib/icons/zap.svelte";
   import type {KeyMetadataItem} from "@keywitch/rpc";
   import type {PageData} from "./$types";
-  import type {PopupSettings} from "@skeletonlabs/skeleton";
-  import {KeyRow, get_app_context} from "$lib";
+  import {KeyRow, get_app_context, KeyFilter} from "$lib";
   import {invalidateAll} from "$app/navigation";
-  import {popup} from "@skeletonlabs/skeleton";
 
   export let data: PageData;
-  const appContext = get_app_context();
 
   let selected: number | undefined = undefined;
+  const appContext = get_app_context();
 
   async function new_key() {
     const key = await appContext.AppEvents.new_key();
@@ -51,17 +46,6 @@
     }
   }
 
-  const filterPopup: PopupSettings = {
-    event: 'click',
-    target: 'filter_popup',
-    placement: 'bottom',
-  };
-
-  const sortPopup: PopupSettings = {
-    event: 'click',
-    target: 'sort_popup',
-    placement: 'bottom',
-  };
 </script>
 
 <div class="flex gap-6 flex-col">
@@ -77,22 +61,9 @@
       </button>
     </div>
     <div class="col-span-full sm:col-span-1 flex flex-row flex-wrap gap-2 justify-end">
-      <button
-        type="button"
-        class="btn variant-soft w-full sm:w-auto"
-        use:popup={sortPopup}
-      >
-        <ZapIcon size={16}/>
-        <span class="font-bold"> Sort </span>
-      </button>
-      <button
-        type="button"
-        class="btn variant-soft w-full sm:w-auto"
-        use:popup={filterPopup}
-      >
-        <FilterIcon size={16}/>
-        <span class="font-bold"> Filter </span>
-      </button>
+      <div class="w-full sm:w-fit">
+        <KeyFilter/>
+      </div>
     </div>
   </div>
 
@@ -101,7 +72,7 @@
       <div
         class="flex flex-row gap-1"
       >
-        <div class="w-4 flex flex-col justify-center items-start">
+        <div class="w-4 hidden sm:flex flex-col justify-center items-start">
           {#if index === selected}
             <div class="text-sm font-bold text-on-secondary-token">
               {index + 1}
@@ -125,14 +96,4 @@
       </div>
     {/each}
   </dl>
-</div>
-
-<div class="card p-5 m-w-md shadow-xl rounded-md" data-popup="sort_popup">
-  <div><p>Sort Content</p></div>
-  <div class="arrow bg-surface-100-800-token"/>
-</div>
-
-<div class="card p-5 max-w-md shadow-xl rounded-md" data-popup="filter_popup">
-  <div><p>Filter Content</p></div>
-  <div class="arrow bg-surface-100-800-token"/>
 </div>

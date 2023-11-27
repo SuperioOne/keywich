@@ -1,5 +1,5 @@
 <script lang="ts">
-  import {ApplicationLogReader, Log, LogLevel} from "$lib";
+  import {ApplicationLogReader, LogLevel} from "$lib/logger";
   import {onMount, tick, createEventDispatcher} from "svelte";
   import CloseIcon from "$lib/icons/x.svelte";
   import TrashIcon from "$lib/icons/trash-2.svelte";
@@ -125,12 +125,11 @@
       {#each $ApplicationLogReader as log}
         {@const date = new Date(log.timestamp)}
         <li>
-          <span class="mr-0.5">{ `${date.toLocaleDateString()} ${date.toLocaleTimeString()}:`}</span>
+          <span class="mr-0.5">{ `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`}</span>
           <span
             class:text-error-300-600-token={log.level ===  LogLevel.ERROR}
             class:text-warning-300-600-token={log.level === LogLevel.WARN}
             class:text-tertiary-300-600-token={log.level === LogLevel.DEBUG}
-            class:text-primary-300-600-token={log.level >= LogLevel.INFO}
           >
             {log.message} 
         </span>

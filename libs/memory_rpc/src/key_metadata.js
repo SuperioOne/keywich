@@ -170,6 +170,10 @@ const module = {
         data = "test"
         break;
       }
+      case "uri": {
+        data = encodeURIComponent("test@$%") 
+        break;
+      }
       default:
         return Promise.resolve({
           success: false,

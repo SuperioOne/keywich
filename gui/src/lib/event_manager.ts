@@ -1,7 +1,9 @@
 import RPC from "@keywitch/memory_rpc";
 import type {KeyMetadataItem} from "@keywitch/rpc";
 import type {ModalActionResult} from "$lib";
-import {AdvancedCopyMenu, getExtendedToastStore, KeyForm, Log, ModalAction} from "$lib";
+import {AdvancedCopyMenu, KeyForm, ModalAction} from "$lib/components";
+import {Log} from "$lib/logger";
+import {getExtendedToastStore} from "$lib/stores";
 import {getModalStore} from "@skeletonlabs/skeleton";
 
 export type EventDispatcher = {

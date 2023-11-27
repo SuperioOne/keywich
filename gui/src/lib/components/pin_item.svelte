@@ -7,7 +7,7 @@
   const appContext = get_app_context();
 </script>
 
-<div class="variant-glass-secondary rounded-md cursor-pointer hover:backdrop-brightness-75 overflow-hidden">
+<div class="active:scale-90 transition-all variant-glass-secondary rounded-md cursor-pointer hover:backdrop-brightness-75 overflow-hidden">
   <a href="#" class="inline-block variant-glass-secondary p-5 w-full h-full"
      on:click|preventDefault={() => appContext.AppEvents.quick_copy(item)}>
     <div

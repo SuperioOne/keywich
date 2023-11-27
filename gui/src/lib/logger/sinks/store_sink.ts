@@ -43,10 +43,10 @@ export const ApplicationSink = (maxLevel: LogLevelType, maxHistory = 1000): Logg
           });
 
           if (currentBuffer.length > maxHistory) {
-            return currentBuffer.slice(currentBuffer.length - maxHistory);
-          } else {
-            return currentBuffer;
+            return currentBuffer.splice(0, currentBuffer.length - maxHistory);
           }
+
+          return currentBuffer;
         });
       }
     }

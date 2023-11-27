@@ -1,6 +1,6 @@
 <script lang="ts"> export let size = 24;
 </script>
-<svg xmlns="http://www.w3.org/2000/svg" width="24" height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor"
+<svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor"
      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-refresh-cw">
   <polyline points="23 4 23 10 17 10"></polyline>
   <polyline points="1 20 1 14 7 14"></polyline>

@@ -12,12 +12,12 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@keywitch/rpc": "workspace:*",
     "@tauri-apps/api": "^1.5.1",
-    "typescript": "^5.2.2",
-    "@keywitch/rpc": "workspace:*"
+    "typescript": "^5.3.2"
   },
   "peerDependencies": {
-    "@tauri-apps/api": "^1.5.1",
-    "@keywitch/rpc": "workspace:*"
+    "@keywitch/rpc": "workspace:*",
+    "@tauri-apps/api": "^1.5.1"
   }
 }

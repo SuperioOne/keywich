@@ -35,16 +35,16 @@
 <div
   role="none"
   class:bg-surface-active-token={active}
-  class="card grid grid-cols-5 sm:grid-cols-8 md:grid-cols-12 gap-3 w-full p-4 items-stretch hover:bg-surface-hover-token"
+  class="card grid grid-cols-5 sm:grid-cols-8 md:grid-cols-12 gap-3 w-full p-4 items-stretch"
 >
-  <div class="flex col-span-1 items-center">
+  <div class="flex col-span-1 items-center aspect-square">
     <button
       type="button"
-      class="text-primary-500 bg-surface-200-700-token p-0 btn btn-icon-xl w-16 h-16 overflow-hidden"
+      class="text-primary-500 bg-surface-200-700-token btn btn-icon-xl p-1 aspect-square overflow-hidden"
       on:click|preventDefault={() => dispatch("copy", item)}
     >
       {#if item.custom_icon}
-        <img width="100" src={item.custom_icon} alt="Missing Icon"/>
+        <img width="100%" src={item.custom_icon} alt="Missing Icon"/>
       {:else}
         <KeyIcon/>
       {/if}

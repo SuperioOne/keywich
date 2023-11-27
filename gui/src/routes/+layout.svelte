@@ -23,7 +23,7 @@
 
   set_app_context({
     RPC: RPC,
-    AppEvents: eventManager
+    AppEvents: eventManager,
   });
 
   function on_log_panel_close() {
@@ -42,16 +42,16 @@
 <Toast/>
 <AppShell class="h-full">
   <svelte:fragment slot="header">
-    <div class="grid grid-flow-col grid-cols-8 bg-surface-200-700-token">
-      <div/>
+    <div class="grid grid-flow-col grid-cols-12 bg-surface-200-700-token px-3">
+      <div class="col-span-3"/>
       <div class="col-span-6 flex flex-row justify-center">
         {#each MenuItems as item, index (index)}
           <a
-            href={item.target}
             class:bg-initial={true}
-            class="btn bg-surface-token hover:bg-primary-hover-token rounded-none sm:w-36 w-fit"
             class:bg-primary-active-token={activePage === index}
+            class="btn bg-surface-token hover:bg-primary-hover-token rounded-none sm:w-36 w-fit"
             data-sveltekit-preload-data="hover"
+            href={item.target}
             on:click={() => {activePage = index}}
           >
             <div class="flex flex-col gap-1 align-middle justify-center w-full">
@@ -67,7 +67,9 @@
           </a>
         {/each}
       </div>
-      <div/>
+      <div class="col-span-3 flex flex-row items-center justify-end">
+
+      </div>
     </div>
   </svelte:fragment>
   <div class="flex justify-center w-full">

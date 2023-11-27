@@ -6,7 +6,7 @@ export * from "./components";
 export * from "./logger";
 export * from "./utils";
 export * from "./event_manager";
-
+export * from "./stores";
 
 export type KeywitchAppContext = {
   AppEvents: EventDispatcher,
