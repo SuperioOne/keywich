@@ -1,16 +1,16 @@
 <script lang="ts">
   import FilterIcon from "$lib/icons/filter.svelte";
   import XIcon from "$lib/icons/x.svelte";
+  import type {TokenType} from "$lib/utils";
   import {computePosition, offset} from "@floating-ui/dom";
   import {createEventDispatcher, tick} from "svelte";
+  import {fly} from "svelte/transition";
   import {get_filter_history} from "$lib/stores";
-  import {is_null_or_empty} from "$lib/utils";
-  import {Log} from "$lib/logger";
-  
-  export let searchContent: string | null = null;
+  import {tokenize_filter_query} from "$lib/utils";
 
-  const id = crypto.randomUUID();
-  const dispatcher = createEventDispatcher<{ search: string | null; }>();
+  export let tokens: TokenType[] = [];
+
+  const dispatcher = createEventDispatcher<{ search: TokenType[] | null; }>();
   const filterHistory = get_filter_history();
   const searchOptions = [
     {
@@ -26,19 +26,26 @@
       description: "Filter by tag"
     }];
 
-  let inputElement: HTMLInputElement;
-  let inputContainerElement: HTMLLabelElement;
+  let inputElement: HTMLElement;
+  let inputContainerElement: HTMLElement;
   let menuElement: HTMLElement;
   let isFocused: boolean = false;
 
-  async function focus_input() {
+  $:{
+    if (inputElement && tokens.length > 0) {
+      inputElement.innerHTML = tokens_to_html(tokens);
+      set_caret_to_end(inputElement);
+    }
+  }
+
+  async function focus_input(event: Event) {
     isFocused = true;
     await tick();
 
     if (inputElement) {
       inputElement.focus();
 
-      if (searchContent === null || searchContent.length === 0 && menuElement && inputContainerElement) {
+      if (menuElement && inputContainerElement) {
         const containerWidth = getComputedStyle(inputContainerElement).width;
         const {x, y} = await computePosition(inputContainerElement, menuElement, {
           placement: "bottom-start",
@@ -54,115 +61,174 @@
     }
   }
 
-  function trigger_update(value: string | null) {
-    Log.debug(value);
-    if (value !== searchContent) {
-      dispatcher("search", value);
-    }
+  function on_input(event: InputEvent) {
+    if (event.data === " ")
+      return;
 
-    searchContent = value;
+    tokens = tokenize_filter_query(inputElement.textContent ?? "");
   }
 
-  function on_search(event: Event) {
-    const target = event.target as HTMLInputElement;
-    trigger_update(target.value);
+  function on_keyboard_event(event: KeyboardEvent) {
+    switch (event.key) {
+      case "Enter": {
+        event.preventDefault();
+        dispatcher("search", tokens);
+        filterHistory.push_from_tokens(tokens);
+        break;
+      }
+      case "Escape": {
+        event.preventDefault();
+        isFocused = false;
+        break;
+      }
+    }
   }
 
   function on_clear() {
-    trigger_update(null);
+    tokens = [];
+    dispatcher("search", tokens);
     isFocused = false;
   }
 
-  function on_option_select(value: string | null) {
-    searchContent = value;
-    inputElement?.focus();
+  function on_option_select(value: string, override: boolean = false) {
+    if (inputElement) {
+      const parsedTokens = tokenize_filter_query(value);
+
+      if (override) {
+        tokens = parsedTokens;
+      } else {
+        tokens.push(...parsedTokens);
+        tokens = tokens;
+      }
+      
+      inputElement.focus();
+    }
+  }
+
+  function on_window_click(event: Event) {
+    if (!isFocused) {
+      return;
+    }
+
+    const targetIsInInputContainer = inputContainerElement && inputContainerElement.contains(event.target as Node);
+    const targetIsInMenu = menuElement && menuElement.contains(event.target as Node);
+
+    if (!targetIsInInputContainer && !targetIsInMenu) {
+      isFocused = false;
+    }
+  }
+
+  function tokens_to_html(filterTokens: TokenType[]) {
+    return filterTokens
+      .map(e => {
+        if (e.type === "term") {
+          return `${e.value}`
+        } else {
+          return `<span class="p-1.5 text-sm font-bold rounded-md bg-surface-active-token ml-1">${e.type}<span class="font-normal">:${e.value}</span></span>`;
+        }
+      })
+      .join(" ");
+  }
+
+  function set_caret_to_end(target: Node) {
+    const selection = window.getSelection();
+
+    if (selection && target.lastChild) {
+      const range = selection?.getRangeAt(0);
+
+      if (range) {
+        range.setStartAfter(target.lastChild);
+        selection.removeAllRanges();
+        selection?.addRange(range);
+      }
+    }
   }
 </script>
 
-<div class="flex flex-row w-full">
+<svelte:window on:click={on_window_click}/>
+<div class="flex flex-row w-full input overflow-hidden">
   {#if isFocused}
-    <label
-      class="input-group input-group-divider flex flex-row justify-between"
-      for={id}
+    <div
+      class="flex flex-row justify-between"
       bind:this={inputContainerElement}
     >
-      <span class="input-group-shim flex flex-row items-center p-2">
+      <span class="input-group-shim flex flex-row items-center p-3">
         <FilterIcon size={18}/>
       </span>
-      <input
+      <div
+        role="search"
         bind:this={inputElement}
-        bind:value={searchContent}
-        class="w-full"
-        id={id}
-        on:change
-        on:input
-        placeholder="Try tag: mysql user: admin"
-        type="text"
+        class="self-center inline whitespace-nowrap py-1 px-2 w-max-[300px] w-[300px] leading-normal overflow-hidden focus-visible:outline-none"
+        contenteditable="true"
+        on:input={on_input}
+        on:keydown={on_keyboard_event}
       />
-      <button class="variant-soft-surface" on:click={on_clear}>
+      <button class="variant-soft-surface px-3" on:click={on_clear}>
         <XIcon size={18}/>
       </button>
-    </label>
-
-    <div
-      bind:this={menuElement}
-      class:hidden={!is_null_or_empty(searchContent)}
-      class="absolute top-0 left-0 card px-4 py-5 bg-surface-200-700-token flex flex-col gap-2"
-    >
-      <div>
-        <span class="font-bold"> Filter options:</span>
-        <ul class="p-1">
-          {#each searchOptions as option (option)}
-            <li>
-              <button
-                class="btn bg-initial text-sm p-2 rounded-sm w-full hover:bg-surface-backdrop-token justify-start truncate"
-                on:click={() => on_option_select(option.value)}
-              >
-                <span class="font-bold">
-                {option.value}
-                </span>
-                <span class="font-light italic">
-                {option.description}
-                </span>
-              </button>
-            </li>
-          {/each}
-        </ul>
-      </div>
-      {#if filterHistory && $filterHistory.length > 0}
-        <hr class="!border-t-2"/>
-        <div>
-          <div class="flex flex-row justify-between items-center">
-            <span class="font-bold"> History</span>
-            <button
-              class="btn btn-sm text-error-400-500-token text-sm"
-              on:click={() => filterHistory.clear()}
-            >
-              Clear
-            </button>
-          </div>
-          <ul class="p-1">
-            {#each $filterHistory as historyItem (historyItem)}
-              <li>
-                <button
-                  class="btn bg-initial text-sm p-2 rounded-sm w-full hover:bg-surface-backdrop-token justify-start truncate"
-                  on:click={() => on_option_select(historyItem)}
-                >
-                  {historyItem}
-                </button>
-              </li>
-            {/each}
-          </ul>
-        </div>
-      {/if}
     </div>
   {:else }
     <button
       class="btn variant-ghost-surface btn-md"
-      on:click={focus_input}
+      on:click|stopPropagation|preventDefault={focus_input}
     >
       <FilterIcon size={18}/>
       <span>Filter</span>
     </button>
   {/if}
 </div>
+
+{#if isFocused}
+  <div
+    transition:fly={{duration: 100,y: -10, x: 0}}
+    bind:this={menuElement}
+    class="absolute top-0 left-0 card px-4 py-5 bg-surface-200-700-token flex flex-col gap-2 z-50"
+  >
+    <div>
+      <span class="font-bold"> Filter options:</span>
+      <ul class="p-1">
+        {#each searchOptions as option (option)}
+          <li>
+            <button
+              class="btn bg-initial text-sm p-2 rounded-sm w-full hover:bg-surface-backdrop-token justify-start truncate"
+              on:click={() => on_option_select(option.value)}
+            >
+                <span class="font-bold">
+                 {option.value}
+                </span>
+              <span class="font-light italic">
+                  {option.description}
+                </span>
+            </button>
+          </li>
+        {/each}
+      </ul>
+    </div>
+    {#if filterHistory && $filterHistory.length > 0}
+      <hr class="!border-t-2"/>
+      <div>
+        <div class="flex flex-row justify-between items-center">
+          <span class="font-bold"> History</span>
+          <button
+            class="btn btn-sm text-error-400-500-token text-sm"
+            on:click={() => filterHistory.clear()}
+          >
+            Clear
+          </button>
+        </div>
+        <ul class="p-1">
+          {#each $filterHistory as historyItem (historyItem.timestamp)}
+            <li>
+              <button
+                class="btn bg-initial text-sm p-2 rounded-sm w-full hover:bg-surface-backdrop-token justify-start truncate"
+                on:click={() => on_option_select(historyItem.value, true)}
+              >
+                {historyItem.value}
+              </button>
+            </li>
+          {/each}
+        </ul>
+      </div>
+    {/if}
+  </div>
+{/if}

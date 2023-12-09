@@ -1,6 +1,12 @@
 import type {LoggerSink, LogLevelType} from "../types";
 import {LogLevel} from "../types";
 
+/**
+ * ConsoleSink is a logger sink that outputs log events to the native console.
+ *
+ * @param maxLevel - The maximum log level to output.
+ * @returns - The logger sink object.
+ */
 export const ConsoleSink = (maxLevel: LogLevelType): LoggerSink => {
   return {
     onLogEvent: (message, level) => {

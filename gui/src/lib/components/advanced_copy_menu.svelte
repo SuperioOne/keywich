@@ -11,11 +11,11 @@
   import {getExtendedToastStore} from "$lib/stores";
 
   const modalStore = getModalStore();
-  const toastStore = getExtendedToastStore();
 
   type DisplayData =
     { display: string, raw: string, type: PasswordOutputType, state: "completed" }
     | { state: "loading" | "failed" }
+
   export let keyId: number;
   let data: DisplayData;
 
@@ -46,7 +46,7 @@
 
       data = {
         type: output_type,
-        raw: result,
+        raw: result.data,
         state: "completed",
         display: displayData
       };
@@ -60,7 +60,6 @@
   async function save_qr(data: string) {
     const buffer = new TextEncoder().encode(data);
     await RPC.Utility.save_file(buffer);
-    toastStore.trigger_success("QR image saved.");
   }
 </script>
 
@@ -99,32 +98,32 @@
           type="button"
           class="aspect-square btn p-2 variant-soft-primary flex flex-col gap-2 justify-center align-middle"
         >
-          <TypeIcon size={36}/>
-          <span class="font-mono text-center w-full !m-0">TEXT</span>
+          <TypeIcon size={48}/>
+          <span class="font-mono text-sm text-center w-full !m-0">TEXT</span>
         </button>
         <button
           on:click={() => get_password("qr")}
           type="button"
           class="aspect-square btn p-2 variant-soft-primary flex flex-col gap-2 justify-center align-middle"
         >
-          <QrIcon size={36}/>
-          <span class="font-mono text-center w-full !m-0">QR</span>
+          <QrIcon size={48}/>
+          <span class="font-mono text-sm text-center w-full !m-0">QR</span>
         </button>
         <button
           on:click={() => get_password("base64")}
           type="button"
           class="aspect-square btn p-2 variant-soft-primary flex flex-col gap-2 justify-center align-middle"
         >
-          <TerminalIcon size={36}/>
-          <span class="font-mono text-center w-full !m-0">BASE64</span>
+          <TerminalIcon size={48}/>
+          <span class="font-mono text-sm text-center w-full !m-0">BASE64</span>
         </button>
         <button
           on:click={() => get_password("uri")}
           type="button"
           class="aspect-square btn p-2 variant-soft-primary flex flex-col gap-2 justify-center align-middle"
         >
-          <LinkIcon size={36}/>
-          <span class="font-mono text-center w-full !m-0">URI Encoded</span>
+          <LinkIcon size={48}/>
+          <span class="font-mono text-sm text-center w-full !m-0">URI Encoded</span>
         </button>
       </div>
     {/if}

@@ -2,6 +2,17 @@ import {KeyMetadataItem, KeyOptions, PasswordOutputType} from "./contracts.js";
 import {PropertyError, RPCResult, RPCVoidResult} from "./utility.js";
 
 /**
+ * Represents a key filter object that can be used to filter keys.
+ * @interface
+ */
+export interface KeyFilter {
+  username?: string[];
+  domain?: string[];
+  tag?: string[];
+  searchTokens?: string[];
+}
+
+/**
  * Represents a key RPC (Remote Procedure Call) service.
  */
 export interface KeyMetadataRPC {
@@ -24,7 +35,7 @@ export interface KeyMetadataRPC {
    * Retrieves the collection of keys.
    * @returns A promise resolving to the result of the RPC operation containing key metadata items or an error message.
    */
-  get_key_collection(): Promise<RPCResult<KeyMetadataItem[]>>;
+  get_key_collection(filter?: KeyFilter): Promise<RPCResult<KeyMetadataItem[]>>;
 
   /**
    * Retrieves the collection of pinned keys.

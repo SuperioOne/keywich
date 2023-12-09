@@ -8,6 +8,11 @@ export type LogItem = {
 };
 
 const {subscribe, set, update} = writable<LogItem[]>([]);
+
+/**
+ * Application Log Reader is a utility class used to read logs of an application.
+ * It provides functionality to subscribe to log events and reset the log.
+ */
 export const ApplicationLogReader = {
   subscribe,
   reset: () => set([])
@@ -30,6 +35,14 @@ function format_message(value: any) {
   }
 }
 
+/**
+ * ApplicationSink is a Svelte store implementation of logger sink that filters log events based on a maximum log
+ * level and keeps a history of log events up to a maximum limit.
+ * @param maxLevel - The maximum log level to allow. Only log events with a level lower or equal to
+ * this will be processed.
+ * @param [maxHistory=1000] - The maximum number of log events to keep in history. Defaults to 1000 if not provided.
+ * @returns - The logger sink object.
+ */
 export const ApplicationSink = (maxLevel: LogLevelType, maxHistory = 1000): LoggerSink => {
   return {
     onLogEvent: (message, level) => {

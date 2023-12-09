@@ -114,10 +114,48 @@ const module = {
       });
     }
   },
-  get_key_collection() {
+  get_key_collection(filter) {
+    let collection = structuredClone(MEMORY_STORE);
+    if (filter) {
+
+      /**
+       * @return {boolean}
+       * @param {import("@keywitch/rpc").KeyMetadataItem} item
+       */
+      const filterFn = (item) => {
+        if (filter.tag) {
+          for (const tag of filter.tag) {
+            if (item.tags.includes(tag)) {
+              return true;
+            }
+          }
+        }
+
+        if (filter.domain) {
+          for (const domain of filter.domain) {
+            if (item.domain.includes(domain)) {
+              return true;
+            }
+          }
+        }
+
+        if (filter.username) {
+          for (const username of filter.username) {
+            if (item.user_name.includes(username)) {
+              return true;
+            }
+          }
+        }
+
+        return false;
+      }
+
+      collection = collection.filter(filterFn);
+    }
+
     return Promise.resolve({
       success: true,
-      data: structuredClone(MEMORY_STORE)
+      data: collection
     });
   },
   remove_key(id) {
@@ -171,7 +209,7 @@ const module = {
         break;
       }
       case "uri": {
-        data = encodeURIComponent("test@$%") 
+        data = encodeURIComponent("test@$%")
         break;
       }
       default:
