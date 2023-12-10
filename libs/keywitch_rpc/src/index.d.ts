@@ -8,7 +8,7 @@ export * from "./types/utility_rpc.js";
 export * from "./types/charset_rpc.js";
 export * from "./types/utility.js";
 
-export type RPCDefinition = {
+export type RPCApi = {
   Charset: CharsetRPC,
   KeyMetadata: KeyMetadataRPC,
   Utility: UtilityRPC

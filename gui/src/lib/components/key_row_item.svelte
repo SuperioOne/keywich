@@ -14,13 +14,14 @@
   export let active: boolean = false;
 
   const dispatch = createEventDispatcher<{
-    remove: KeyMetadataItem,
-    copyAux: KeyMetadataItem,
-    copy: KeyMetadataItem,
-    copyAlt: KeyMetadataItem,
-    delete: KeyMetadataItem,
-    update: KeyMetadataItem
-    pin: KeyMetadataItem
+    remove: KeyMetadataItem;
+    copyAux: KeyMetadataItem;
+    copy: KeyMetadataItem;
+    copyAlt: KeyMetadataItem;
+    delete: KeyMetadataItem;
+    update: KeyMetadataItem;
+    pin: KeyMetadataItem;
+    tagSelect: string;
   }>();
 
   $: noteTooltip = {
@@ -33,9 +34,9 @@
 </script>
 
 <div
-  role="none"
   class:bg-surface-active-token={active}
   class="card grid grid-cols-5 sm:grid-cols-8 md:grid-cols-12 gap-3 w-full p-4 items-stretch"
+  tabindex="-1"
 >
   <div class="flex col-span-1 items-center aspect-square">
     <button
@@ -74,11 +75,12 @@
       </div>
       <div class="flex flex-wrap gap-1 min-h-[24px]">
         {#each item.tags as tag (tag)}
-          <span
-            class="chip font-bold text-xs variant-soft-secondary w-fit px-2 py-1"
+          <button
+            class="btn chip font-bold text-xs variant-soft-secondary w-fit px-2 py-1"
+            on:click|preventDefault={() => dispatch("tagSelect", tag)}
           >
             {tag}
-          </span>
+          </button>
         {/each}
       </div>
     </div>

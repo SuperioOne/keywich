@@ -10,7 +10,7 @@
 
   export let tokens: TokenType[] = [];
 
-  const dispatcher = createEventDispatcher<{ search: TokenType[] | null; }>();
+  const dispatcher = createEventDispatcher<{ search: TokenType[]; }>();
   const filterHistory = get_filter_history();
   const searchOptions = [
     {
@@ -34,7 +34,10 @@
   $:{
     if (inputElement && tokens.length > 0) {
       inputElement.innerHTML = tokens_to_html(tokens);
-      set_caret_to_end(inputElement);
+
+      if (document.activeElement === inputElement) {
+        set_caret_to_end(inputElement);
+      }
     }
   }
 
@@ -100,7 +103,7 @@
         tokens.push(...parsedTokens);
         tokens = tokens;
       }
-      
+
       inputElement.focus();
     }
   }
@@ -133,7 +136,7 @@
   function set_caret_to_end(target: Node) {
     const selection = window.getSelection();
 
-    if (selection && target.lastChild) {
+    if (selection && target.lastChild && selection.rangeCount > 0) {
       const range = selection?.getRangeAt(0);
 
       if (range) {
@@ -147,7 +150,7 @@
 
 <svelte:window on:click={on_window_click}/>
 <div class="flex flex-row w-full input overflow-hidden">
-  {#if isFocused}
+  {#if isFocused || tokens.length > 0}
     <div
       class="flex flex-row justify-between"
       bind:this={inputContainerElement}

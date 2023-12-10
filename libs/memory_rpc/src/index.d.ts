@@ -1,4 +1,4 @@
-import type {RPCDefinition} from "@keywitch/rpc";
+import type {RPCApi} from "@keywitch/rpc";
 
-declare const _default: RPCDefinition;
+declare const _default: RPCApi;
 export default _default;

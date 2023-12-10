@@ -26,8 +26,14 @@ export default {
     tailwindFormPlugin,
     skeleton({
       themes: {
-        preset: ["crimson"],
-        custom: [keywitch_theme]
+        preset: [
+          "crimson",
+          "skeleton",
+          "hamlindigo",
+          "wintry",
+          "rocket",
+          "vintage",
+        ],
       }
     })
   ]

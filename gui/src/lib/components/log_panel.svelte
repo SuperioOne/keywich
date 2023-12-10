@@ -1,5 +1,5 @@
 <script lang="ts">
-  import {ApplicationLogReader, LogLevel} from "$lib/logger";
+  import {ApplicationLogReader, Log, LogLevel, type LogLevelType} from "$lib/logger";
   import {onMount, tick, createEventDispatcher} from "svelte";
   import CloseIcon from "$lib/icons/x.svelte";
   import TrashIcon from "$lib/icons/trash-2.svelte";
@@ -18,6 +18,8 @@
   let dragEnabled = false;
 
   onMount(() => {
+    containerElement.focus();
+
     const unsubscribe = ApplicationLogReader.subscribe(() => {
       tick().then(() => {
         if (autoScroll) {
@@ -48,20 +50,22 @@
   }
 
   function on_key_controls(event: KeyboardEvent) {
-    switch (event.code) {
-      case "End" :
-        autoScroll = true;
-        containerElement.scroll({top: containerElement.scrollHeight});
-        break;
-      case "Home" :
-      case "PageDown" :
-      case "PageUp" :
-      case "ArrowUp" :
-      case "ArrowDown" :
-        autoScroll = false;
-        break;
-      default:
-        break;
+    if (document.activeElement === containerElement || containerElement.contains(document.activeElement as Node)) {
+      switch (event.code) {
+        case "End" :
+          autoScroll = true;
+          containerElement.scroll({top: containerElement.scrollHeight});
+          break;
+        case "Home" :
+        case "PageDown" :
+        case "PageUp" :
+        case "ArrowUp" :
+        case "ArrowDown" :
+          autoScroll = false;
+          break;
+        default:
+          break;
+      }
     }
   }
 
@@ -72,15 +76,44 @@
   function on_close() {
     dispatch("close");
   }
+
+  function get_class_name(level: LogLevelType) {
+    switch (level) {
+      case LogLevel.DEBUG:
+        return "text-secondary-300-600-token";
+      case LogLevel.INFO:
+        break;
+      case LogLevel.ERROR:
+        return "text-error-300-600-token";
+      case LogLevel.WARN:
+        return "text-warning-300-600-token";
+      case LogLevel.TRACE:
+        return "text-tertiary-300-600-token";
+    }
+  }
+
+  function get_level_name(level: LogLevelType) {
+    switch (level) {
+      case LogLevel.DEBUG:
+        return "DEBUG";
+      case LogLevel.INFO:
+        return "INFO"
+      case LogLevel.ERROR:
+        return "ERROR";
+      case LogLevel.WARN:
+        return "WARN";
+      case LogLevel.TRACE:
+        return "TRACE";
+    }
+  }
 </script>
 
 <svelte:window
-  on:keyup|stopPropagation|preventDefault={on_key_controls}
   on:mouseup={() => {dragEnabled = false}}
   on:mousemove={on_resize}
+  on:keyup={on_key_controls}
 />
-<div
-  transition:fly={{duration:100, y:500 }}>
+<div transition:fly={{duration:100, y:500 }}>
   <div
     on:mousedown|stopPropagation|preventDefault={() => {dragEnabled = true}}
     on:mouseup|stopPropagation|preventDefault={() => {dragEnabled = false}}
@@ -120,19 +153,16 @@
     class="w-full h-full overflow-y-auto break-words p-2 bg-black"
     bind:this={containerElement}
     style:height={`${height}px`}
+    tabindex="-1"
   >
-    <ol class="font-mono text-sm ">
+    <ol class="font-mono text-sm">
       {#each $ApplicationLogReader as log}
         {@const date = new Date(log.timestamp)}
-        <li>
-          <span class="mr-0.5">{ `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`}</span>
-          <span
-            class:text-error-300-600-token={log.level ===  LogLevel.ERROR}
-            class:text-warning-300-600-token={log.level === LogLevel.WARN}
-            class:text-tertiary-300-600-token={log.level === LogLevel.DEBUG}
-          >
-            {log.message} 
-        </span>
+        {@const className = get_class_name(log.level)}
+        <li class={className}>
+          <span class="mr-2"> {date.toISOString()}</span>
+          <span class="inline-block w-12 mr-0.5"> {get_level_name(log.level)}</span>
+          <span>{log.message}</span>
         </li>
       {/each}
     </ol>

@@ -1,5 +1,5 @@
 import type {EventDispatcher} from "$lib/event_manager";
-import type {RPCDefinition} from "@keywitch/rpc";
+import type {RPCApi} from "@keywitch/rpc";
 import {getContext, setContext} from "svelte";
 
 export * from "./components";
@@ -10,7 +10,7 @@ export * from "./stores";
 
 export type KeywitchAppContext = {
   AppEvents: EventDispatcher,
-  RPC: RPCDefinition
+  RPC: RPCApi
 }
 const CONTEXT_KEY = "keywitch_app_context";
 

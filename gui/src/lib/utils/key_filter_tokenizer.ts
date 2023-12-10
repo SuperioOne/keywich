@@ -1,3 +1,5 @@
+export type TokenTypeName = "username" | "domain" | "tag" | "term";
+
 /**
  * Represents a type of token.
  */

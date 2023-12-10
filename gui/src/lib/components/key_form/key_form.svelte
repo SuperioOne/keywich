@@ -133,11 +133,10 @@
       }
     }
   }
-
 </script>
 
 {#if $modalStore[0]}
-  <div class="card variant-filled-surface bg-surface-100-800-token px-16 py-8 w-full sm:w-modal flex flex-col gap-10">
+  <div class="card px-16 py-8 w-full sm:w-modal flex flex-col gap-10">
     <h2 class="font-bold h2">
       {$modalStore[0].title}
     </h2>

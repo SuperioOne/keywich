@@ -2,23 +2,27 @@
   import "../app.css";
   import "../app.postcss";
   import MenuItems from "./menu.config";
-  import {
-    computePosition,
-    autoUpdate,
-    flip,
-    shift,
-    offset,
-    arrow,
-  } from "@floating-ui/dom";
-  import {AppShell, storePopup, initializeStores, Modal, Toast} from "@skeletonlabs/skeleton";
-  import {create_event_manager, LogPanel, set_app_context} from "$lib";
   import RPC from "@keywitch/memory_rpc";
+  import type {LayoutData} from "../../.svelte-kit/types/src/routes/$types";
+  import {
+    AppShell,
+    storePopup,
+    initializeStores,
+    Modal,
+    Toast,
+    setInitialClassState, getModeAutoPrefers,
+  } from "@skeletonlabs/skeleton";
+  import {computePosition, autoUpdate, flip, shift, offset, arrow} from "@floating-ui/dom";
+  import {create_event_manager, lightSwitchController, Log, LogPanel, set_app_context} from "$lib";
+
+  export let data: LayoutData;
 
   initializeStores();
   const eventManager = create_event_manager();
   storePopup.set({computePosition, autoUpdate, flip, shift, offset, arrow});
+  lightSwitchController.set(getModeAutoPrefers());
 
-  let activePage: number = 0;
+
   let displayLogger: boolean = false;
 
   set_app_context({
@@ -37,22 +41,23 @@
   }
 </script>
 
+
+<svelte:head>{@html `<script>(${setInitialClassState.toString()})();</script>`}</svelte:head>
 <svelte:window on:keyup|preventDefault={on_log_panel_flip}/>
 <Modal buttonNeutral="variant-soft" buttonPositive="variant-soft-primary"/>
 <Toast/>
 <AppShell class="h-full">
   <svelte:fragment slot="header">
-    <div class="grid grid-flow-col grid-cols-12 bg-surface-200-700-token px-3">
+    <div class="grid grid-flow-col grid-cols-12 bg-surface-200-700-token px-3 drop-shadow-2xl shadow">
       <div class="col-span-3"/>
       <div class="col-span-6 flex flex-row justify-center">
         {#each MenuItems as item, index (index)}
           <a
             class:bg-initial={true}
-            class:bg-primary-active-token={activePage === index}
+            class:bg-primary-active-token={data.routeId === item.target}
             class="btn bg-surface-token hover:bg-primary-hover-token rounded-none sm:w-36 w-fit"
-            data-sveltekit-preload-data="hover"
+            data-sveltekit-preload-data="tap"
             href={item.target}
-            on:click={() => {activePage = index}}
           >
             <div class="flex flex-col gap-1 align-middle justify-center w-full">
               <div class="flex justify-center">

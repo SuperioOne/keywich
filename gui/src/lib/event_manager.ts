@@ -1,10 +1,11 @@
 import RPC from "@keywitch/memory_rpc";
 import type {KeyMetadataItem} from "@keywitch/rpc";
-import type {ModalActionResult} from "$lib";
+import type {ModalActionResult, TokenType} from "$lib";
 import {AdvancedCopyMenu, KeyForm, ModalAction} from "$lib/components";
 import {Log} from "$lib/logger";
 import {getExtendedToastStore} from "$lib/stores";
 import {getModalStore} from "@skeletonlabs/skeleton";
+import {goto} from "$app/navigation";
 
 export type EventDispatcher = {
   new_key: () => Promise<KeyMetadataItem | undefined>;
@@ -12,7 +13,8 @@ export type EventDispatcher = {
   advanced_copy: (item: KeyMetadataItem) => Promise<boolean>;
   update_key: (item: KeyMetadataItem) => Promise<KeyMetadataItem | undefined>;
   delete_key: (item: KeyMetadataItem) => Promise<boolean>;
-  flip_pin: (item: KeyMetadataItem) => Promise<boolean>
+  flip_pin: (item: KeyMetadataItem) => Promise<boolean>;
+  search_keys: (tokens: TokenType[]) => Promise<void>;
 };
 
 export function create_event_manager(): EventDispatcher {
@@ -149,12 +151,45 @@ export function create_event_manager(): EventDispatcher {
     return false;
   }
 
+  async function search_keys(tokens: TokenType[]) {
+    const target = new URL("/keys", document.location.origin);
+
+    if (tokens && tokens.length > 0) {
+      let name: string;
+
+      for (const searchQuery of tokens) {
+        switch (searchQuery.type) {
+          case "username":
+            name = "u";
+            break;
+          case "domain":
+            name = "d";
+            break;
+          case "tag":
+            name = "t";
+            break;
+          case "term":
+            name = "s";
+            break;
+        }
+
+        target.searchParams.append(name, searchQuery.value);
+      }
+    }
+
+    await goto(target, {
+      invalidateAll: true,
+      keepFocus: true,
+    });
+  }
+
   return {
     new_key,
     update_key,
     delete_key,
     flip_pin,
     advanced_copy,
-    quick_copy
+    quick_copy,
+    search_keys
   }
 }

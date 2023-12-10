@@ -8,7 +8,6 @@
   import type {PasswordOutputType} from "@keywitch/rpc";
   import {CodeBlock, getModalStore, ProgressRadial} from "@skeletonlabs/skeleton";
   import {Log} from "$lib/logger";
-  import {getExtendedToastStore} from "$lib/stores";
 
   const modalStore = getModalStore();
 
@@ -65,7 +64,7 @@
 
 {#if $modalStore[0]}
   <div
-    class="card variant-filled-surface bg-surface-100-800-token p-6 flex flex-col items-center gap-5 w-full sm:w-modal-slim">
+    class="card p-6 flex flex-col items-center gap-5 w-full sm:w-modal-slim">
     {#if data?.state === "loading"}
       <ProgressRadial stroke={160} meter="stroke-primary-500" track="stroke-primary-500/30"/>
     {:else if data?.state === "completed"}
