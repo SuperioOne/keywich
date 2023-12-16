@@ -1,7 +1,6 @@
 <script lang="ts">
   import "../app.css";
   import "../app.postcss";
-  import MenuItems from "./menu.config";
   import RPC from "@keywitch/memory_rpc";
   import type {LayoutData} from "../../.svelte-kit/types/src/routes/$types";
   import {
@@ -13,15 +12,38 @@
     setInitialClassState, getModeAutoPrefers,
   } from "@skeletonlabs/skeleton";
   import {computePosition, autoUpdate, flip, shift, offset, arrow} from "@floating-ui/dom";
-  import {create_event_manager, lightSwitchController, Log, LogPanel, set_app_context} from "$lib";
+  import {create_event_manager, i18nStore, theme_store, LogPanel, set_app_context} from "$lib";
+  import HomeIcon from "$lib/icons/home.svelte";
+  import KeyIcon from "$lib/icons/key.svelte";
+  import SettingsIcon from "$lib/icons/settings.svelte";
+  import type {MenuItem} from "./menu.config";
 
   export let data: LayoutData;
 
   initializeStores();
   const eventManager = create_event_manager();
+  const menuItems: MenuItem[] = [
+    {
+      label: i18nStore.getKey("i18:/nav/home", "Home"),
+      target: "/",
+      icon: HomeIcon,
+    },
+    {
+      label: i18nStore.getKey("i18:/nav/keys", "Keys"),
+      target: "/keys",
+      icon: KeyIcon,
+    },
+    {
+      label: i18nStore.getKey("i18:/nav/settings", "Settings"),
+      target: "/settings",
+      icon: SettingsIcon,
+    },
+  ];
   storePopup.set({computePosition, autoUpdate, flip, shift, offset, arrow});
-  lightSwitchController.set(getModeAutoPrefers());
-
+  theme_store.set({
+    name: "crimson",
+    isLight: getModeAutoPrefers()
+  });
 
   let displayLogger: boolean = false;
 
@@ -48,10 +70,10 @@
 <Toast/>
 <AppShell class="h-full">
   <svelte:fragment slot="header">
-    <div class="grid grid-flow-col grid-cols-12 bg-surface-200-700-token px-3 drop-shadow-2xl shadow">
+    <div class="grid grid-flow-col grid-cols-12 bg-surface-200-700-token px-3 shadow">
       <div class="col-span-3"/>
       <div class="col-span-6 flex flex-row justify-center">
-        {#each MenuItems as item, index (index)}
+        {#each menuItems as item, index (index)}
           <a
             class:bg-initial={true}
             class:bg-primary-active-token={data.routeId === item.target}

@@ -5,7 +5,7 @@
   import {computePosition, offset} from "@floating-ui/dom";
   import {createEventDispatcher, tick} from "svelte";
   import {fly} from "svelte/transition";
-  import {get_filter_history} from "$lib/stores";
+  import {get_filter_history, i18nStore} from "$lib/stores";
   import {tokenize_filter_query} from "$lib/utils";
 
   export let tokens: TokenType[] = [];
@@ -15,15 +15,15 @@
   const searchOptions = [
     {
       value: "username:",
-      description: "Filter by username"
+      description: i18nStore.getKey("i18:/filter/by-username-desc", "Filter by username")
     },
     {
       value: "domain:",
-      description: "Filter by domain"
+      description: i18nStore.getKey("i18:/filter/by-domain-desc", "Filter by domain")
     },
     {
       value: "tag:",
-      description: "Filter by tag"
+      description: i18nStore.getKey("i18:/filter/by-tag-desc", "Filter by tag")
     }];
 
   let inputElement: HTMLElement;
@@ -175,8 +175,10 @@
       class="btn variant-ghost-surface btn-md"
       on:click|stopPropagation|preventDefault={focus_input}
     >
-      <FilterIcon size={18}/>
-      <span>Filter</span>
+      <slot>
+        <FilterIcon size={18}/>
+        <span>Filter</span>
+      </slot>
     </button>
   {/if}
 </div>
@@ -188,7 +190,7 @@
     class="absolute top-0 left-0 card px-4 py-5 bg-surface-200-700-token flex flex-col gap-2 z-50"
   >
     <div>
-      <span class="font-bold"> Filter options:</span>
+      <span class="font-bold">{i18nStore.getKey("i18:/filter/options", "Filter options:")}</span>
       <ul class="p-1">
         {#each searchOptions as option (option)}
           <li>
@@ -211,12 +213,12 @@
       <hr class="!border-t-2"/>
       <div>
         <div class="flex flex-row justify-between items-center">
-          <span class="font-bold"> History</span>
+          <span class="font-bold">{i18nStore.getKey("i18:/filter/history", "History")}</span>
           <button
             class="btn btn-sm text-error-400-500-token text-sm"
             on:click={() => filterHistory.clear()}
           >
-            Clear
+            {i18nStore.getKey("i18:/generic/clear", "Clear")}
           </button>
         </div>
         <ul class="p-1">

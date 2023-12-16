@@ -1,14 +1,17 @@
-import {writable, get} from "svelte/store";
+import EN from "../../locales/en.json"
+import format_string from "@superior-one/format_string";
 import {Log} from "$lib";
-import {format_string} from "$lib/utils/string_format";
+import {writable, get} from "svelte/store";
 
-const test: Record<string, string> = {
-  "/path/something": "VASDvalue 1",
-  "/path": "value 2",
-}
+const CaseFlag = {
+  None: 0,
+  UpperCase: 1,
+  LowerCase: -1,
+} as const;
+type CaseFlagType = 0 | 1 | -1
 
 export function create_internalization_store() {
-  let activeKeys = test;
+  let activeKeys: Record<string, string> = EN; // TODO: replace with proper loader 
   const localeStore = writable<string>("en");
   const {set, subscribe, update} = localeStore;
   let cache: Record<string, string> = {};
@@ -19,7 +22,7 @@ export function create_internalization_store() {
       set(locale);
     },
     subscribe,
-    getKey: (keyURI: string | URL) => {
+    getKey: (keyURI: string | URL, fallback?: string) => {
       if (typeof keyURI === "string" && cache[keyURI]) {
         return cache[keyURI];
       }
@@ -29,42 +32,32 @@ export function create_internalization_store() {
         : keyURI;
 
       const key = target.pathname.toLowerCase();
-      const defaultValue = key;
 
       if (target.protocol !== "i18:") {
         Log.error(`Invalid key URI: ${target}`);
-        return defaultValue
+        return fallback ?? key;
       }
 
       let value = activeKeys[key];
 
       if (!value) {
         Log.error(`Invalid key URI does not exists: ${target}`);
-        return defaultValue;
+        return fallback ?? key;
       }
 
       if (target.searchParams.size > 0) {
         const currentLocale = get(localeStore) ?? "en";
-
-        if (target.searchParams.has("toUpper")) {
-          value = value.toLocaleUpperCase(currentLocale);
-        } else if (target.searchParams.has("toLower")) {
-          value = value.toLocaleLowerCase(currentLocale);
-        }
+        value = apply_operators(value, target, currentLocale);
       }
 
-      cache[target.toString()] = value;
+      if (!target.searchParams.has("$noCache")) {
+        cache[keyURI.toString()] = value;
+      }
+
       return value;
     }
   }
 }
-
-const CaseFlag = {
-  None: 0,
-  UpperCase: 1,
-  LowerCase: -1,
-} as const;
-type CaseFlagType = 0 | 1 | -1
 
 function apply_operators(text: string, localizationURI: URL, locale: string) {
   const currentLocale = locale ?? undefined;
@@ -72,7 +65,6 @@ function apply_operators(text: string, localizationURI: URL, locale: string) {
   let caseFlag: CaseFlagType = CaseFlag.None;
 
   for (const [key, param] of localizationURI.searchParams) {
-
     switch (key) {
       case "$toUpper" :
         caseFlag = CaseFlag.UpperCase;

@@ -1,10 +1,11 @@
 <script lang="ts">
+  import FilterIcon from "$lib/icons/filter.svelte";
   import PlusCircleIcon from "$lib/icons/plus-circle.svelte";
   import type {KeyMetadataItem} from "@keywitch/rpc";
   import type {PageData} from "./$types";
-  import {KeyRow, get_app_context, KeyFilterInput, Log, type TokenType} from "$lib";
-  import {invalidateAll, goto} from "$app/navigation";
+  import {KeyRow, get_app_context, KeyFilterInput, Log, type TokenType, i18nStore} from "$lib";
   import {fly} from "svelte/transition";
+  import {invalidateAll} from "$app/navigation";
 
   export let data: PageData;
 
@@ -66,7 +67,7 @@
         class="btn variant-soft-primary w-full sm:w-auto"
       >
         <PlusCircleIcon/>
-        <span class="font-bold"> Create </span>
+        <span class="font-bold"> {i18nStore.getKey("i18:/keys/button/create", "Create")} </span>
       </button>
     </div>
     <div class="col-span-full sm:col-span-1 flex flex-row flex-wrap gap-2 justify-end">
@@ -74,7 +75,12 @@
         <KeyFilterInput
           on:search={search_keys}
           tokens={data.tokens ?? []}
-        />
+        >
+          <FilterIcon size={18}/>
+          <span>
+            {i18nStore.getKey("i18:/keys/button/filter", "Filter")}
+          </span>
+        </KeyFilterInput>
       </div>
     </div>
   </div>

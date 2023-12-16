@@ -6,7 +6,7 @@
   import {InputChip, RangeSlider, getModalStore, FileDropzone} from "@skeletonlabs/skeleton";
   import {Log} from "$lib/logger";
   import {ModalAction} from "./types";
-  import {getExtendedToastStore} from "$lib/stores";
+  import {getExtendedToastStore, i18nStore} from "$lib/stores";
   import {onDestroy, onMount} from "svelte";
   import {or_default} from "$lib/utils";
 
@@ -32,7 +32,7 @@
       charsetList = charsetResult.data;
     } else {
       Log.error(charsetResult.error);
-      toastStore.trigger_error("Unable to load charset list.");
+      toastStore.trigger_error(i18nStore.getKey("i18:/key-form/errors/charset-error", "Unable to load charset list."));
     }
   });
 
@@ -40,7 +40,6 @@
 
   function revoke_local_image() {
     if (iconUrl && iconUrl !== data?.custom_icon) {
-      Log.debug(`Destoring: ${iconUrl}`);
       URL.revokeObjectURL(iconUrl);
     }
 
@@ -148,13 +147,13 @@
     >
       <div>
         <label class="label">
-          <span class="font-bold">Domain</span>
+          <span class="font-bold">{i18nStore.getKey("i18:/key-form/labels/domain", "Domain")}</span>
           <input
             class:input-error={errors.domain}
             class="input"
             name="domain"
             type="text"
-            placeholder="Ex: gitea.com, home, my secret storage"
+            placeholder={i18nStore.getKey("i18:/key-form/desc/domain", "")}
             required
             value={data?.domain ?? null}
           />
@@ -172,13 +171,13 @@
 
       <div>
         <label class="label">
-          <span class="font-bold">Username</span>
+          <span class="font-bold">{i18nStore.getKey("i18:/key-form/labels/username", "Username")}</span>
           <input
             class:input-error={errors.user_name}
             class="input"
             type="text"
             name="user_name"
-            placeholder="Ex: me@localhost"
+            placeholder={i18nStore.getKey("i18:/key-form/desc/username", "")}
             required
             value={data?.user_name ?? null}
           />
@@ -196,7 +195,7 @@
 
       <div>
         <label class="label" for="charset">
-          <span class="font-bold">Charset</span>
+          <span class="font-bold">{i18nStore.getKey("i18:/key-form/labels/charset", "Charset")}</span>
           <select
             class:input-error={errors.charset}
             class="select"
@@ -226,7 +225,7 @@
 
       <div>
         <label class="label" for="target_size">
-          <span class="font-bold">Password Length</span>
+          <span class="font-bold">{i18nStore.getKey("i18:/key-form/labels/pass-length", "Password Length")}</span>
           <RangeSlider
             name="target_size"
             bind:value={sliderValue}
@@ -251,12 +250,12 @@
 
       <div>
         <label class="label" for="tags">
-          <span class="font-bold">Tags</span>
+          <span class="font-bold">{i18nStore.getKey("i18:/key-form/labels/tags", "Tags")}</span>
           <InputChip
             bind:value={tags}
             name="tags"
             chips="variant-filled-primary"
-            placeholder="(Optional) Enter tags"
+            placeholder={i18nStore.getKey("i18:/key-form/desc/tags", "")}
           />
         </label>
         {#if errors.tags}
@@ -272,13 +271,13 @@
 
       <div>
         <label class="label">
-          <span class="font-bold">Notes</span>
+          <span class="font-bold">{i18nStore.getKey("i18:/key-form/labels/note", "Note")}</span>
           <textarea
             class:input-error={errors.notes}
             class="textarea"
             rows="4"
             name="notes"
-            placeholder="(Optional) Notes about the key"
+            placeholder={i18nStore.getKey("i18:/key-form/desc/note", "")}
             maxlength={maximumNoteLength}
             bind:value={noteValue}
           />
@@ -299,7 +298,7 @@
 
       <div>
         <label class="label">
-          <span class="font-bold">Revision No</span>
+          <span class="font-bold">{i18nStore.getKey("i18:/key-form/labels/revision", "Revision No")}</span>
           <input
             class:input-error={errors.revision}
             class="input"
@@ -307,7 +306,7 @@
             name="revision"
             min="0"
             step="1"
-            placeholder="(Optional) Password seed number"
+            placeholder={i18nStore.getKey("i18:/key-form/desc/revision", "")}
             value={data?.revision ?? 0}
           />
         </label>
@@ -324,7 +323,7 @@
 
       <div>
         <label class="label" for="custom_icon">
-          <span class="font-bold">Custom Icon</span>
+          <span class="font-bold">{i18nStore.getKey("i18:/key-form/labels/icon", "Custom Icon")}</span>
           <FileDropzone
             accept="image/png, image/jpeg, image/svg+xml"
             on:change={on_custom_icon}
@@ -341,7 +340,7 @@
             </svelte:fragment>
             <svelte:fragment slot="message">
               <p>
-                <b>Upload</b> a image or drag and drop.
+                {i18nStore.getKey("i18:/key-form/desc/icon", "Upload a image or drag and drop")}
               </p>
             </svelte:fragment>
           </FileDropzone>
@@ -363,7 +362,7 @@
         class="btn variant-soft"
         on:click|preventDefault={on_popup_close}
       >
-        <span>Cancel</span>
+        <span>{i18nStore.getKey("i18:/generic/cancel", "Cancel")}</span>
       </button>
 
       <button
@@ -371,7 +370,7 @@
         class="btn variant-soft-primary"
         on:click={on_submit}
       >
-        <span>Confirm</span>
+        <span>{i18nStore.getKey("i18:/generic/confirm", "Confirm")}</span>
       </button>
     </div>
   </div>

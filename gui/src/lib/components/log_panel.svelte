@@ -5,11 +5,12 @@
   import TrashIcon from "$lib/icons/trash-2.svelte";
   import TerminalIcon from "$lib/icons/terminal.svelte";
   import {fly} from "svelte/transition";
+  import {i18nStore} from "$lib/stores/i18n_store";
 
   const dispatch = createEventDispatcher();
   export let maxHeight = 500
   export let minHeight = 200;
-  export let title = "Logs"
+  export let title = i18nStore.getKey("i18:/log-panel/title","Logs")
 
   let containerElement: HTMLDivElement;
   let topBarElement: HTMLDivElement;

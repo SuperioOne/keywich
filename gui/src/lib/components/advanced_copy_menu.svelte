@@ -8,6 +8,7 @@
   import type {PasswordOutputType} from "@keywitch/rpc";
   import {CodeBlock, getModalStore, ProgressRadial} from "@skeletonlabs/skeleton";
   import {Log} from "$lib/logger";
+  import {i18nStore} from "$lib/stores/i18n_store";
 
   const modalStore = getModalStore();
 
@@ -77,7 +78,9 @@
           on:click={() => save_qr(data.raw)}
         >
           <span><DownloadIcon/></span>
-          <span>Save</span>
+          <span>{
+            i18nStore.getKey("i18:/generic/save", "Save")
+          }</span>
         </button>
       {:else }
         <div class="w-full">
