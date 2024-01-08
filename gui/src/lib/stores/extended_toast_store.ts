@@ -1,7 +1,7 @@
 import {getToastStore} from "@skeletonlabs/skeleton";
 
 export const getExtendedToastStore = () => {
-  let {subscribe, close, trigger, freeze, unfreeze, clear} = getToastStore();
+  const {subscribe, close, trigger, freeze, unfreeze, clear} = getToastStore();
 
   return {
     subscribe,
@@ -14,17 +14,17 @@ export const getExtendedToastStore = () => {
       message: message,
       background: "variant-filled-success",
       timeout: 1500
-    }),    
+    }),
     trigger_error: (message: string) => trigger({
       message: message,
       background: "variant-filled-error",
       timeout: 3000
-    }),    
+    }),
     trigger_warning: (message: string) => trigger({
       message: message,
       background: "variant-filled-warning",
       timeout: 2500
-    }),   
+    }),
     trigger_info: (message: string) => trigger({
       message: message,
       background: "variant-filled-secondary",

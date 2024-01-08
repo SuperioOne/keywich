@@ -24,17 +24,17 @@ export type DebouncerController<TAction> = {
   update: TAction;
 }
 
-export function create_debouncer<TResult = any>(action: Action<TResult | Promise<TResult>>, options: DebounceOptions<TResult>): DebouncerController<Action<void>>;
-export function create_debouncer<T1, TResult = any>(action: Action_1<T1, TResult | Promise<TResult>>, options: DebounceOptions<TResult>): DebouncerController<Action_1<T1, void>>;
-export function create_debouncer<T1, T2, TResult = any>(action: Action_2<T1, T2, TResult | Promise<TResult>>, options: DebounceOptions<TResult>): DebouncerController<Action_2<T1, T2, void>>;
-export function create_debouncer<T1, T2, T3, TResult = any>(action: Action_3<T1, T2, T3, TResult | Promise<TResult>>, options: DebounceOptions<TResult>): DebouncerController<Action_3<T1, T2, T3, void>>;
-export function create_debouncer<TResult = any>(action: (...args: any[]) => TResult | Promise<TResult>, options: DebounceOptions<TResult>): DebouncerController<any> {
+export function create_debouncer<TResult = unknown>(action: Action<TResult | Promise<TResult>>, options: DebounceOptions<TResult>): DebouncerController<Action<void>>;
+export function create_debouncer<T1, TResult = unknown>(action: Action_1<T1, TResult | Promise<TResult>>, options: DebounceOptions<TResult>): DebouncerController<Action_1<T1, void>>;
+export function create_debouncer<T1, T2, TResult = unknown>(action: Action_2<T1, T2, TResult | Promise<TResult>>, options: DebounceOptions<TResult>): DebouncerController<Action_2<T1, T2, void>>;
+export function create_debouncer<T1, T2, T3, TResult = unknown>(action: Action_3<T1, T2, T3, TResult | Promise<TResult>>, options: DebounceOptions<TResult>): DebouncerController<Action_3<T1, T2, T3, void>>;
+export function create_debouncer<TResult = unknown>(action: (...args: unknown[]) => TResult | Promise<TResult>, options: DebounceOptions<TResult>): DebouncerController<unknown> {
   const {
     onSuccess,
     onError,
     timeout
   } = options
-  let timerId: any;
+  let timerId: number;
 
   return {
     update: (...args: unknown[]) => {

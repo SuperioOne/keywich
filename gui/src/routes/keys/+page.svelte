@@ -3,7 +3,8 @@
   import PlusCircleIcon from "$lib/icons/plus-circle.svelte";
   import type {KeyMetadataItem} from "@keywitch/rpc";
   import type {PageData} from "./$types";
-  import {KeyRow, get_app_context, KeyFilterInput, Log, type TokenType, i18nStore} from "$lib";
+  import {KeyRow, get_app_context, KeyFilterInput, i18nStore} from "$lib";
+  import type {TokenType} from "$lib";
   import {fly} from "svelte/transition";
   import {invalidateAll} from "$app/navigation";
 
@@ -62,9 +63,9 @@
   <div class="grid grid-cols-2 gap-6">
     <div class="col-span-full sm:col-span-1 flex flex-row flex-wrap gap-2">
       <button
-        on:click={new_key}
-        type="button"
-        class="btn variant-soft-primary w-full sm:w-auto"
+          on:click={new_key}
+          type="button"
+          class="btn variant-soft-primary w-full sm:w-auto"
       >
         <PlusCircleIcon/>
         <span class="font-bold"> {i18nStore.getKey("i18:/keys/button/create", "Create")} </span>
@@ -73,8 +74,8 @@
     <div class="col-span-full sm:col-span-1 flex flex-row flex-wrap gap-2 justify-end">
       <div class="w-full sm:w-fit">
         <KeyFilterInput
-          on:search={search_keys}
-          tokens={data.tokens ?? []}
+            on:search={search_keys}
+            tokens={data.tokens ?? []}
         >
           <FilterIcon size={18}/>
           <span>
@@ -100,15 +101,15 @@
           {/if}
         </div>
         <KeyRow
-          item={row}
-          active={index === selected}
-          on:copy={quick_copy}
-          on:copyAux={quick_copy}
-          on:copyAlt={advanced_copy}
-          on:delete={delete_key}
-          on:update={update_key}
-          on:pin={flip_pin}
-          on:tagSelect={on_tag}
+            item={row}
+            active={index === selected}
+            on:copy={quick_copy}
+            on:copyAux={quick_copy}
+            on:copyAlt={advanced_copy}
+            on:delete={delete_key}
+            on:update={update_key}
+            on:pin={flip_pin}
+            on:tagSelect={on_tag}
         />
       </div>
     {/each}

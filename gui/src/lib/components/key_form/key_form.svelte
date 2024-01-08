@@ -84,7 +84,7 @@
     }
   }
 
-  async function on_submit(event: Event) {
+  async function on_submit() {
     const modalInstance = $modalStore[0];
     if (!modalInstance) {
       Log.error(new Error("Submit failed. Modal component is created but unable to access modal itself."));
@@ -332,7 +332,7 @@
             <svelte:fragment slot="lead">
               <div class="flex flex-row justify-center items-center">
                 {#if iconUrl}
-                  <img width="64px" src={iconUrl} alt="image"/>
+                  <img width="64px" src={iconUrl} alt="icon"/>
                 {:else }
                   <UploadIcon/>
                 {/if}

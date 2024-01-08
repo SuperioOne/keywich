@@ -126,7 +126,7 @@ export function create_event_manager(): EventDispatcher {
 
   async function advanced_copy(item: KeyMetadataItem) {
     try {
-      const result = await new Promise<ModalActionResult>((resolve) => {
+      await new Promise<ModalActionResult>((resolve) => {
         modalStore.trigger({
           component: {
             ref: AdvancedCopyMenu,

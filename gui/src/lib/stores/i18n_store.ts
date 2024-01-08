@@ -11,9 +11,9 @@ const CaseFlag = {
 type CaseFlagType = 0 | 1 | -1
 
 export function create_internalization_store() {
-  let activeKeys: Record<string, string> = EN; // TODO: replace with proper loader 
+  const activeKeys: Record<string, string> = EN; // TODO: replace with proper loader
   const localeStore = writable<string>("en");
-  const {set, subscribe, update} = localeStore;
+  const {set, subscribe} = localeStore;
   let cache: Record<string, string> = {};
 
   return {
@@ -27,7 +27,7 @@ export function create_internalization_store() {
         return cache[keyURI];
       }
 
-      let target: URL = typeof keyURI === "string"
+      const target: URL = typeof keyURI === "string"
         ? new URL(keyURI)
         : keyURI;
 
@@ -61,7 +61,7 @@ export function create_internalization_store() {
 
 function apply_operators(text: string, localizationURI: URL, locale: string) {
   const currentLocale = locale ?? undefined;
-  let replaceArgs: Record<string, any> = {}
+  const replaceArgs: Record<string, unknown> = {}
   let caseFlag: CaseFlagType = CaseFlag.None;
 
   for (const [key, param] of localizationURI.searchParams) {
@@ -78,7 +78,7 @@ function apply_operators(text: string, localizationURI: URL, locale: string) {
     }
   }
 
-  let formattedText = format_string(text, replaceArgs);
+  const formattedText = format_string(text, replaceArgs);
 
   switch (caseFlag) {
     case CaseFlag.UpperCase:

@@ -2,7 +2,7 @@ import RPC from "@keywitch/memory_rpc";
 import type {PageLoad} from './$types';
 import {Log} from "$lib";
 
-export const load: PageLoad = async ({}) => {
+export const load: PageLoad = async () => {
   const result = await RPC.KeyMetadata.get_pinned_items();
 
   if (result.success) {

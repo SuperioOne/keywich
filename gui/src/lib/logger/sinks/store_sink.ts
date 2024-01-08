@@ -18,7 +18,7 @@ export const ApplicationLogReader = {
   reset: () => set([])
 };
 
-function format_message(value: any) {
+function format_message(value: unknown) {
   switch (typeof value) {
     case "undefined":
       return "undefined"
@@ -47,7 +47,7 @@ export const ApplicationSink = (maxLevel: LogLevelType, maxHistory = 1000): Logg
   return {
     onLogEvent: (message, level) => {
       if (level <= maxLevel) {
-        let formattedMessage = format_message(message);
+        const formattedMessage = format_message(message);
         update((currentBuffer) => {
           currentBuffer.push({
             message: formattedMessage,

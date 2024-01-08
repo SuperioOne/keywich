@@ -1,6 +1,5 @@
 import defaultTheme from "tailwindcss/defaultTheme";
 import tailwindFormPlugin from "@tailwindcss/forms"
-import {keywitch_theme} from "./src/themes/keywitch_theme.js"
 import {skeleton} from "@skeletonlabs/tw-plugin";
 
 // @ts-check

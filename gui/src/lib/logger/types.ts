@@ -9,6 +9,6 @@ export const LogLevel = {
 export type LogLevelType = typeof LogLevel[keyof typeof LogLevel];
 
 export type LoggerSink = {
-  onLogEvent: (message: any, level: LogLevelType) => void,
+  onLogEvent: (message: unknown, level: LogLevelType) => void,
   onCloseEvent?: () => Promise<void>,
 }

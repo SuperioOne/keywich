@@ -1,5 +1,5 @@
 <script lang="ts">
-  import {ApplicationLogReader, Log, LogLevel, type LogLevelType} from "$lib/logger";
+  import {ApplicationLogReader, LogLevel, type LogLevelType} from "$lib/logger";
   import {onMount, tick, createEventDispatcher} from "svelte";
   import CloseIcon from "$lib/icons/x.svelte";
   import TrashIcon from "$lib/icons/trash-2.svelte";

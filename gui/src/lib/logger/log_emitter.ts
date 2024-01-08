@@ -7,7 +7,7 @@ export class LogEmitter {
     return this.#listeners.push(sink);
   }
 
-  emit(message: any, level: LogLevelType) {
+  emit(message: unknown, level: LogLevelType) {
     for (const listener of this.#listeners) {
       try {
         listener.onLogEvent(message, level);

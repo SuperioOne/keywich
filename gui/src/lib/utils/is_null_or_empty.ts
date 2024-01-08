@@ -1,4 +1,4 @@
-export function is_null_or_empty(value: string | any[] | null | undefined): value is undefined | null {
+export function is_null_or_empty(value: string | unknown[] | null | undefined): value is undefined | null {
   switch (typeof value) {
     case "undefined":
       return true;

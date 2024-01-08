@@ -41,7 +41,7 @@
     }
   }
 
-  async function focus_input(event: Event) {
+  async function focus_input() {
     isFocused = true;
     await tick();
 

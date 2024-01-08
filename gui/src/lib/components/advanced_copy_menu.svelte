@@ -71,7 +71,7 @@
     {:else if data?.state === "completed"}
       {#if data.type === "qr" }
         <div class="card w-full overflow-hidden aspect-square">
-          <img width="100%" src={data.display} alt="qr image"/>
+          <img width="100%" src={data.display} alt="qr"/>
         </div>
         <button
           class="btn variant-soft-primary cursor-pointer"

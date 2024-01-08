@@ -9,27 +9,27 @@ export class GlobalLogger {
     this.#emitter = emitter;
   }
 
-  log(message: any, level: LogLevelType): void {
+  log(message: unknown, level: LogLevelType): void {
     this.#emitter.emit(message, level);
   }
 
-  error(message: any): void {
+  error(message: unknown): void {
     this.log(message, LogLevel.ERROR);
   }
 
-  warn(message: any): void {
+  warn(message: unknown): void {
     this.log(message, LogLevel.WARN);
   }
 
-  info(message: any): void {
+  info(message: unknown): void {
     this.log(message, LogLevel.INFO);
   }
 
-  debug(message: any): void {
+  debug(message: unknown): void {
     this.log(message, LogLevel.DEBUG);
   }
 
-  trace(message: any): void {
+  trace(message: unknown): void {
     this.log(message, LogLevel.TRACE);
   }
 }
