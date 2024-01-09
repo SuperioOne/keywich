@@ -1,61 +1,80 @@
 <script lang="ts">
-  import {
-    Accordion,
-    AccordionItem,
-    SlideToggle,
-  } from "@skeletonlabs/skeleton";
-  import {i18nStore, theme_store, ThemeOptions,} from "$lib";
-  import type {ThemeOptionType} from "$lib";
+  import {RPC, type ThemeOptionType, to_promise} from "$lib";
+  import {Accordion, AccordionItem, SlideToggle,} from "@skeletonlabs/skeleton";
+  import {themeStore, ThemeOptions} from "$lib";
 
   function on_theme_swap(event: Event) {
     const selectElement = event.target as HTMLSelectElement;
-    theme_store.set_theme(selectElement.value as ThemeOptionType ?? "crimson");
+    themeStore.set_theme(selectElement.value as ThemeOptionType ?? "crimson");
   }
 </script>
 
-<Accordion autocollapse>
-  <AccordionItem open>
-    <svelte:fragment slot="lead">
-    </svelte:fragment>
-    <svelte:fragment slot="summary">General</svelte:fragment>
-    <svelte:fragment slot="content">
-      <div class="p-2 flex flex-col gap-2">
+<div class="card p-4">
+  <Accordion>
+    <AccordionItem open>
+      <svelte:fragment slot="summary"><h1 class="font-bold text-xl">Appearance</h1></svelte:fragment>
+      <svelte:fragment slot="content">
+        <div class="p-4 flex flex-col gap-8">
 
-        <div>
-          <span>Theme</span>
-          <select class="select" on:change={on_theme_swap}>
-            {#each ThemeOptions as option (option)}
-              <option selected={option === $theme_store.name} value={option}>{option}</option>
-            {/each}
-          </select>
-        </div>
+          <div class="flex flex-row flex-wrap justify-between items-center">
+            <span>Theme</span>
+            <select class="select w-fit" on:change={on_theme_swap}>
+              {#each ThemeOptions as option (option)}
+                <option selected={option === $themeStore.name} value={option}>{option}</option>
+              {/each}
+            </select>
+          </div>
 
-        <div>
-          <SlideToggle
-            size="sm"
-            name="theme-toggle"
-            checked={$theme_store.isLight}
-            on:click={theme_store.flip_mode}
-          >
-            {#if $theme_store.isLight}
-              Light Mode
+          <div class="flex flex-row flex-wrap justify-between items-center">
+          <span>
+            {#if $themeStore.isLight}
+              Flashbang!
             {:else}
               Dark Mode
             {/if}
-          </SlideToggle>
-        </div>
-      </div>
-    </svelte:fragment>
-  </AccordionItem>
-  <hr/>
-  <AccordionItem>
-    <svelte:fragment slot="lead">
-    </svelte:fragment>
-    <svelte:fragment slot="summary">Charsets</svelte:fragment>
-    <svelte:fragment slot="content">
-      <div class="p-2 flex flex-col gap-2">
+          </span>
+            <SlideToggle
+                size="sm"
+                name="theme-toggle"
+                checked={$themeStore.isLight}
+                on:click={themeStore.flip_mode}
+            >
+            </SlideToggle>
+          </div>
 
-      </div>
-    </svelte:fragment>
-  </AccordionItem>
-</Accordion>
+        </div>
+      </svelte:fragment>
+    </AccordionItem>
+    <hr/>
+    <AccordionItem open>
+      <svelte:fragment slot="summary"><h1 class="font-bold text-xl">Charsets</h1></svelte:fragment>
+      <svelte:fragment slot="content">
+        <div class="p-4 flex flex-col gap-8">
+
+          <div class="flex flex-row flex-wrap justify-between items-center">
+            <span>Charsets</span>
+
+            <ul>
+              {#await to_promise(RPC.Charset.get_charsets())}
+                <li>
+                  Loading...
+                </li>
+              {:then charset_list}
+                {#each charset_list as charset (charset.id)}
+                  <li>
+                    {charset.name}
+                  </li>
+                {/each}
+              {:catch err}
+                <li>
+                  Failed
+                </li>
+              {/await}
+            </ul>
+          </div>
+
+        </div>
+      </svelte:fragment>
+    </AccordionItem>
+  </Accordion>
+</div>

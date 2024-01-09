@@ -1,14 +1,14 @@
 <script lang="ts">
-  import RPC from "@keywitch/memory_rpc";
-  import UploadIcon from "$lib/icons/upload.svelte";
+  import UploadIcon from "../../icons/upload.svelte";
   import type {ModalActionResult} from "./types";
   import type {PropertyError, KeyOptions, CharsetItem, KeyMetadataItem} from "@keywitch/rpc";
   import {InputChip, RangeSlider, getModalStore, FileDropzone} from "@skeletonlabs/skeleton";
-  import {Log} from "$lib/logger";
+  import {Log} from "../../logger";
   import {ModalAction} from "./types";
-  import {getExtendedToastStore, i18nStore} from "$lib/stores";
+  import {RPC} from "../../rpc";
+  import {getExtendedToastStore, i18nStore} from "../../stores";
   import {onDestroy, onMount} from "svelte";
-  import {or_default} from "$lib/utils";
+  import {or_default} from "../../utils";
 
   export let data: KeyMetadataItem | undefined = undefined;
 
@@ -140,27 +140,27 @@
       {$modalStore[0].title}
     </h2>
     <form
-      bind:this={formElement}
-      id="new_key_form"
-      class="flex gap-5 flex-col"
-      on:submit|preventDefault={on_submit}
+        bind:this={formElement}
+        id="new_key_form"
+        class="flex gap-5 flex-col"
+        on:submit|preventDefault={on_submit}
     >
       <div>
         <label class="label">
           <span class="font-bold">{i18nStore.getKey("i18:/key-form/labels/domain", "Domain")}</span>
           <input
-            class:input-error={errors.domain}
-            class="input"
-            name="domain"
-            type="text"
-            placeholder={i18nStore.getKey("i18:/key-form/desc/domain", "")}
-            required
-            value={data?.domain ?? null}
+              class:input-error={errors.domain}
+              class="input"
+              name="domain"
+              type="text"
+              placeholder={i18nStore.getKey("i18:/key-form/desc/domain", "")}
+              required
+              value={data?.domain ?? null}
           />
         </label>
         {#if errors.domain}
           <ul
-            class="m-1 font-light text-sm text-error-500-400-token list-disc list-inside"
+              class="m-1 font-light text-sm text-error-500-400-token list-disc list-inside"
           >
             {#each errors.domain as error}
               <li> {error}</li>
@@ -173,18 +173,18 @@
         <label class="label">
           <span class="font-bold">{i18nStore.getKey("i18:/key-form/labels/username", "Username")}</span>
           <input
-            class:input-error={errors.user_name}
-            class="input"
-            type="text"
-            name="user_name"
-            placeholder={i18nStore.getKey("i18:/key-form/desc/username", "")}
-            required
-            value={data?.user_name ?? null}
+              class:input-error={errors.user_name}
+              class="input"
+              type="text"
+              name="user_name"
+              placeholder={i18nStore.getKey("i18:/key-form/desc/username", "")}
+              required
+              value={data?.user_name ?? null}
           />
         </label>
         {#if errors.user_name}
           <ul
-            class="m-1 font-light text-sm text-error-500-400-token list-disc list-inside"
+              class="m-1 font-light text-sm text-error-500-400-token list-disc list-inside"
           >
             {#each errors.user_name as error}
               <li> {error}</li>
@@ -197,15 +197,15 @@
         <label class="label" for="charset">
           <span class="font-bold">{i18nStore.getKey("i18:/key-form/labels/charset", "Charset")}</span>
           <select
-            class:input-error={errors.charset}
-            class="select"
-            name="charset"
-            required
+              class:input-error={errors.charset}
+              class="select"
+              name="charset"
+              required
           >
             {#each charsetList as charsetItem (charsetItem.name)}
               <option
-                selected="{data?.charset === charsetItem.charset}"
-                value={charsetItem.charset}
+                  selected="{data?.charset === charsetItem.charset}"
+                  value={charsetItem.charset}
               >
                 {charsetItem.name}
               </option>
@@ -214,7 +214,7 @@
         </label>
         {#if errors.charset}
           <ul
-            class="m-1 font-light text-sm text-error-500-400-token list-disc list-inside"
+              class="m-1 font-light text-sm text-error-500-400-token list-disc list-inside"
           >
             {#each errors.charset as error}
               <li> {error}</li>
@@ -227,11 +227,11 @@
         <label class="label" for="target_size">
           <span class="font-bold">{i18nStore.getKey("i18:/key-form/labels/pass-length", "Password Length")}</span>
           <RangeSlider
-            name="target_size"
-            bind:value={sliderValue}
-            max={maximumPassLength}
-            step={1}
-            min={1}
+              name="target_size"
+              bind:value={sliderValue}
+              max={maximumPassLength}
+              step={1}
+              min={1}
           />
         </label>
         <div class="flex justify-end items-center">
@@ -239,7 +239,7 @@
         </div>
         {#if errors.target_size}
           <ul
-            class="m-1 font-light text-sm text-error-500-400-token list-disc list-inside"
+              class="m-1 font-light text-sm text-error-500-400-token list-disc list-inside"
           >
             {#each errors.target_size as error}
               <li> {error}</li>
@@ -252,15 +252,15 @@
         <label class="label" for="tags">
           <span class="font-bold">{i18nStore.getKey("i18:/key-form/labels/tags", "Tags")}</span>
           <InputChip
-            bind:value={tags}
-            name="tags"
-            chips="variant-filled-primary"
-            placeholder={i18nStore.getKey("i18:/key-form/desc/tags", "")}
+              bind:value={tags}
+              name="tags"
+              chips="variant-filled-primary"
+              placeholder={i18nStore.getKey("i18:/key-form/desc/tags", "")}
           />
         </label>
         {#if errors.tags}
           <ul
-            class="m-1 font-light text-sm text-error-500-400-token list-disc list-inside"
+              class="m-1 font-light text-sm text-error-500-400-token list-disc list-inside"
           >
             {#each errors.tags as error}
               <li> {error}</li>
@@ -273,13 +273,13 @@
         <label class="label">
           <span class="font-bold">{i18nStore.getKey("i18:/key-form/labels/note", "Note")}</span>
           <textarea
-            class:input-error={errors.notes}
-            class="textarea"
-            rows="4"
-            name="notes"
-            placeholder={i18nStore.getKey("i18:/key-form/desc/note", "")}
-            maxlength={maximumNoteLength}
-            bind:value={noteValue}
+              class:input-error={errors.notes}
+              class="textarea"
+              rows="4"
+              name="notes"
+              placeholder={i18nStore.getKey("i18:/key-form/desc/note", "")}
+              maxlength={maximumNoteLength}
+              bind:value={noteValue}
           />
         </label>
         <div class="flex justify-end items-center">
@@ -287,7 +287,7 @@
         </div>
         {#if errors.notes}
           <ul
-            class="m-1 font-light text-sm text-error-500-400-token list-disc list-inside"
+              class="m-1 font-light text-sm text-error-500-400-token list-disc list-inside"
           >
             {#each errors.notes as error}
               <li> {error}</li>
@@ -300,19 +300,19 @@
         <label class="label">
           <span class="font-bold">{i18nStore.getKey("i18:/key-form/labels/revision", "Revision No")}</span>
           <input
-            class:input-error={errors.revision}
-            class="input"
-            type="number"
-            name="revision"
-            min="0"
-            step="1"
-            placeholder={i18nStore.getKey("i18:/key-form/desc/revision", "")}
-            value={data?.revision ?? 0}
+              class:input-error={errors.revision}
+              class="input"
+              type="number"
+              name="revision"
+              min="0"
+              step="1"
+              placeholder={i18nStore.getKey("i18:/key-form/desc/revision", "")}
+              value={data?.revision ?? 0}
           />
         </label>
         {#if errors.revision}
           <ul
-            class="m-1 font-light text-sm text-error-500-400-token list-disc list-inside"
+              class="m-1 font-light text-sm text-error-500-400-token list-disc list-inside"
           >
             {#each errors.revision as error}
               <li> {error}</li>
@@ -325,9 +325,9 @@
         <label class="label" for="custom_icon">
           <span class="font-bold">{i18nStore.getKey("i18:/key-form/labels/icon", "Custom Icon")}</span>
           <FileDropzone
-            accept="image/png, image/jpeg, image/svg+xml"
-            on:change={on_custom_icon}
-            name="custom_icon"
+              accept="image/png, image/jpeg, image/svg+xml"
+              on:change={on_custom_icon}
+              name="custom_icon"
           >
             <svelte:fragment slot="lead">
               <div class="flex flex-row justify-center items-center">
@@ -347,7 +347,7 @@
         </label>
         {#if errors.custom_icon}
           <ul
-            class="m-1 font-light text-sm text-error-500-400-token list-disc list-inside"
+              class="m-1 font-light text-sm text-error-500-400-token list-disc list-inside"
           >
             {#each errors.custom_icon as error}
               <li>{error}</li>
@@ -358,17 +358,17 @@
     </form>
     <div class="flex flex-row justify-between">
       <button
-        type="button"
-        class="btn variant-soft"
-        on:click|preventDefault={on_popup_close}
+          type="button"
+          class="btn variant-soft"
+          on:click|preventDefault={on_popup_close}
       >
         <span>{i18nStore.getKey("i18:/generic/cancel", "Cancel")}</span>
       </button>
 
       <button
-        type="button"
-        class="btn variant-soft-primary"
-        on:click={on_submit}
+          type="button"
+          class="btn variant-soft-primary"
+          on:click={on_submit}
       >
         <span>{i18nStore.getKey("i18:/generic/confirm", "Confirm")}</span>
       </button>

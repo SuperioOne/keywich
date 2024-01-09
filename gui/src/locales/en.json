@@ -1,10 +1,10 @@
 {
   "/actions/advanced-copy/title": "Advanced options",
   "/actions/copy-key/msg/error": "Key generation failed. See logs for more details.",
-  "/actions/copy-key/msg/success": "Key copied to the clipboard.",
+  "/actions/copy-key/msg/success": "Copied key to clipboard.",
   "/actions/delete-key/message": "Are you sure to delete key for '{username}' at '{domain}'?",
   "/actions/delete-key/msg/error": "Unable to delete key details from store. See logs for more details.",
-  "/actions/delete-key/msg/success": "Key details deleted from the store.",
+  "/actions/delete-key/msg/success": "Key deleted from store.",
   "/actions/delete-key/title": "Confirm Delete",
   "/actions/new-key/msg/success": "New key for '{domain}' created successfully.",
   "/actions/new-key/title": "Create New Key",

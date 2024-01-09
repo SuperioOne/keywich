@@ -1,17 +1,16 @@
 <script lang="ts">
-  import FilterIcon from "$lib/icons/filter.svelte";
-  import XIcon from "$lib/icons/x.svelte";
-  import type {TokenType} from "$lib/utils";
+  import FilterIcon from "../icons/filter.svelte";
+  import XIcon from "../icons/x.svelte";
+  import type {TokenType} from "../utils";
   import {computePosition, offset} from "@floating-ui/dom";
   import {createEventDispatcher, tick} from "svelte";
   import {fly} from "svelte/transition";
-  import {get_filter_history, i18nStore} from "$lib/stores";
-  import {tokenize_filter_query} from "$lib/utils";
+  import {filterHistoryStore, i18nStore} from "../stores";
+  import {tokenize_filter_query} from "../utils";
 
   export let tokens: TokenType[] = [];
 
   const dispatcher = createEventDispatcher<{ search: TokenType[]; }>();
-  const filterHistory = get_filter_history();
   const searchOptions = [
     {
       value: "username:",
@@ -76,7 +75,7 @@
       case "Enter": {
         event.preventDefault();
         dispatcher("search", tokens);
-        filterHistory.push_from_tokens(tokens);
+        filterHistoryStore.push_from_tokens(tokens);
         break;
       }
       case "Escape": {
@@ -209,20 +208,20 @@
         {/each}
       </ul>
     </div>
-    {#if filterHistory && $filterHistory.length > 0}
+    {#if $filterHistoryStore.length > 0}
       <hr class="!border-t-2"/>
       <div>
         <div class="flex flex-row justify-between items-center">
           <span class="font-bold">{i18nStore.getKey("i18:/filter/history", "History")}</span>
           <button
             class="btn btn-sm text-error-400-500-token text-sm"
-            on:click={() => filterHistory.clear()}
+            on:click={() => filterHistoryStore.clear()}
           >
             {i18nStore.getKey("i18:/generic/clear", "Clear")}
           </button>
         </div>
         <ul class="p-1">
-          {#each $filterHistory as historyItem (historyItem.timestamp)}
+          {#each $filterHistoryStore as historyItem (historyItem.timestamp)}
             <li>
               <button
                 class="btn bg-initial text-sm p-2 rounded-sm w-full hover:bg-surface-backdrop-token justify-start truncate"

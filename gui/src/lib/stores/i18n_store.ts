@@ -1,6 +1,6 @@
 import EN from "../../locales/en.json"
 import format_string from "@superior-one/format_string";
-import {Log} from "$lib";
+import {Log} from "../logger";
 import {writable, get} from "svelte/store";
 
 const CaseFlag = {
@@ -10,7 +10,7 @@ const CaseFlag = {
 } as const;
 type CaseFlagType = 0 | 1 | -1
 
-export function create_internalization_store() {
+function init_i18n_store() {
   const activeKeys: Record<string, string> = EN; // TODO: replace with proper loader
   const localeStore = writable<string>("en");
   const {set, subscribe} = localeStore;
@@ -90,4 +90,4 @@ function apply_operators(text: string, localizationURI: URL, locale: string) {
   }
 }
 
-export const i18nStore = create_internalization_store();
+export const i18nStore = init_i18n_store();

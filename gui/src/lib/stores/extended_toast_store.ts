@@ -31,4 +31,5 @@ export const getExtendedToastStore = () => {
       timeout: 1500
     }),
   }
-}; 
+};
+

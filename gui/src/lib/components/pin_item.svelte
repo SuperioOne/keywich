@@ -1,15 +1,14 @@
 <script lang="ts">
-  import KeyIcon from "$lib/icons/key.svelte";
+  import KeyIcon from "../icons/key.svelte";
   import type {KeyMetadataItem} from "@keywitch/rpc";
-  import {get_app_context} from "$lib";
+  import {App} from "../app";
 
   export let item: KeyMetadataItem;
-  const appContext = get_app_context();
 </script>
 
 <div class="active:scale-90 transition-all variant-glass-secondary rounded-md cursor-pointer hover:backdrop-brightness-75 overflow-hidden">
   <a href="#" class="inline-block variant-glass-secondary p-5 w-full h-full"
-     on:click|preventDefault={() => appContext.AppEvents.quick_copy(item)}>
+     on:click|preventDefault={() => App.Actions.quick_copy(item)}>
     <div
       class="flex flex-col gap-2 justify-center items-center overflow-hidden"
     >

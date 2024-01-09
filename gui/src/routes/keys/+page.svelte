@@ -3,47 +3,46 @@
   import PlusCircleIcon from "$lib/icons/plus-circle.svelte";
   import type {KeyMetadataItem} from "@keywitch/rpc";
   import type {PageData} from "./$types";
-  import {KeyRow, get_app_context, KeyFilterInput, i18nStore} from "$lib";
   import type {TokenType} from "$lib";
+  import {KeyRow, KeyFilterInput, i18nStore, App} from "$lib";
   import {fly} from "svelte/transition";
   import {invalidateAll} from "$app/navigation";
 
   export let data: PageData;
 
   let selected: number | undefined = undefined;
-  const appContext = get_app_context();
 
   async function new_key() {
-    const key = await appContext.AppEvents.new_key();
+    const key = await App.Actions.new_key();
     if (key) {
       await invalidateAll();
     }
   }
 
   async function update_key(event: CustomEvent<KeyMetadataItem>) {
-    const updated = await appContext.AppEvents.update_key(event.detail);
+    const updated = await App.Actions.update_key(event.detail);
     if (updated) {
       await invalidateAll();
     }
   }
 
   async function flip_pin(event: CustomEvent<KeyMetadataItem>) {
-    const success = await appContext.AppEvents.flip_pin(event.detail);
+    const success = await App.Actions.flip_pin(event.detail);
     if (success) {
       await invalidateAll();
     }
   }
 
   async function quick_copy(event: CustomEvent<KeyMetadataItem>) {
-    return await appContext.AppEvents.quick_copy(event.detail);
+    return await App.Actions.quick_copy(event.detail);
   }
 
   async function advanced_copy(event: CustomEvent<KeyMetadataItem>) {
-    return await appContext.AppEvents.advanced_copy(event.detail);
+    return await App.Actions.advanced_copy(event.detail);
   }
 
   async function delete_key(event: CustomEvent<KeyMetadataItem>) {
-    const success = await appContext.AppEvents.delete_key(event.detail);
+    const success = await App.Actions.delete_key(event.detail);
     if (success) {
       await invalidateAll();
     }
@@ -51,11 +50,11 @@
 
   async function on_tag(event: CustomEvent<string>) {
     const searchTokens: TokenType[] = [{type: "tag", value: event.detail}];
-    await appContext.AppEvents.search_keys(searchTokens);
+    await App.Actions.search_keys(searchTokens);
   }
 
   async function search_keys(event: CustomEvent<TokenType[]>) {
-    await appContext.AppEvents.search_keys(event.detail ?? []);
+    await App.Actions.search_keys(event.detail ?? []);
   }
 </script>
 

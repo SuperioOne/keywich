@@ -1,12 +1,12 @@
 import {writable} from "svelte/store";
-import type {TokenType} from "$lib/utils/key_filter_tokenizer";
+import type {TokenType} from "../utils/key_filter_tokenizer";
 
 export type FilterHistoryItem = {
   value: string;
   timestamp: number;
 }
 
-function create_filter_history() {
+function init_filter_history() {
   // use env variable if needed
   const limit = 5;
 
@@ -63,8 +63,4 @@ function create_filter_history() {
   }
 }
 
-const SearchHistoryStore = create_filter_history();
-
-export function get_filter_history() {
-  return SearchHistoryStore;
-}
+export const filterHistoryStore = init_filter_history();

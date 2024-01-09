@@ -1,13 +1,13 @@
 <script lang="ts">
   import ClipboardIcon from "$lib/icons/clipboard.svelte";
   import EditIcon from "$lib/icons/edit.svelte";
+  import InfoIcon from "$lib/icons/info.svelte";
   import KeyIcon from "$lib/icons/key.svelte";
   import StarIcon from "$lib/icons/star.svelte";
-  import InfoIcon from "$lib/icons/info.svelte";
   import TrashIcon from "$lib/icons/trash-2.svelte";
   import type {KeyMetadataItem} from "@keywitch/rpc";
-  import {createEventDispatcher} from "svelte";
   import type {PopupSettings} from "@skeletonlabs/skeleton";
+  import {createEventDispatcher} from "svelte";
   import {popup} from "@skeletonlabs/skeleton";
 
   export let item: KeyMetadataItem;

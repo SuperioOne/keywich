@@ -19,11 +19,11 @@ export type ThemeDetails = {
   isLight: boolean;
 }
 
-function createLightswitch() {
+function init_theme_store(defaults?: ThemeDetails) {
   const lightSwitch = modeCurrent;
-  const {subscribe, set, update} = writable<ThemeDetails>({
+  const {subscribe, set, update} = writable<ThemeDetails>(defaults ?? {
     name: "crimson",
-    isLight: true
+    isLight: false
   });
 
   const setMode = (value: boolean) => {
@@ -65,8 +65,9 @@ function createLightswitch() {
     set: (theme: ThemeDetails) => {
       document?.body?.setAttribute("data-theme", theme.name ?? "crimson");
       set(theme);
+      setMode(theme.isLight);
     },
   };
 }
 
-export const theme_store = createLightswitch();
+export const themeStore = init_theme_store();

@@ -1,15 +1,17 @@
-import RPC from "@keywitch/memory_rpc";
-import type {KeyMetadataItem} from "@keywitch/rpc";
-import {AdvancedCopyMenu, KeyForm, ModalAction} from "$lib/components";
-import {Log} from "$lib/logger";
-import {getExtendedToastStore} from "$lib/stores";
+import type {KeyMetadataItem, RPCApi} from "@keywitch/rpc";
+import type {TokenType} from "./utils/key_filter_tokenizer";
+import type {ModalActionResult} from "./components/key_form/types";
+import {AdvancedCopyMenu, KeyForm, ModalAction} from "./components";
+import {Log} from "./logger";
+import {getExtendedToastStore} from "./stores";
 import {getModalStore} from "@skeletonlabs/skeleton";
 import {goto} from "$app/navigation";
-import {i18nStore, type ModalActionResult, type TokenType} from "$lib";
+import {i18nStore} from "./stores/i18n_store";
 
 // All app actions which can be called via UI elements, commands, keyboard shortcuts
 
-export type EventDispatcher = {
+export type AppActions = {
+  get RPC(): RPCApi
   new_key: () => Promise<KeyMetadataItem | undefined>;
   quick_copy: (item: KeyMetadataItem) => Promise<boolean>;
   advanced_copy: (item: KeyMetadataItem) => Promise<boolean>;
@@ -19,7 +21,7 @@ export type EventDispatcher = {
   search_keys: (tokens: TokenType[]) => Promise<void>;
 };
 
-export function create_event_manager(): EventDispatcher {
+export function init_actions(rpcInstance: RPCApi): AppActions {
   const modalStore = getModalStore();
   const toastStore = getExtendedToastStore();
 
@@ -79,8 +81,8 @@ export function create_event_manager(): EventDispatcher {
 
   async function flip_pin(item: KeyMetadataItem) {
     const rpcAction = item.pinned
-      ? RPC.KeyMetadata.unpin_key
-      : RPC.KeyMetadata.pin_key;
+      ? rpcInstance.KeyMetadata.unpin_key
+      : rpcInstance.KeyMetadata.pin_key;
 
     const result = await rpcAction(item.id);
 
@@ -99,7 +101,7 @@ export function create_event_manager(): EventDispatcher {
 
   async function quick_copy(item: KeyMetadataItem) {
     try {
-      const result = await RPC.KeyMetadata.generate_password(item.id, "text");
+      const result = await rpcInstance.KeyMetadata.generate_password(item.id, "text");
 
       if (result.success) {
         await navigator.clipboard.writeText(result.data);
@@ -164,7 +166,7 @@ export function create_event_manager(): EventDispatcher {
     });
 
     if (confirmation) {
-      const result = await RPC.KeyMetadata.remove_key(item.id);
+      const result = await rpcInstance.KeyMetadata.remove_key(item.id);
 
       if (result.success) {
         toastStore.trigger_warning(i18nStore.getKey("i18:/actions/delete-key/msg/success", "Key deleted from store."));
@@ -217,6 +219,9 @@ export function create_event_manager(): EventDispatcher {
     flip_pin,
     advanced_copy,
     quick_copy,
-    search_keys
+    search_keys,
+    get RPC(): RPCApi {
+      return rpcInstance;
+    }
   }
 }

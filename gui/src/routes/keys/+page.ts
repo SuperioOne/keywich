@@ -1,8 +1,7 @@
-import RPC from "@keywitch/memory_rpc";
 import type {KeyFilter} from "@keywitch/rpc";
 import type {PageLoad} from './$types';
 import type {TokenType, TokenTypeName} from "$lib";
-import {Log} from "$lib";
+import {RPC, Log} from "$lib";
 
 export const load: PageLoad = async ({url}) => {
   const filter = get_filter(url);
