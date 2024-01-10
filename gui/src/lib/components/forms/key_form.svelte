@@ -55,7 +55,7 @@
       return;
     }
 
-    const modalResult: ModalActionResult = {
+    const modalResult: ModalActionResult<KeyMetadataItem> = {
       type: ModalAction.closed
     }
     modalInstance.response?.(modalResult);
@@ -101,10 +101,10 @@
 
     const result = data && !isNaN(Number(data.id))
       ? await RPC.KeyMetadata.update_key(data.id, keyData)
-      : await RPC.KeyMetadata.add_key(keyData);
+      : await RPC.KeyMetadata.create_key(keyData);
 
     if (result.success) {
-      const modalResult: ModalActionResult = {
+      const modalResult: ModalActionResult<KeyMetadataItem> = {
         type: ModalAction.submitted,
         data: result.data
       }
@@ -159,9 +159,7 @@
           />
         </label>
         {#if errors.domain}
-          <ul
-              class="m-1 font-light text-sm text-error-500-400-token list-disc list-inside"
-          >
+          <ul class="m-1 font-light text-sm text-error-500-400-token list-disc list-inside">
             {#each errors.domain as error}
               <li> {error}</li>
             {/each}
@@ -183,11 +181,9 @@
           />
         </label>
         {#if errors.user_name}
-          <ul
-              class="m-1 font-light text-sm text-error-500-400-token list-disc list-inside"
-          >
+          <ul class="m-1 font-light text-sm text-error-500-400-token list-disc list-inside">
             {#each errors.user_name as error}
-              <li> {error}</li>
+              <li>{error}</li>
             {/each}
           </ul>
         {/if}
@@ -213,9 +209,7 @@
           </select>
         </label>
         {#if errors.charset}
-          <ul
-              class="m-1 font-light text-sm text-error-500-400-token list-disc list-inside"
-          >
+          <ul class="m-1 font-light text-sm text-error-500-400-token list-disc list-inside">
             {#each errors.charset as error}
               <li> {error}</li>
             {/each}
@@ -238,9 +232,7 @@
           <div class=" text-xs">{sliderValue} / {maximumPassLength}</div>
         </div>
         {#if errors.target_size}
-          <ul
-              class="m-1 font-light text-sm text-error-500-400-token list-disc list-inside"
-          >
+          <ul class="m-1 font-light text-sm text-error-500-400-token list-disc list-inside">
             {#each errors.target_size as error}
               <li> {error}</li>
             {/each}
@@ -259,9 +251,7 @@
           />
         </label>
         {#if errors.tags}
-          <ul
-              class="m-1 font-light text-sm text-error-500-400-token list-disc list-inside"
-          >
+          <ul class="m-1 font-light text-sm text-error-500-400-token list-disc list-inside">
             {#each errors.tags as error}
               <li> {error}</li>
             {/each}
@@ -286,9 +276,7 @@
           <div class="text-xs">{noteValue?.length ?? 0} / {maximumNoteLength}</div>
         </div>
         {#if errors.notes}
-          <ul
-              class="m-1 font-light text-sm text-error-500-400-token list-disc list-inside"
-          >
+          <ul class="m-1 font-light text-sm text-error-500-400-token list-disc list-inside">
             {#each errors.notes as error}
               <li> {error}</li>
             {/each}
@@ -311,9 +299,7 @@
           />
         </label>
         {#if errors.revision}
-          <ul
-              class="m-1 font-light text-sm text-error-500-400-token list-disc list-inside"
-          >
+          <ul class="m-1 font-light text-sm text-error-500-400-token list-disc list-inside">
             {#each errors.revision as error}
               <li> {error}</li>
             {/each}
@@ -346,9 +332,7 @@
           </FileDropzone>
         </label>
         {#if errors.custom_icon}
-          <ul
-              class="m-1 font-light text-sm text-error-500-400-token list-disc list-inside"
-          >
+          <ul class="m-1 font-light text-sm text-error-500-400-token list-disc list-inside">
             {#each errors.custom_icon as error}
               <li>{error}</li>
             {/each}
@@ -367,7 +351,7 @@
 
       <button
           type="button"
-          class="btn variant-soft-primary"
+          class="btn variant-filled-primary"
           on:click={on_submit}
       >
         <span>{i18nStore.getKey("i18:/generic/confirm", "Confirm")}</span>

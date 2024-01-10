@@ -55,7 +55,7 @@
   <div class="col-span-3 sm:col-span-4 md:col-span-8 flex flex-row sm:gap-8 gap-3 items-center">
     <div class="w-full overflow-hidden flex flex-col gap-4">
       <div>
-        <dt class="font-bold mb-0.5">
+        <dt class="font-bold text-lg mb-0.5">
           <div class="flex flex-row items-center gap-1">
             <span>
               {item.user_name}
@@ -69,14 +69,14 @@
             </button>
           </div>
         </dt>
-        <dd class="text-sm font-thin truncate">
+        <dd class="font-thin truncate">
           {item.domain}
         </dd>
       </div>
       <div class="flex flex-wrap gap-1 min-h-[24px]">
         {#each item.tags as tag (tag)}
           <button
-            class="btn chip font-bold text-xs variant-soft-secondary w-fit px-2 py-1"
+            class="btn chip font-bold text-xs variant-filled-secondary w-fit px-2 py-1"
             on:click|preventDefault={() => dispatch("tagSelect", tag)}
           >
             {tag}
@@ -93,14 +93,14 @@
       on:contextmenu|preventDefault={() => dispatch("copyAlt", item)}
       on:auxclick|preventDefault={() => dispatch("copyAux", item)}
       on:click|preventDefault={() => dispatch("copy", item)}
-      class="btn btn-sm variant-soft-primary btn-icon-base h-fit"
+      class="btn btn-sm variant-filled-primary btn-icon-base h-fit"
     >
       <ClipboardIcon/>
     </button>
     <button
       type="button"
       class="btn btn-sm btn-icon-base h-fit"
-      class:variant-ghost-warning={item.pinned}
+      class:variant-filled-warning={item.pinned}
       class:variant-soft={!item.pinned}
       on:click|preventDefault={() => dispatch("pin", item)}
     >
@@ -108,7 +108,7 @@
     </button>
     <button
       type="button"
-      class="btn btn-sm variant-soft-secondary btn-icon-base h-fit"
+      class="btn btn-sm variant-filled-secondary btn-icon-base h-fit"
       on:click|preventDefault={() => dispatch("update", item)}
     >
       <EditIcon/>
@@ -116,7 +116,7 @@
     <button
       on:click|preventDefault={() => dispatch("delete", item)}
       type="button"
-      class="btn btn-sm variant-soft-error btn-icon-base h-fit"
+      class="btn btn-sm variant-filled-error btn-icon-base h-fit"
     >
       <TrashIcon/>
     </button>

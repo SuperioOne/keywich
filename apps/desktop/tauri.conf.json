@@ -1,5 +1,5 @@
 {
-  "$schema": "../../packages/keywitch-gui/node_modules/@tauri-apps/cli/schema.json",
+  "$schema": "./node_modules/@tauri-apps/cli/schema.json",
   "build": {
     "beforeBuildCommand": "pnpm -C ../../gui run build",
     "beforeDevCommand": "pnpm -C ../../gui run dev",
@@ -64,10 +64,10 @@
     "windows": [
       {
         "fullscreen": false,
-        "height": 600,
+        "height": 840,
         "resizable": true,
         "title": "Keywitch",
-        "width": 800
+        "width": 860
       }
     ]
   }

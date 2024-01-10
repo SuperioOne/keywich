@@ -1,5 +1,3 @@
-import type {KeyMetadataItem} from "@keywitch/rpc";
-
 export const ModalAction = {
   submitted: 0,
   closed: 1
@@ -7,13 +5,13 @@ export const ModalAction = {
 
 export type ModalActionType = typeof ModalAction[keyof typeof ModalAction];
 
-export interface ModalFormSubmitResult {
+export interface ModalFormSubmitResult<T> {
   type: typeof ModalAction.submitted,
-  data: KeyMetadataItem
+  data: T
 }
 
 export interface ModalCloseResult {
   type: typeof ModalAction.closed
 }
 
-export type ModalActionResult = ModalFormSubmitResult | ModalCloseResult;
+export type ModalActionResult<T> = ModalFormSubmitResult<T> | ModalCloseResult;

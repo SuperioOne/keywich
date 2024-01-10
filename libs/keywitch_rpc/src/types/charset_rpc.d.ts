@@ -6,11 +6,11 @@ import {PropertyError, RPCResult, RPCVoidResult} from "./utility.js";
  */
 export interface CharsetRPC {
   /**
-   * Adds a new character set with the specified options.
+   * Creates a new character set with the specified options.
    * @param charset - The options for the new character set.
    * @returns A promise resolving to the result of the RPC operation containing the added character set or an error message.
    */
-  add_charset(charset: CharsetOptions): Promise<RPCResult<CharsetItem, string | PropertyError<CharsetOptions>>>;
+  create_charset(charset: CharsetOptions): Promise<RPCResult<CharsetItem, string | PropertyError<CharsetOptions>>>;
 
   /**
    * Removes the charset with the specified ID.

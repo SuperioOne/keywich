@@ -15,7 +15,7 @@ use keywitch_lib::profile::models::{CharsetItem, PassMetadataItem};
 #[derive(Debug, Parser)] // requires `derive` feature
 #[command(name = "keywitch")]
 #[command(about = "Keywitch CLI", long_about = None)]
-pub(crate) struct KeywitchCli {
+pub(crate) struct KeywitchArgs {
   #[command(subcommand)]
   command: KeywitchCommand,
 }
@@ -103,7 +103,7 @@ fn start_gui()
 
 fn start_cli()
 {
-  let args = KeywitchCli::parse();
+  let args = KeywitchArgs::parse();
   match args.command
   {
     KeywitchCommand::Generate {

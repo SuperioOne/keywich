@@ -44,7 +44,7 @@
 </script>
 
 <svelte:window on:keyup|preventDefault={on_log_panel_flip}/>
-<Modal buttonNeutral="variant-soft" buttonPositive="variant-soft-primary"/>
+<Modal buttonNeutral="variant-soft" buttonPositive="variant-filled-primary"/>
 <Toast/>
 <AppShell class="h-full">
   <svelte:fragment slot="header">
@@ -78,7 +78,7 @@
     </div>
   </svelte:fragment>
   <div class="flex justify-center w-full">
-    <div class="py-10 px-3 w-full max-w-screen-lg">
+    <div class="py-8 px-3 w-full max-w-screen-lg">
       <slot/>
     </div>
   </div>

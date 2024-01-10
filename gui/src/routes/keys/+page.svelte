@@ -12,8 +12,8 @@
 
   let selected: number | undefined = undefined;
 
-  async function new_key() {
-    const key = await App.Actions.new_key();
+  async function create_key() {
+    const key = await App.Actions.create_key();
     if (key) {
       await invalidateAll();
     }
@@ -62,9 +62,9 @@
   <div class="grid grid-cols-2 gap-6">
     <div class="col-span-full sm:col-span-1 flex flex-row flex-wrap gap-2">
       <button
-          on:click={new_key}
+          on:click={create_key}
           type="button"
-          class="btn variant-soft-primary w-full sm:w-auto"
+          class="btn variant-filled-primary w-full sm:w-auto"
       >
         <PlusCircleIcon/>
         <span class="font-bold"> {i18nStore.getKey("i18:/keys/button/create", "Create")} </span>
@@ -85,32 +85,38 @@
     </div>
   </div>
 
-  <dl class="flex flex-col gap-1">
-    {#each data.keys as row,index (row.id)}
-      <div class="flex flex-row gap-1" transition:fly={{duration:200, y:20}}>
-        <div class="w-4 hidden sm:flex flex-col justify-center items-start">
-          {#if index === selected}
-            <div class="text-sm font-bold text-on-secondary-token">
-              {index + 1}
-            </div>
-          {:else}
+  {#if data.keys.length < 1}
+    <p class="text-center w-full font-light text-xl py-6">
+      {i18nStore.getKey("i18:/keys/empty-list", "Empty list")}
+    </p>
+  {:else }
+    <div class="flex flex-col gap-1">
+      {#each data.keys as row,index (row.id)}
+        <div class="flex flex-row gap-1" transition:fly={{duration:200, y:20}}>
+          <div class="w-4 hidden sm:flex flex-col justify-center items-start">
+            {#if index === selected}
+              <div class="text-sm font-bold text-on-secondary-token">
+                {index + 1}
+              </div>
+            {:else}
             <span class="text-sm font-bold text-secondary-100-800-token select-none">
               {index + 1}
             </span>
-          {/if}
+            {/if}
+          </div>
+          <KeyRow
+              item={row}
+              active={index === selected}
+              on:copy={quick_copy}
+              on:copyAux={quick_copy}
+              on:copyAlt={advanced_copy}
+              on:delete={delete_key}
+              on:update={update_key}
+              on:pin={flip_pin}
+              on:tagSelect={on_tag}
+          />
         </div>
-        <KeyRow
-            item={row}
-            active={index === selected}
-            on:copy={quick_copy}
-            on:copyAux={quick_copy}
-            on:copyAlt={advanced_copy}
-            on:delete={delete_key}
-            on:update={update_key}
-            on:pin={flip_pin}
-            on:tagSelect={on_tag}
-        />
-      </div>
-    {/each}
-  </dl>
+      {/each}
+    </div>
+  {/if}
 </div>

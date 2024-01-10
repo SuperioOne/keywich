@@ -17,11 +17,11 @@ export interface KeyFilter {
  */
 export interface KeyMetadataRPC {
   /**
-   * Adds a new key with the provided options.
+   * Creates a new key with the provided options.
    * @param options - The options for the new key.
    * @returns A promise resolving to the result of the RPC operation containing key metadata or an error message.
    */
-  add_key(options: KeyOptions): Promise<RPCResult<KeyMetadataItem, string | PropertyError<KeyOptions>>>;
+  create_key(options: KeyOptions): Promise<RPCResult<KeyMetadataItem, string | PropertyError<KeyOptions>>>;
 
   /**
    * Generates a password for the specified key ID and output type.

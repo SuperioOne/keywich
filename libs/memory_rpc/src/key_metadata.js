@@ -232,7 +232,7 @@ const module = {
       });
     }
   },
-  add_key(options) {
+  create_key(options) {
     const validationResult = parse_KeyOptions(options);
 
     if (validationResult?.success === false) return Promise.resolve(validationResult);

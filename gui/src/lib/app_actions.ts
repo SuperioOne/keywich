@@ -1,9 +1,10 @@
-import type {KeyMetadataItem, RPCApi} from "@keywitch/rpc";
+import type {CharsetItem, KeyMetadataItem, RPCApi} from "@keywitch/rpc";
+import type {ModalActionResult} from "./components/forms/types";
+import type {ThemeOptionType} from "./stores";
 import type {TokenType} from "./utils/key_filter_tokenizer";
-import type {ModalActionResult} from "./components/key_form/types";
-import {AdvancedCopyMenu, KeyForm, ModalAction} from "./components";
+import {AdvancedCopyMenu, CharsetForm, KeyForm, ModalAction} from "./components";
 import {Log} from "./logger";
-import {getExtendedToastStore} from "./stores";
+import {getExtendedToastStore, themeStore} from "./stores";
 import {getModalStore} from "@skeletonlabs/skeleton";
 import {goto} from "$app/navigation";
 import {i18nStore} from "./stores/i18n_store";
@@ -11,30 +12,33 @@ import {i18nStore} from "./stores/i18n_store";
 // All app actions which can be called via UI elements, commands, keyboard shortcuts
 
 export type AppActions = {
-  get RPC(): RPCApi
-  new_key: () => Promise<KeyMetadataItem | undefined>;
+  create_key: () => Promise<KeyMetadataItem | undefined>;
   quick_copy: (item: KeyMetadataItem) => Promise<boolean>;
   advanced_copy: (item: KeyMetadataItem) => Promise<boolean>;
   update_key: (item: KeyMetadataItem) => Promise<KeyMetadataItem | undefined>;
   delete_key: (item: KeyMetadataItem) => Promise<boolean>;
+  delete_charset: (charsetItem: CharsetItem) => Promise<boolean>;
   flip_pin: (item: KeyMetadataItem) => Promise<boolean>;
   search_keys: (tokens: TokenType[]) => Promise<void>;
+  set_theme_color: (theme: ThemeOptionType) => Promise<boolean>;
+  set_theme_mode: (isLight: boolean) => Promise<boolean>;
+  create_charset: () => Promise<CharsetItem | undefined>
 };
 
 export function init_actions(rpcInstance: RPCApi): AppActions {
   const modalStore = getModalStore();
   const toastStore = getExtendedToastStore();
 
-  async function new_key(): Promise<KeyMetadataItem | undefined> {
-    const response = await new Promise<ModalActionResult>((resolve) => {
+  async function create_key(): Promise<KeyMetadataItem | undefined> {
+    const response = await new Promise<ModalActionResult<KeyMetadataItem>>((resolve) => {
       modalStore.trigger({
         component: {
           ref: KeyForm,
         },
-        title: i18nStore.getKey("i18:/actions/new-key/title", "Create New Key"),
+        title: i18nStore.getKey("i18:/actions/create-key/title", "Create New Key"),
         backdropClasses: "backdrop-blur-sm",
         type: "component",
-        response: (r: ModalActionResult) => resolve(r),
+        response: (r: ModalActionResult<KeyMetadataItem>) => resolve(r),
       });
     });
 
@@ -42,7 +46,7 @@ export function init_actions(rpcInstance: RPCApi): AppActions {
 
       toastStore.trigger_success(
         i18nStore.getKey(
-          `i18:/actions/new-key/msg/success?$noCache&domain=${response.data.domain}`,
+          `i18:/actions/create-key/msg/success?$noCache&domain=${response.data.domain}`,
           "New key created.")
       );
       return response.data;
@@ -52,7 +56,7 @@ export function init_actions(rpcInstance: RPCApi): AppActions {
   }
 
   async function update_key(item: KeyMetadataItem): Promise<KeyMetadataItem | undefined> {
-    const response = await new Promise<ModalActionResult>((resolve) => {
+    const response = await new Promise<ModalActionResult<KeyMetadataItem>>((resolve) => {
       modalStore.trigger({
         component: {
           ref: KeyForm,
@@ -63,7 +67,7 @@ export function init_actions(rpcInstance: RPCApi): AppActions {
         title: i18nStore.getKey("i18:/actions/update-key/title", "Update Key"),
         backdropClasses: "backdrop-blur-sm",
         type: "component",
-        response: (r: ModalActionResult) => resolve(r),
+        response: (r: ModalActionResult<KeyMetadataItem>) => resolve(r),
       });
     });
 
@@ -128,7 +132,7 @@ export function init_actions(rpcInstance: RPCApi): AppActions {
 
   async function advanced_copy(item: KeyMetadataItem) {
     try {
-      await new Promise<ModalActionResult>((resolve) => {
+      await new Promise<ModalActionResult<KeyMetadataItem>>((resolve) => {
         modalStore.trigger({
           component: {
             ref: AdvancedCopyMenu,
@@ -139,7 +143,7 @@ export function init_actions(rpcInstance: RPCApi): AppActions {
           title: i18nStore.getKey(`i18:/actions/advanced-copy/title`, "Advanced"),
           backdropClasses: "backdrop-blur-sm",
           type: "component",
-          response: (r: ModalActionResult) => resolve(r),
+          response: (r: ModalActionResult<KeyMetadataItem>) => resolve(r),
         });
       });
 
@@ -212,16 +216,88 @@ export function init_actions(rpcInstance: RPCApi): AppActions {
     });
   }
 
+  async function delete_charset(charset: CharsetItem) {
+    const confirmation = await new Promise((resolve) => {
+      modalStore.trigger({
+        type: "confirm",
+        title: i18nStore.getKey("i18:/actions/delete-charset/title", "Confirm Action"),
+        body: i18nStore.getKey(
+          `i18:/actions/delete-charset/message?$noCache&name=${charset.name}`,
+          "Are you sure to delete charset?"
+        ),
+        buttonTextConfirm: i18nStore.getKey("i18:/generic/delete", "Delete"),
+        buttonTextCancel: i18nStore.getKey("i18:/generic/cancel", "Cancel"),
+        response: (r: boolean) => resolve(r),
+      });
+    });
+
+    if (confirmation) {
+      const result = await rpcInstance.Charset.remove_charset(charset.id);
+
+      if (result.success) {
+        toastStore.trigger_warning(i18nStore.getKey("i18:/actions/delete-charset/msg/success", "Charset deleted."));
+        return true;
+      }
+
+      Log.warn(result.error);
+      toastStore.trigger_error(i18nStore.getKey("i18:/actions/delete-charset/msg/error", "Unable to delete charset."));
+    }
+
+    return false;
+  }
+
+  async function set_theme_color(theme: ThemeOptionType) {
+    themeStore.set_theme(theme);
+
+    return true;
+  }
+
+  async function set_theme_mode(isLight: boolean) {
+    if (isLight) {
+      themeStore.set_light_mode();
+    } else {
+      themeStore.set_dark_mode();
+    }
+
+    return true;
+  }
+
+  async function create_charset(): Promise<CharsetItem | undefined> {
+    const response = await new Promise<ModalActionResult<CharsetItem>>((resolve) => {
+      modalStore.trigger({
+        component: {
+          ref: CharsetForm,
+        },
+        title: i18nStore.getKey("i18:/actions/create-charset/title", "New Charset"),
+        backdropClasses: "backdrop-blur-sm",
+        type: "component",
+        response: (r: ModalActionResult<CharsetItem>) => resolve(r),
+      });
+    });
+
+    if (response?.type === ModalAction.submitted) {
+      toastStore.trigger_success(
+        i18nStore.getKey(
+          `i18:/actions/create-charset/msg/success?$noCache&name=${response.data.name}`,
+          "New charset created.")
+      );
+      return response.data;
+    }
+
+    return undefined;
+  }
+
   return {
-    new_key,
+    create_key,
     update_key,
     delete_key,
     flip_pin,
     advanced_copy,
     quick_copy,
     search_keys,
-    get RPC(): RPCApi {
-      return rpcInstance;
-    }
+    delete_charset,
+    set_theme_color,
+    set_theme_mode,
+    create_charset
   }
 }

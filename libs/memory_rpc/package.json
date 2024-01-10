@@ -1,4 +1,5 @@
 {
+  "private": true,
   "name": "@keywitch/memory_rpc",
   "version": "1.0.0",
   "description": "In-Memory Keywitch RPC implementation for testing.",

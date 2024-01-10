@@ -171,7 +171,7 @@
     </div>
   {:else }
     <button
-      class="btn variant-ghost-surface btn-md"
+      class="btn variant-soft-surface btn-md"
       on:click|stopPropagation|preventDefault={focus_input}
     >
       <slot>
