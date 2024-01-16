@@ -57,7 +57,7 @@ export interface KeyMetadataItem {
   user_name: string;
   notes?: string;
   pinned: boolean;
-  createdAt: number;
+  created_at: number;
   tags: string[];
   custom_icon?: string;
 }

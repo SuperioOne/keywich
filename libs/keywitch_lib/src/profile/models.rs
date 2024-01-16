@@ -1,31 +1,8 @@
-use sqlx::{FromRow};
-use serde::{Serialize};
+use serde::{Deserialize, Serialize};
+use sqlx::FromRow;
 
 #[derive(Debug, FromRow, Serialize)]
-pub struct PassMetadataItem
-{
-  pub pinned: bool,
-  pub id: i64,
-  pub target_size: u8,
-  pub revision: u64,
-  pub charset: String,
-  pub domain: String,
-  pub user_name: String,
-  pub notes: Option<String>,
+pub struct TagItem {
+  pub key_id: i64,
+  pub name: String,
 }
-
-#[derive(Debug, FromRow, Serialize)]
-pub struct CharsetItem
-{
-  pub id: i64,
-  pub charset: String,
-  pub description: Option<String>,
-}
-
-#[derive(Debug, FromRow, Serialize)]
-pub struct TagItem
-{
-  pub id: i64,
-  pub tag_name: String,
-}
-

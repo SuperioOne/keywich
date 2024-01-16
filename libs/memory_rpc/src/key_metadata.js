@@ -18,7 +18,7 @@ const MEMORY_STORE = [
     revision: 1,
     target_size: 12,
     user_name: "admin",
-    createdAt: Date.now() - 100000,
+    created_at: Date.now() - 100000,
     tags: ["hello", "tag1", "tag2"]
   },
   {
@@ -30,7 +30,7 @@ const MEMORY_STORE = [
     revision: 1,
     target_size: 12,
     user_name: "admin",
-    createdAt: Date.now() - 10000012,
+    created_at: Date.now() - 10000012,
     tags: []
   }
 ];
@@ -252,7 +252,7 @@ const module = {
       revision: options.revision,
       target_size: options.target_size,
       user_name: options.user_name,
-      createdAt: Date.now(),
+      created_at: Date.now(),
       pinned: false,
       tags: options.tags ?? [],
       custom_icon: imageUrl

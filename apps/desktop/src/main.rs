@@ -8,7 +8,7 @@ use clap::{Parser, Subcommand, ValueEnum};
 use std::fmt::Debug;
 use keywitch_lib::{generate_password, Configuration, PasswordResult, OutputType};
 use keywitch_lib::charset::Charset;
-use keywitch_lib::errors::KeywitchError;
+use keywitch_lib::errors::Error;
 use keywitch_lib::profile::models::{CharsetItem, PassMetadataItem};
 
 /// A fictional versioning CLI
@@ -142,7 +142,7 @@ fn command_generate(
   salt: &str,
   charset: &str,
   target_length: usize,
-) -> Result<PasswordResult, KeywitchError>
+) -> Result<PasswordResult, Error>
 {
   let configuration = Configuration::new(
     domain,

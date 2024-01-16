@@ -21,7 +21,7 @@ mod tests {
     let p_salt = String::from("SuperiorOne");
 
     let config = Configuration {
-      charset: &charset,
+      charset: charset,
       password: p_pass.as_bytes(),
       domain: p_domain.as_bytes(),
       profile_salt: p_salt.as_bytes(),

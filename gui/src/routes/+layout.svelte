@@ -13,7 +13,7 @@
   let displayLogger: boolean = false;
 
   App.init();
-  
+
   const menuItems: MenuItem[] = [
     {
       label: i18nStore.getKey("i18:/nav/home", "Home"),
@@ -73,12 +73,11 @@
         {/each}
       </div>
       <div class="col-span-3 flex flex-row items-center justify-end">
-
       </div>
     </div>
   </svelte:fragment>
   <div class="flex justify-center w-full">
-    <div class="py-8 px-3 w-full max-w-screen-lg">
+    <div class="p-3 sm:p-6 md:p-12 w-full max-w-screen-lg">
       <slot/>
     </div>
   </div>
