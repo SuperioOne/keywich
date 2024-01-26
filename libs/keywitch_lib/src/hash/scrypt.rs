@@ -21,18 +21,13 @@ pub(crate) fn hash_scrypt(options: &Configuration) -> Result<Vec<u8>, Error> {
     }
   };
 
-  let params: Params =
-    Params::new(SCRYPT_LOG_N, SCRYPT_R, SCRYPT_P, scrypt_target_len).map_err(|err| {
-      println!("{:?}", err);
-      Error::InvalidInput
-    })?;
+  let params: Params = Params::new(SCRYPT_LOG_N, SCRYPT_R, SCRYPT_P, scrypt_target_len)
+    .map_err(|err| Error::InvalidInput)?;
 
   let input = merge_vectors(options.password, options.domain);
   let mut output = vec![0u8; scrypt_target_len];
-  scrypt(&input, options.profile_salt, &params, &mut output).map_err(|err| {
-    println!("{:?}", err);
-    Error::InvalidHashOutput
-  })?;
+  scrypt(&input, options.profile_salt, &params, &mut output)
+    .map_err(|err| Error::InvalidHashOutput)?;
 
   if fold {
     Ok(fold_content(&output, options.target_len))

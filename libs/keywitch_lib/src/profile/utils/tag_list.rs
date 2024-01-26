@@ -20,7 +20,7 @@ impl TagList {
     self.internal.iter()
   }
 
-  pub fn difference<'a>(&mut self, other: TagList) -> Self {
+  pub fn difference(&self, other: &TagList) -> Self {
     let diff: HashSet<Box<str>> = self
       .internal
       .difference(&other.internal)
@@ -28,6 +28,20 @@ impl TagList {
       .collect();
 
     TagList { internal: diff }
+  }
+
+  pub fn union(&self, other: &TagList) -> Self {
+    let union: HashSet<Box<str>> = self
+      .internal
+      .union(&other.internal)
+      .map(|e| e.clone())
+      .collect();
+
+    TagList { internal: union }
+  }
+
+  pub fn len(&self) -> usize {
+    self.internal.len()
   }
 
   pub fn insert(&mut self, value: &str) -> bool {
@@ -112,7 +126,7 @@ impl Serialize for TagList {
 
 #[cfg(test)]
 mod test {
-  use crate::profile::tag_list::TagList;
+  use crate::profile::utils::tag_list::TagList;
   use std::collections::HashSet;
 
   #[test]
@@ -125,9 +139,9 @@ mod test {
     ]);
     let tags_set = TagList::from(HashSet::from(["hs_tag1", "hs_tag2", "hs_tag3"]));
 
-    assert_eq!(3, tags_str.internal.len());
-    assert_eq!(3, tags_string.internal.len());
-    assert_eq!(3, tags_set.internal.len());
+    assert_eq!(3, tags_str.len());
+    assert_eq!(3, tags_string.len());
+    assert_eq!(3, tags_set.len());
   }
 
   #[test]
@@ -144,6 +158,24 @@ mod test {
     let result = serde_json::from_str::<TagList>(text);
 
     assert_eq!(true, result.is_ok());
-    assert_eq!(3, result.unwrap().internal.len())
+    assert_eq!(3, result.unwrap().len())
+  }
+
+  #[test]
+  fn union() {
+    let tag_list_a = TagList::from(["str_tag1", "str_tag2", "str_tag3"]);
+    let tag_list_b = TagList::from(["str_tag1", "str_tag2", "str_tag4"]);
+    let union_list = tag_list_a.union(&tag_list_b);
+
+    assert_eq!(4, union_list.internal.len());
+  }
+
+  #[test]
+  fn difference() {
+    let tag_list_a = TagList::from(["str_tag1", "str_tag2", "str_tag3"]);
+    let tag_list_b = TagList::from(["str_tag1", "str_tag2", "str_tag4"]);
+    let diff_list = tag_list_a.difference(&tag_list_b);
+
+    assert_eq!(1, diff_list.len());
   }
 }

@@ -7,6 +7,7 @@ pub enum Error {
   InvalidInput,
   InvalidConfiguration(Vec<ValidationError>),
   DatabaseError(String),
+  InvalidTime(String),
 }
 
 #[derive(Debug)]
@@ -18,9 +19,9 @@ pub enum ValidationError {
   InvalidTargetLength,
 }
 
-impl Into<Error> for sqlx::Error {
-  fn into(self) -> Error {
-    match self {
+impl From<sqlx::Error> for Error {
+  fn from(value: sqlx::Error) -> Self {
+    match value {
       sqlx::Error::RowNotFound => Error::DatabaseError("Row not found".into()),
       sqlx::Error::TypeNotFound { type_name } => {
         Error::DatabaseError(format!("type {} not found.", type_name))

@@ -21,8 +21,7 @@ impl Charsets {
   pub async fn get_charsets(&mut self) -> Result<Vec<CharsetItem>, Error> {
     let result = query_as!(CharsetItem, "SELECT name,charset,description FROM charsets",)
       .fetch_all(&mut self.connection)
-      .await
-      .map_err(|err| err.into())?;
+      .await?;
 
     Ok(result)
   }
@@ -37,8 +36,7 @@ impl Charsets {
       item.description
     )
     .execute(&mut self.connection)
-    .await
-    .map_err(|err| err.into())?;
+    .await?;
 
     Ok(result.rows_affected())
   }
@@ -46,8 +44,7 @@ impl Charsets {
   pub async fn delete_charset(&mut self, name: &str) -> Result<u64, Error> {
     let result = query!("DELETE FROM charsets WHERE name = ?", name)
       .execute(&mut self.connection)
-      .await
-      .map_err(|err| err.into())?;
+      .await?;
 
     Ok(result.rows_affected())
   }

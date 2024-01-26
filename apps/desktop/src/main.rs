@@ -1,15 +1,15 @@
 #![cfg_attr(
-all(not(debug_assertions), target_os = "windows"),
-windows_subsystem = "windows"
+  all(not(debug_assertions), target_os = "windows"),
+  windows_subsystem = "windows"
 )]
 
-use std::env::args;
 use clap::{Parser, Subcommand, ValueEnum};
-use std::fmt::Debug;
-use keywitch_lib::{generate_password, Configuration, PasswordResult, OutputType};
 use keywitch_lib::charset::Charset;
 use keywitch_lib::errors::Error;
 use keywitch_lib::profile::models::{CharsetItem, PassMetadataItem};
+use keywitch_lib::{generate_password, Configuration, OutputType, PasswordResult};
+use std::env::args;
+use std::fmt::Debug;
 
 /// A fictional versioning CLI
 #[derive(Debug, Parser)] // requires `derive` feature
@@ -21,8 +21,7 @@ pub(crate) struct KeywitchArgs {
 }
 
 #[derive(Debug, Subcommand)]
-enum KeywitchCommand
-{
+enum KeywitchCommand {
   /// Generate password
   Generate {
     /// Password domain
@@ -49,29 +48,26 @@ enum KeywitchCommand
 }
 
 #[derive(ValueEnum, Copy, Clone, Debug, PartialEq, Eq)]
-enum PasswordOutputType
-{
+enum PasswordOutputType {
   PasswordText,
   Text,
   Base64,
   Json,
 }
 
-impl Into<OutputType> for PasswordOutputType
-{
+impl Into<OutputType> for PasswordOutputType {
   fn into(self) -> OutputType {
     match self {
       PasswordOutputType::PasswordText => OutputType::PasswordText,
       PasswordOutputType::Text => OutputType::Text,
       PasswordOutputType::Base64 => OutputType::Base64,
-      PasswordOutputType::Json => OutputType::Json
+      PasswordOutputType::Json => OutputType::Json,
     }
   }
 }
 
 fn main() {
-  if args().len() == 1
-  {
+  if args().len() == 1 {
     start_gui()
   } else {
     start_cli()
@@ -93,19 +89,20 @@ fn get_charsets() -> Result<Vec<CharsetItem>, String> {
   keywitch_lib::profile::get_charset_collection().map_err(|e| format!("{:?}", e))
 }
 
-fn start_gui()
-{
+fn start_gui() {
   tauri::Builder::default()
-    .invoke_handler(tauri::generate_handler![get_charsets, get_pinned, get_passwords])
+    .invoke_handler(tauri::generate_handler![
+      get_charsets,
+      get_pinned,
+      get_passwords
+    ])
     .run(tauri::generate_context!())
     .expect("error while running tauri application");
 }
 
-fn start_cli()
-{
+fn start_cli() {
   let args = KeywitchArgs::parse();
-  match args.command
-  {
+  match args.command {
     KeywitchCommand::Generate {
       charset,
       domain,
@@ -113,26 +110,16 @@ fn start_cli()
       password,
       salt,
       target_length,
-    } => {
-      match command_generate(
-        &domain,
-        &password,
-        &salt,
-        &charset,
-        target_length,
-      ) {
-        Ok(result) => {
-          let result_buffer = result.to_formatted_string(output_type.into());
-          println!("{}", result_buffer);
-        }
-        Err(err) => {
-          eprintln!("{:?}", err);
-        }
+    } => match command_generate(&domain, &password, &salt, &charset, target_length) {
+      Ok(result) => {
+        let result_buffer = result.to_formatted_string(output_type.into());
+        println!("{}", result_buffer);
       }
-    }
-    KeywitchCommand::GUI => {
-      start_gui()
-    }
+      Err(err) => {
+        eprintln!("{:?}", err);
+      }
+    },
+    KeywitchCommand::GUI => start_gui(),
   };
 }
 
@@ -142,15 +129,8 @@ fn command_generate(
   salt: &str,
   charset: &str,
   target_length: usize,
-) -> Result<PasswordResult, Error>
-{
-  let configuration = Configuration::new(
-    domain,
-    password,
-    salt,
-    charset,
-    target_length,
-  )?;
+) -> Result<PasswordResult, Error> {
+  let configuration = Configuration::new(domain, password, salt, charset, target_length)?;
 
   let password = generate_password(&configuration)?;
   Ok(password)
