@@ -1,12 +1,3 @@
-CREATE TABLE IF NOT EXISTS _migrations
-(
-    id   INTEGER PRIMARY KEY,
-    name TEXT
-);
-
-INSERT INTO _migrations (id, name)
-VALUES (1, '01_initial');
-
 CREATE TABLE IF NOT EXISTS keys
 (
     id          INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -49,14 +40,3 @@ CREATE VIEW IF NOT EXISTS vw_tag_list (tags, key_id) AS
 SELECT json_group_array(name) as tags, key_id
 FROM tags
 GROUP BY key_id;
-
-CREATE TABLE IF NOT EXISTS gc
-(
-    id         INTEGER PRIMARY KEY AUTOINCREMENT,
-    type       INTEGER NOT NULL DEFAULT 0,
-    args       TEXT,
-    created_at INT     NOT NULL
-);
-
-CREATE INDEX IF NOT EXISTS idx_gc_type ON gc (type);
-CREATE INDEX IF NOT EXISTS idx_gc_created_at ON gc (created_at DESC);

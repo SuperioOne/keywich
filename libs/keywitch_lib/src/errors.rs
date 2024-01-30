@@ -1,4 +1,5 @@
 use std::fmt::Debug;
+use std::path::{PathBuf};
 
 #[derive(Debug)]
 pub enum Error {
@@ -7,6 +8,7 @@ pub enum Error {
   InvalidInput,
   InvalidConfiguration(Vec<ValidationError>),
   DatabaseError(String),
+  InvalidDatabasePath(PathBuf),
   InvalidTime(String),
 }
 

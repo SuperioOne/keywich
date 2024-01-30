@@ -38,7 +38,7 @@ pub struct KeyItemRow {
   pub tags: TagList,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct KeyData {
   pub pinned: bool,
   pub target_size: i64,
@@ -67,7 +67,7 @@ impl Keys {
     Self { connection }
   }
 
-  pub async fn get_key_by_id(&mut self, id: i64) -> Result<Option<KeyItemRow>, Error> {
+  pub async fn get_key_by_id(&mut self, key_id: i64) -> Result<Option<KeyItemRow>, Error> {
     let row = query_as::<Sqlite, KeyItemRow>(
       "SELECT
         keys.id,
@@ -86,7 +86,7 @@ impl Keys {
       LEFT JOIN vw_tag_list ON vw_tag_list.key_id = keys.id
       WHERE keys.id = ? LIMIT 1;",
     )
-    .bind(id)
+    .bind(key_id)
     .fetch_one(&mut self.connection)
     .await;
 
@@ -191,14 +191,14 @@ impl Keys {
     Ok(result)
   }
 
-  pub async fn delete_key(&mut self, id: i64) -> Result<bool, Error> {
+  pub async fn delete_key(&mut self, key_id: i64) -> Result<bool, Error> {
     let mut transaction = self.connection.begin().await?;
 
-    query!("DELETE FROM tags WHERE tags.key_id = ?", id)
+    query!("DELETE FROM tags WHERE tags.key_id = ?", key_id)
       .execute(&mut *transaction)
       .await?;
 
-    let key_result = query!("DELETE FROM keys WHERE keys.id = ?", id)
+    let key_result = query!("DELETE FROM keys WHERE keys.id = ?", key_id)
       .execute(&mut *transaction)
       .await?;
 
@@ -213,7 +213,7 @@ impl Keys {
     let key_insert = query!(
       "INSERT INTO keys
         (pinned, target_size, revision, charset, domain, user_name, notes, created_at, custom_icon, version) VALUES
-        (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);",
+        (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
       item.pinned,
       item.target_size,
       item.revision,
@@ -245,9 +245,9 @@ impl Keys {
     Ok(key_id)
   }
 
-  pub async fn update_key(&mut self, id: i64, item: KeyData) -> Result<i64, Error> {
+  pub async fn update_key(&mut self, key_id: i64, item: KeyData) -> Result<(), Error> {
     let mut transaction = self.connection.begin().await?;
-    let key_insert = query!(
+    query!(
       "UPDATE keys SET
         (pinned, target_size, revision, charset, domain, user_name, notes, custom_icon, version) =
         (?, ?, ?, ?, ?, ?, ?, ?, ?)
@@ -261,26 +261,60 @@ impl Keys {
       item.notes,
       item.custom_icon,
       item.version,
-      id
+      key_id
     )
     .execute(&mut *transaction)
     .await?;
 
-    let key_id = key_insert.last_insert_rowid();
-    let mut query_builder: QueryBuilder<Sqlite> =
-      QueryBuilder::new("INSERT INTO tags (name, key_id) ");
+    let existing_tags = query!("SELECT name FROM tags WHERE key_id = ?", key_id)
+      .fetch_all(&mut *transaction)
+      .await?;
 
-    query_builder.push_values(item.tags.iter(), |mut b, tag| {
-      b.push_bind(tag.as_ref());
-      b.push_bind(key_id);
-    });
+    let existing_tags = TagList::from(existing_tags.into_iter().flat_map(|e| e.name));
+    let to_add = item.tags.difference(&existing_tags);
+    let to_delete = existing_tags.difference(&item.tags);
 
-    let query = query_builder.build();
+    if to_delete.len() > 0 {
+      let mut query_builder: QueryBuilder<Sqlite> =
+        QueryBuilder::new("DELETE FROM tags WHERE (key_id, name) IN ");
 
-    query.execute(&mut *transaction).await?;
+      query_builder.push_tuples(to_delete.iter(), |mut b, tag| {
+        b.push_bind(key_id);
+        b.push_bind(tag.as_ref());
+      });
+
+      let query = query_builder.build();
+      query.execute(&mut *transaction).await?;
+    }
+
+    if to_add.len() > 0 {
+      let mut query_builder: QueryBuilder<Sqlite> =
+        QueryBuilder::new("INSERT INTO tags (key_id, name) ");
+
+      query_builder.push_values(to_add.iter(), |mut b, tag| {
+        b.push_bind(key_id);
+        b.push_bind(tag.as_ref());
+      });
+
+      let query = query_builder.build();
+      query.execute(&mut *transaction).await?;
+    }
+
     transaction.commit().await?;
 
-    Ok(key_id)
+    Ok(())
+  }
+
+  pub async fn update_pin_status(&mut self, key_id: i64, pin_status: bool) -> Result<(), Error> {
+    query!(
+      "UPDATE keys SET pinned = ? WHERE keys.id = ?;",
+      pin_status,
+      key_id
+    )
+    .execute(&mut self.connection)
+    .await?;
+
+    Ok(())
   }
 }
 
@@ -361,7 +395,7 @@ mod test {
   }
 
   #[tokio::test]
-  async fn insert_and_delete_test() {
+  async fn insert_update_delete_test() {
     let sqlite_connection = SqliteConnection::connect("sqlite:dev.sqlite")
       .await
       .unwrap();
@@ -381,6 +415,25 @@ mod test {
         pinned: false,
         tags: TagList::from(["tag1", "tag2", "tag3", "tag4", "tag5", "tag6"]),
       })
+      .await
+      .unwrap();
+
+    key_api
+      .update_key(
+        key_id,
+        KeyData {
+          notes: Some("notes".into()),
+          domain: "domain".into(),
+          version: "v2".into(),
+          custom_icon: Some("/tmp/icon.ico".into()),
+          user_name: "username".into(),
+          charset: "a..z0..9".into(),
+          revision: 13,
+          target_size: 13,
+          pinned: true,
+          tags: TagList::from(["tag4", "tag5", "tag6", "tag7", "tag8"]),
+        },
+      )
       .await
       .unwrap();
 

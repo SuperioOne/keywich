@@ -14,3 +14,4 @@ serde_json = { version = "1.0.111" }
 sqlx = { version = "0.7.3", features = ["sqlite", "migrate", "macros", "json", "sqlx-macros"] }
 qrcode = { version = "0.13.0" }
 tokio = { version = "1.35.1", features = ["macros", "rt", "test-util"] }
+libsqlite3-sys = { version = "0.27", features = ["default", "bundled-sqlcipher"] }
