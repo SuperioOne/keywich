@@ -1,3 +1,3 @@
-import _rpc from "@keywitch/memory_rpc";
+import _rpc from "@keywich/memory_rpc";
 
 export const RPC = _rpc;

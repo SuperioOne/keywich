@@ -1,5 +1,5 @@
 {
-  "name": "keywitch",
+  "name": "keywich",
   "version": "0.0.1",
   "private": true,
   "scripts": {
@@ -12,7 +12,7 @@
     "lint": "eslint ."
   },
   "devDependencies": {
-    "@keywitch/memory_rpc": "workspace:*",
+    "@keywich/memory_rpc": "workspace:*",
     "@skeletonlabs/skeleton": "^2.7.1",
     "@skeletonlabs/tw-plugin": "^0.3.1",
     "@sveltejs/adapter-static": "^3.0.1",
@@ -39,8 +39,8 @@
   "type": "module",
   "dependencies": {
     "@floating-ui/dom": "^1.6.0",
-    "@keywitch/rpc": "workspace:*",
-    "@keywitch/tauri_rpc": "workspace:*",
+    "@keywich/rpc": "workspace:*",
+    "@keywich/tauri_rpc": "workspace:*",
     "@superior-one/format_string": "^1.0.3",
     "@tauri-apps/api": "^1.5.3",
     "install": "^0.13.0"

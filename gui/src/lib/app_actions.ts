@@ -1,4 +1,4 @@
-import type {CharsetItem, KeyMetadataItem, RPCApi} from "@keywitch/rpc";
+import type {CharsetItem, KeyMetadataItem, RPCApi} from "@keywich/rpc";
 import type {ModalActionResult} from "./components/forms/types";
 import type {ThemeOptionType} from "./stores";
 import type {TokenType} from "./utils/key_filter_tokenizer";

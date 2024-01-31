@@ -4,24 +4,23 @@
 )]
 
 use clap::{Parser, Subcommand, ValueEnum};
-use keywitch_lib::charset::Charset;
-use keywitch_lib::errors::Error;
-use keywitch_lib::profile::models::{CharsetItem, PassMetadataItem};
-use keywitch_lib::{generate_password, Configuration, OutputType, PasswordResult};
+use keywich_lib::charset::Charset;
+use keywich_lib::errors::Error;
+use keywich_lib::{generate_password, Configuration, OutputType, PasswordResult};
 use std::env::args;
 use std::fmt::Debug;
 
 /// A fictional versioning CLI
 #[derive(Debug, Parser)] // requires `derive` feature
-#[command(name = "keywitch")]
-#[command(about = "Keywitch CLI", long_about = None)]
-pub(crate) struct KeywitchArgs {
+#[command(name = "keywich")]
+#[command(about = "Keywich CLI", long_about = None)]
+pub(crate) struct KeywichArgs {
   #[command(subcommand)]
-  command: KeywitchCommand,
+  command: KeywichCommand,
 }
 
 #[derive(Debug, Subcommand)]
-enum KeywitchCommand {
+enum KeywichCommand {
   /// Generate password
   Generate {
     /// Password domain
@@ -74,36 +73,37 @@ fn main() {
   }
 }
 
-#[tauri::command(rename_all = "snake_case")]
-fn get_passwords() -> Result<Vec<PassMetadataItem>, String> {
-  keywitch_lib::profile::get_pass_metadata_collection().map_err(|e| format!("{:?}", e))
-}
-
-#[tauri::command(rename_all = "snake_case")]
-fn get_pinned() -> Result<Vec<PassMetadataItem>, String> {
-  keywitch_lib::profile::get_pinned_pass_collection().map_err(|e| format!("{:?}", e))
-}
-
-#[tauri::command(rename_all = "snake_case")]
-fn get_charsets() -> Result<Vec<CharsetItem>, String> {
-  keywitch_lib::profile::get_charset_collection().map_err(|e| format!("{:?}", e))
-}
+//
+// #[tauri::command(rename_all = "snake_case")]
+// fn get_passwords() -> Result<Vec<PassMetadataItem>, String> {
+//   keywich_lib::profile::get_pass_metadata_collection().map_err(|e| format!("{:?}", e))
+// }
+//
+// #[tauri::command(rename_all = "snake_case")]
+// fn get_pinned() -> Result<Vec<PassMetadataItem>, String> {
+//   keywich_lib::profile::get_pinned_pass_collection().map_err(|e| format!("{:?}", e))
+// }
+//
+// #[tauri::command(rename_all = "snake_case")]
+// fn get_charsets() -> Result<Vec<CharsetItem>, String> {
+//   keywich_lib::profile::get_charset_collection().map_err(|e| format!("{:?}", e))
+// }
 
 fn start_gui() {
   tauri::Builder::default()
-    .invoke_handler(tauri::generate_handler![
-      get_charsets,
-      get_pinned,
-      get_passwords
-    ])
+    // .invoke_handler(tauri::generate_handler![
+    //   get_charsets,
+    //   get_pinned,
+    //   get_passwords
+    // ])
     .run(tauri::generate_context!())
     .expect("error while running tauri application");
 }
 
 fn start_cli() {
-  let args = KeywitchArgs::parse();
+  let args = KeywichArgs::parse();
   match args.command {
-    KeywitchCommand::Generate {
+    KeywichCommand::Generate {
       charset,
       domain,
       output_type,
@@ -119,7 +119,7 @@ fn start_cli() {
         eprintln!("{:?}", err);
       }
     },
-    KeywitchCommand::GUI => start_gui(),
+    KeywichCommand::GUI => start_gui(),
   };
 }
 

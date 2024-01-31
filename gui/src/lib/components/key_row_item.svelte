@@ -5,7 +5,7 @@
   import KeyIcon from "$lib/icons/key.svelte";
   import StarIcon from "$lib/icons/star.svelte";
   import TrashIcon from "$lib/icons/trash-2.svelte";
-  import type {KeyMetadataItem} from "@keywitch/rpc";
+  import type {KeyMetadataItem} from "@keywich/rpc";
   import type {PopupSettings} from "@skeletonlabs/skeleton";
   import {createEventDispatcher} from "svelte";
   import {popup} from "@skeletonlabs/skeleton";

@@ -1,8 +1,8 @@
 {
   "private": true,
-  "name": "@keywitch/memory_rpc",
+  "name": "@keywich/memory_rpc",
   "version": "1.0.0",
-  "description": "In-Memory Keywitch RPC implementation for testing.",
+  "description": "In-Memory Keywich RPC implementation for testing.",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "check": "tsc --noEmit"
@@ -20,10 +20,9 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@keywitch/rpc": "workspace:*",
     "typescript": "^5.3.3"
   },
   "peerDependencies": {
-    "@keywitch/rpc": "workspace:*"
+    "@keywich/rpc": "workspace:*"
   }
 }

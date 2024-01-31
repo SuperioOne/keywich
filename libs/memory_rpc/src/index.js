@@ -3,7 +3,7 @@ import Utility from "./utility.js";
 import Charset from "./charset.js";
 
 /**
- * @type {import("@keywitch/rpc").RPCApi}
+ * @type {import("@keywich/rpc").RPCApi}
  */
 export default {
   KeyMetadata: KeyMetadata,

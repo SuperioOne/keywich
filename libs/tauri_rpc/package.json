@@ -1,6 +1,6 @@
 {
   "private": true,
-  "name": "@keywitch/tauri_rpc",
+  "name": "@keywich/tauri_rpc",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -13,12 +13,10 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@keywitch/rpc": "workspace:*",
-    "@tauri-apps/api": "^1.5.3",
     "typescript": "^5.3.3"
   },
   "peerDependencies": {
-    "@keywitch/rpc": "workspace:*",
+    "@keywich/rpc": "workspace:*",
     "@tauri-apps/api": "^1.5.1"
   }
 }

@@ -7,7 +7,7 @@
     "distDir": "../../gui/build"
   },
   "package": {
-    "productName": "Keywitch",
+    "productName": "Keywich",
     "version": "0.1.0"
   },
   "tauri": {
@@ -37,7 +37,7 @@
         "icons/icon.icns",
         "icons/icon.ico"
       ],
-      "identifier": "com.superiorone.keywitch",
+      "identifier": "com.superiorone.keywich",
       "longDescription": "",
       "macOS": {
         "entitlements": null,
@@ -66,7 +66,7 @@
         "fullscreen": false,
         "height": 840,
         "resizable": true,
-        "title": "Keywitch",
+        "title": "Keywich",
         "width": 860
       }
     ]

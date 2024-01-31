@@ -1,6 +1,6 @@
 <script lang="ts">
   import type {ModalActionResult} from "./types";
-  import type {PropertyError, CharsetOptions, CharsetItem} from "@keywitch/rpc";
+  import type {PropertyError, CharsetOptions, CharsetItem} from "@keywich/rpc";
   import {getModalStore} from "@skeletonlabs/skeleton";
   import {Log} from "../../logger";
   import {ModalAction} from "./types";

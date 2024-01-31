@@ -1,6 +1,6 @@
 import type {PageLoad} from './$types';
 import {Log, RPC} from "$lib";
-import type {CharsetItem} from "@keywitch/rpc";
+import type {CharsetItem} from "@keywich/rpc";
 
 export const load: PageLoad = async ({url}) => {
   const section = url.searchParams.get("section");

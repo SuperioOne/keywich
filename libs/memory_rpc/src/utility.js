@@ -1,5 +1,5 @@
 /**
- * @type {import("@keywitch/rpc").UtilityRPC}
+ * @type {import("@keywich/rpc").UtilityRPC}
  */
 const module = {
   save_file(fileData, path) {

@@ -1,4 +1,4 @@
-import type {KeyFilter} from "@keywitch/rpc";
+import type {KeyFilter} from "@keywich/rpc";
 import type {PageLoad} from './$types';
 import type {TokenType, TokenTypeName} from "$lib";
 import {RPC, Log} from "$lib";

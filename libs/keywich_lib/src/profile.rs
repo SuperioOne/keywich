@@ -1,10 +1,10 @@
 use crate::errors::Error;
+use crate::profile::charsets::Charsets;
 use sqlx::migrate::Migrator;
 use sqlx::sqlite::{SqliteConnectOptions, SqlitePool};
 use sqlx::sqlx_macros::migrate;
 use std::path::PathBuf;
 use std::str::FromStr;
-use crate::profile::charsets::Charsets;
 
 pub mod charsets;
 pub mod keys;
@@ -38,13 +38,5 @@ impl ProfileDB {
         Ok(ProfileDB { pool, migrator })
       }
     }
-  }
-
-  async fn charsets(&self) -> Result<Charsets, Error> {
-    let connection = self.pool.acquire().await?;
-
-    Ok(Charsets{
-      connection: connection
-    })
   }
 }

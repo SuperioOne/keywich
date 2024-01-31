@@ -1,7 +1,7 @@
 <script lang="ts">
   import UploadIcon from "../../icons/upload.svelte";
   import type {ModalActionResult} from "./types";
-  import type {PropertyError, KeyOptions, CharsetItem, KeyMetadataItem} from "@keywitch/rpc";
+  import type {PropertyError, KeyOptions, CharsetItem, KeyMetadataItem} from "@keywich/rpc";
   import {InputChip, RangeSlider, getModalStore, FileDropzone} from "@skeletonlabs/skeleton";
   import {Log} from "../../logger";
   import {ModalAction} from "./types";

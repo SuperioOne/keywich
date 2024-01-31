@@ -20,7 +20,7 @@ export function swap_package(from: string, target: string) {
   }
 }
 
-// swap_package("@keywitch/memory_rpc", "@keywitch/memory_rpc")
+// swap_package("@keywich/memory_rpc", "@keywich/memory_rpc")
 export default defineConfig({
   plugins: [sveltekit()],
   test: {

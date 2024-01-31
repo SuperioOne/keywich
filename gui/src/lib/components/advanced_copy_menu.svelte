@@ -4,7 +4,7 @@
   import QrIcon from "../icons/qr.svelte"
   import TerminalIcon from "../icons/terminal.svelte"
   import TypeIcon from "../icons/type.svelte"
-  import type {PasswordOutputType} from "@keywitch/rpc";
+  import type {PasswordOutputType} from "@keywich/rpc";
   import {CodeBlock, getModalStore, ProgressRadial} from "@skeletonlabs/skeleton";
   import {Log} from "../logger";
   import {RPC} from "../rpc";

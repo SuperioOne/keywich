@@ -1,7 +1,7 @@
 <script lang="ts">
   import FilterIcon from "$lib/icons/filter.svelte";
   import PlusCircleIcon from "$lib/icons/plus-circle.svelte";
-  import type {KeyMetadataItem} from "@keywitch/rpc";
+  import type {KeyMetadataItem} from "@keywich/rpc";
   import type {PageData} from "./$types";
   import type {TokenType} from "$lib";
   import {KeyRow, KeyFilterInput, i18nStore, App} from "$lib";

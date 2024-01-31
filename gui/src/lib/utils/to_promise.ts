@@ -1,4 +1,4 @@
-import type {RPCResult} from "@keywitch/rpc";
+import type {RPCResult} from "@keywich/rpc";
 
 /**
  * Convert a Promise with RPCResult to a regular Promise.
