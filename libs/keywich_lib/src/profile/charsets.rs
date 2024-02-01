@@ -1,6 +1,7 @@
 use crate::errors::Error;
+use crate::profile::ProfileDB;
 use serde::Serialize;
-use sqlx::{query, query_as, FromRow, SqliteConnection};
+use sqlx::{query, query_as, FromRow};
 
 #[derive(Debug, FromRow, Serialize)]
 pub struct CharsetItem {
@@ -9,25 +10,19 @@ pub struct CharsetItem {
   pub description: Option<String>,
 }
 
-pub struct Charsets {
-  connection: SqliteConnection,
-}
-
-impl Charsets {
-  pub fn new(connection: SqliteConnection) -> Self {
-    Self { connection }
-  }
-
-  pub async fn get_charsets(&mut self) -> Result<Vec<CharsetItem>, Error> {
+impl ProfileDB {
+  pub async fn get_charsets(&self) -> Result<Vec<CharsetItem>, Error> {
+    let mut conn = self.pool.acquire().await?;
     let result = query_as!(CharsetItem, "SELECT name,charset,description FROM charsets",)
-      .fetch_all(&mut self.connection)
+      .fetch_all(&mut *conn)
       .await?;
 
     Ok(result)
   }
 
-  pub async fn insert_charset(&mut self, item: CharsetItem) -> Result<u64, Error> {
+  pub async fn insert_charset(&self, item: CharsetItem) -> Result<u64, Error> {
     _ = crate::charset::parser::parse(&item.charset)?;
+    let mut conn = self.pool.acquire().await?;
 
     let result = query!(
       "INSERT INTO charsets (name,charset,description) VALUES (?,?,?)",
@@ -35,57 +30,18 @@ impl Charsets {
       item.charset,
       item.description
     )
-    .execute(&mut self.connection)
+    .execute(&mut *conn)
     .await?;
 
     Ok(result.rows_affected())
   }
 
-  pub async fn delete_charset(&mut self, name: &str) -> Result<u64, Error> {
+  pub async fn delete_charset(&self, name: &str) -> Result<u64, Error> {
+    let mut conn = self.pool.acquire().await?;
     let result = query!("DELETE FROM charsets WHERE name = ?", name)
-      .execute(&mut self.connection)
+      .execute(&mut *conn)
       .await?;
 
     Ok(result.rows_affected())
-  }
-}
-
-#[cfg(test)]
-mod test {
-  use crate::profile::charsets::{CharsetItem, Charsets};
-  use sqlx::Connection;
-  use sqlx::SqliteConnection;
-
-  #[tokio::test]
-  async fn read_test() {
-    let sqlite_connection = SqliteConnection::connect("sqlite:dev.sqlite")
-      .await
-      .unwrap();
-
-    let mut charset_api = Charsets::new(sqlite_connection);
-    let charset_items = charset_api.get_charsets().await.unwrap();
-
-    assert!(!charset_items.is_empty())
-  }
-
-  #[tokio::test]
-  async fn insert_and_test() {
-    let sqlite_connection = SqliteConnection::connect("sqlite:dev.sqlite")
-      .await
-      .unwrap();
-
-    let mut charset_api = Charsets::new(sqlite_connection);
-    let inserted = charset_api
-      .insert_charset(CharsetItem {
-        charset: "a..zA..Z".into(),
-        description: Some("Description".into()),
-        name: "__test_insert".into(),
-      })
-      .await
-      .unwrap();
-    let deleted_row = charset_api.delete_charset("__test_insert").await.unwrap();
-
-    assert_eq!(1, inserted);
-    assert_eq!(1, deleted_row);
   }
 }

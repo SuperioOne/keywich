@@ -11,7 +11,9 @@ log = "0.4.20"
 scrypt = { version = "0.11.0", default-features = false }
 serde = { version = "1.0.195", features = ["serde_derive"] }
 serde_json = { version = "1.0.111" }
-sqlx = { version = "0.7.3", features = ["sqlite", "migrate", "macros", "json", "sqlx-macros"] }
+sqlx = { version = "0.7.3", features = ["sqlite", "migrate", "macros", "json", "sqlx-macros", "runtime-tokio"] }
 qrcode = { version = "0.13.0" }
-tokio = { version = "1.35.1", features = ["macros", "rt", "test-util"] }
 libsqlite3-sys = { version = "0.27", features = ["default", "bundled-sqlcipher"] }
+
+[dev-dependencies]
+tokio = { version = "1.35.1", features = ["macros", "rt", "test-util"] }

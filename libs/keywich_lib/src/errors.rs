@@ -1,5 +1,5 @@
 use std::fmt::Debug;
-use std::path::{PathBuf};
+use std::path::PathBuf;
 
 #[derive(Debug)]
 pub enum Error {
@@ -8,6 +8,7 @@ pub enum Error {
   InvalidInput,
   InvalidConfiguration(Vec<ValidationError>),
   DatabaseError(String),
+  DatabaseMigrateError(String),
   InvalidDatabasePath(PathBuf),
   InvalidTime(String),
 }
@@ -41,5 +42,11 @@ impl From<sqlx::Error> for Error {
       sqlx::Error::WorkerCrashed => Error::DatabaseError("Worker crashed.".into()),
       err => Error::DatabaseError(err.to_string()),
     }
+  }
+}
+
+impl From<sqlx::migrate::MigrateError> for Error {
+  fn from(value: sqlx::migrate::MigrateError) -> Self {
+    Error::DatabaseMigrateError(value.to_string())
   }
 }

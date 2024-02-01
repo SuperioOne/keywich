@@ -1,8 +1,9 @@
 use crate::errors::Error;
 use crate::profile::utils::tag_list::TagList;
 use crate::profile::utils::timestamp::get_unix_timestamp;
+use crate::profile::ProfileDB;
 use serde::Serialize;
-use sqlx::{query, query_as, Connection, FromRow, QueryBuilder, Sqlite, SqliteConnection};
+use sqlx::{query, query_as, Connection, FromRow, QueryBuilder, Sqlite};
 
 /// Inserts token if given flag is true and resets the flags afterward.
 macro_rules! insert_token {
@@ -53,21 +54,14 @@ pub struct KeyData {
 }
 
 pub struct SearchQuery {
-  user_name: Option<Vec<String>>,
-  domain: Option<Vec<String>>,
-  tag: Option<TagList>,
+  pub user_name: Option<Vec<String>>,
+  pub domain: Option<Vec<String>>,
+  pub tag: Option<TagList>,
 }
 
-pub struct Keys {
-  connection: SqliteConnection,
-}
-
-impl Keys {
-  pub fn new(connection: SqliteConnection) -> Self {
-    Self { connection }
-  }
-
-  pub async fn get_key_by_id(&mut self, key_id: i64) -> Result<Option<KeyItemRow>, Error> {
+impl ProfileDB {
+  pub async fn get_key_by_id(&self, key_id: i64) -> Result<Option<KeyItemRow>, Error> {
+    let mut conn = self.pool.acquire().await?;
     let row = query_as::<Sqlite, KeyItemRow>(
       "SELECT
         keys.id,
@@ -87,7 +81,7 @@ impl Keys {
       WHERE keys.id = ? LIMIT 1;",
     )
     .bind(key_id)
-    .fetch_one(&mut self.connection)
+    .fetch_one(&mut *conn)
     .await;
 
     match row {
@@ -97,7 +91,7 @@ impl Keys {
     }
   }
 
-  pub async fn get_keys(&mut self, pinned_only: bool) -> Result<Vec<KeyItemRow>, Error> {
+  pub async fn get_keys(&self, pinned_only: bool) -> Result<Vec<KeyItemRow>, Error> {
     let mut query_builder: QueryBuilder<Sqlite> = QueryBuilder::new(
       "SELECT
         keys.id,
@@ -123,12 +117,13 @@ impl Keys {
     }
 
     let query = query_builder.build_query_as::<KeyItemRow>();
-    let result: Vec<KeyItemRow> = query.fetch_all(&mut self.connection).await?;
+    let mut conn = self.pool.acquire().await?;
+    let result: Vec<KeyItemRow> = query.fetch_all(&mut *conn).await?;
 
     Ok(result)
   }
 
-  pub async fn search_keys(&mut self, search_query: SearchQuery) -> Result<Vec<KeyItemRow>, Error> {
+  pub async fn search_keys(&self, search_query: SearchQuery) -> Result<Vec<KeyItemRow>, Error> {
     let mut query_builder: QueryBuilder<Sqlite> = QueryBuilder::new(
       "SELECT DISTINCT
         keys.id,
@@ -185,14 +180,16 @@ impl Keys {
         });
     }
 
+    let mut conn = self.pool.acquire().await?;
     let query = query_builder.build_query_as::<KeyItemRow>();
-    let result: Vec<KeyItemRow> = query.fetch_all(&mut self.connection).await?;
+    let result: Vec<KeyItemRow> = query.fetch_all(&mut *conn).await?;
 
     Ok(result)
   }
 
-  pub async fn delete_key(&mut self, key_id: i64) -> Result<bool, Error> {
-    let mut transaction = self.connection.begin().await?;
+  pub async fn delete_key(&self, key_id: i64) -> Result<bool, Error> {
+    let mut conn = self.pool.acquire().await?;
+    let mut transaction = conn.begin().await?;
 
     query!("DELETE FROM tags WHERE tags.key_id = ?", key_id)
       .execute(&mut *transaction)
@@ -207,9 +204,10 @@ impl Keys {
     Ok(key_result.rows_affected() > 0)
   }
 
-  pub async fn insert_key(&mut self, item: KeyData) -> Result<i64, Error> {
+  pub async fn insert_key(&self, item: KeyData) -> Result<i64, Error> {
     let now: i64 = get_unix_timestamp()?;
-    let mut transaction = self.connection.begin().await?;
+    let mut conn = self.pool.acquire().await?;
+    let mut transaction = conn.begin().await?;
     let key_insert = query!(
       "INSERT INTO keys
         (pinned, target_size, revision, charset, domain, user_name, notes, created_at, custom_icon, version) VALUES
@@ -245,8 +243,9 @@ impl Keys {
     Ok(key_id)
   }
 
-  pub async fn update_key(&mut self, key_id: i64, item: KeyData) -> Result<(), Error> {
-    let mut transaction = self.connection.begin().await?;
+  pub async fn update_key(&self, key_id: i64, item: KeyData) -> Result<(), Error> {
+    let mut conn = self.pool.acquire().await?;
+    let mut transaction = conn.begin().await?;
     query!(
       "UPDATE keys SET
         (pinned, target_size, revision, charset, domain, user_name, notes, custom_icon, version) =
@@ -305,164 +304,16 @@ impl Keys {
     Ok(())
   }
 
-  pub async fn update_pin_status(&mut self, key_id: i64, pin_status: bool) -> Result<(), Error> {
+  pub async fn update_pin_status(&self, key_id: i64, pin_status: bool) -> Result<(), Error> {
+    let mut conn = self.pool.acquire().await?;
     query!(
       "UPDATE keys SET pinned = ? WHERE keys.id = ?;",
       pin_status,
       key_id
     )
-    .execute(&mut self.connection)
+    .execute(&mut *conn)
     .await?;
 
     Ok(())
-  }
-}
-
-#[cfg(test)]
-mod test {
-  use crate::profile::keys::{KeyData, Keys, SearchQuery};
-  use crate::profile::utils::tag_list::TagList;
-  use sqlx::Connection;
-  use sqlx::SqliteConnection;
-
-  #[tokio::test]
-  async fn read_test() {
-    let sqlite_connection = SqliteConnection::connect("sqlite:dev.sqlite")
-      .await
-      .unwrap();
-
-    let mut key_api = Keys::new(sqlite_connection);
-    let keys = key_api.get_keys(false).await.unwrap();
-
-    assert!(!keys.is_empty());
-  }
-
-  #[tokio::test]
-  async fn search_by_single_param() {
-    let sqlite_connection = SqliteConnection::connect("sqlite:dev.sqlite")
-      .await
-      .unwrap();
-
-    let mut key_api = Keys::new(sqlite_connection);
-    let keys = key_api
-      .search_keys(SearchQuery {
-        tag: Some(["tag1", "tag2"].into()),
-        domain: None,
-        user_name: None,
-      })
-      .await
-      .unwrap();
-
-    assert!(!keys.is_empty());
-  }
-
-  #[tokio::test]
-  async fn search_by_two_params() {
-    let sqlite_connection = SqliteConnection::connect("sqlite:dev.sqlite")
-      .await
-      .unwrap();
-
-    let mut key_api = Keys::new(sqlite_connection);
-    let keys = key_api
-      .search_keys(SearchQuery {
-        tag: Some(["tag1", "tag2"].into()),
-        domain: Some(vec![String::from("dasd")]),
-        user_name: None,
-      })
-      .await
-      .unwrap();
-
-    assert!(!keys.is_empty());
-  }
-
-  #[tokio::test]
-  async fn search_by_all_params() {
-    let sqlite_connection = SqliteConnection::connect("sqlite:dev.sqlite")
-      .await
-      .unwrap();
-
-    let mut key_api = Keys::new(sqlite_connection);
-    let keys = key_api
-      .search_keys(SearchQuery {
-        tag: Some(["tag1", "tag2"].into()),
-        domain: Some(vec![String::from("dasd")]),
-        user_name: Some(vec![String::from("test")]),
-      })
-      .await
-      .unwrap();
-
-    assert!(!keys.is_empty());
-  }
-
-  #[tokio::test]
-  async fn insert_update_delete_test() {
-    let sqlite_connection = SqliteConnection::connect("sqlite:dev.sqlite")
-      .await
-      .unwrap();
-
-    let mut key_api = Keys::new(sqlite_connection);
-
-    let key_id = key_api
-      .insert_key(KeyData {
-        notes: Some("notes".into()),
-        domain: "domain".into(),
-        version: "v1".into(),
-        custom_icon: Some("/tmp/icon.ico".into()),
-        user_name: "username".into(),
-        charset: "a..z0..9".into(),
-        revision: 12,
-        target_size: 12,
-        pinned: false,
-        tags: TagList::from(["tag1", "tag2", "tag3", "tag4", "tag5", "tag6"]),
-      })
-      .await
-      .unwrap();
-
-    key_api
-      .update_key(
-        key_id,
-        KeyData {
-          notes: Some("notes".into()),
-          domain: "domain".into(),
-          version: "v2".into(),
-          custom_icon: Some("/tmp/icon.ico".into()),
-          user_name: "username".into(),
-          charset: "a..z0..9".into(),
-          revision: 13,
-          target_size: 13,
-          pinned: true,
-          tags: TagList::from(["tag4", "tag5", "tag6", "tag7", "tag8"]),
-        },
-      )
-      .await
-      .unwrap();
-
-    key_api.delete_key(key_id).await.unwrap();
-
-    assert!(true);
-  }
-
-  #[tokio::test]
-  async fn get_by_id() {
-    let sqlite_connection = SqliteConnection::connect("sqlite:dev.sqlite")
-      .await
-      .unwrap();
-
-    let mut key_api = Keys::new(sqlite_connection);
-    let result = key_api.get_key_by_id(1).await.unwrap();
-
-    assert_eq!(true, result.is_some());
-  }
-
-  #[tokio::test]
-  async fn get_non_existing_by_id() {
-    let sqlite_connection = SqliteConnection::connect("sqlite:dev.sqlite")
-      .await
-      .unwrap();
-
-    let mut key_api = Keys::new(sqlite_connection);
-    let result = key_api.get_key_by_id(-1).await.unwrap();
-
-    assert_eq!(true, result.is_none())
   }
 }
