@@ -1,41 +1,55 @@
 use crate::errors::Error;
-use crate::Configuration;
+use crate::hash::{HashConfig, HashGenerator};
+use bytes::{BufMut, BytesMut};
+use scrypt::errors::{InvalidOutputLen, InvalidParams};
 use scrypt::{scrypt, Params};
 
 const SCRYPT_LOG_N: u8 = 10;
 const SCRYPT_R: u32 = 8;
 const SCRYPT_P: u32 = 1;
-const SCRYPT_MAX_LEN: usize = 64;
 const SCRYPT_MIN_LEN: usize = 10;
 
-pub(crate) fn hash_scrypt(options: &Configuration) -> Result<Vec<u8>, Error> {
-  // TODO: loggers
+pub(super) struct KwScryptV1 {}
 
-  let mut fold = false;
-  let scrypt_target_len = {
-    if options.target_len < SCRYPT_MIN_LEN {
-      fold = true;
-      10_usize
+impl HashGenerator for KwScryptV1 {
+  fn generate_hash(&self, options: HashConfig) -> Result<Vec<u8>, Error> {
+    let mut fold = false;
+    let scrypt_target_len = {
+      if options.target_len < SCRYPT_MIN_LEN {
+        fold = true;
+        SCRYPT_MIN_LEN
+      } else {
+        options.target_len
+      }
+    };
+
+    let mut byte_buffer = BytesMut::from(options.username);
+    byte_buffer.put_u32_le('@'.into());
+    byte_buffer.put_slice(&options.domain.to_ascii_lowercase());
+    byte_buffer.put_u32_le('r'.into());
+    byte_buffer.put_i64_le(options.revision);
+
+    let params: Params = Params::new(SCRYPT_LOG_N, SCRYPT_R, SCRYPT_P, scrypt_target_len)?;
+    let mut output = vec![0u8; scrypt_target_len];
+    scrypt(options.password, &byte_buffer, &params, &mut output)?;
+
+    if fold {
+      Ok(fold_content(&output, options.target_len))
     } else {
-      options.target_len
+      Ok(output)
     }
-  };
+  }
 
-  let params: Params = Params::new(SCRYPT_LOG_N, SCRYPT_R, SCRYPT_P, scrypt_target_len)
-    .map_err(|_err| Error::InvalidInput)?;
+  fn name(&self) -> &'static str {
+    "kw_scrypt"
+  }
 
-  let input = merge_vectors(options.password, options.domain);
-  let mut output = vec![0u8; scrypt_target_len];
-  scrypt(&input, options.profile_salt, &params, &mut output)
-    .map_err(|_err| Error::InvalidHashOutput)?;
-
-  if fold {
-    Ok(fold_content(&output, options.target_len))
-  } else {
-    Ok(output)
+  fn version(&self) -> &'static str {
+    "v1"
   }
 }
 
+#[inline]
 fn fold_content(content: &[u8], target_len: usize) -> Vec<u8> {
   let mut response_content = content[..target_len].to_vec();
   let extra_content = &content[target_len..];
@@ -50,12 +64,14 @@ fn fold_content(content: &[u8], target_len: usize) -> Vec<u8> {
   response_content
 }
 
-fn merge_vectors<T>(a: &[T], b: &[T]) -> Vec<T>
-where
-  T: Clone,
-{
-  let mut result = a.to_vec();
-  _ = result.extend_from_slice(b);
+impl From<InvalidOutputLen> for Error {
+  fn from(_value: InvalidOutputLen) -> Self {
+    Self::InvalidHashOutput
+  }
+}
 
-  result
+impl From<InvalidParams> for Error {
+  fn from(_value: InvalidParams) -> Self {
+    Self::InvalidInput
+  }
 }

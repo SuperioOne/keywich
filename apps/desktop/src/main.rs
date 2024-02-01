@@ -4,9 +4,9 @@
 )]
 
 use clap::{Parser, Subcommand, ValueEnum};
-use keywich_lib::charset::Charset;
 use keywich_lib::errors::Error;
-use keywich_lib::{generate_password, Configuration, OutputType, PasswordResult};
+use keywich_lib::hash::HashAlgorithm;
+use keywich_lib::{generate_password, PasswordConfig, PasswordResult};
 use std::env::args;
 use std::fmt::Debug;
 
@@ -52,17 +52,6 @@ enum PasswordOutputType {
   Text,
   Base64,
   Json,
-}
-
-impl Into<OutputType> for PasswordOutputType {
-  fn into(self) -> OutputType {
-    match self {
-      PasswordOutputType::PasswordText => OutputType::PasswordText,
-      PasswordOutputType::Text => OutputType::Text,
-      PasswordOutputType::Base64 => OutputType::Base64,
-      PasswordOutputType::Json => OutputType::Json,
-    }
-  }
 }
 
 fn main() {
@@ -112,7 +101,7 @@ fn start_cli() {
       target_length,
     } => match command_generate(&domain, &password, &salt, &charset, target_length) {
       Ok(result) => {
-        let result_buffer = result.to_formatted_string(output_type.into());
+        let result_buffer = result.to_phc();
         println!("{}", result_buffer);
       }
       Err(err) => {
@@ -130,8 +119,15 @@ fn command_generate(
   charset: &str,
   target_length: usize,
 ) -> Result<PasswordResult, Error> {
-  let configuration = Configuration::new(domain, password, salt, charset, target_length)?;
+  let pass = PasswordConfig::<'_> {
+    charset: "",
+    revision: 12,
+    password: "",
+    domain: "",
+    username: "",
+    target_len: 12,
+  };
 
-  let password = generate_password(&configuration)?;
-  Ok(password)
+  let res = generate_password(pass, HashAlgorithm::KwScryptV1)?;
+  Ok(res)
 }

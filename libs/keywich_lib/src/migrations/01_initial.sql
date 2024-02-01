@@ -6,14 +6,14 @@ CREATE TABLE keys
     revision    INTEGER             NOT NULL,
     charset     TEXT                NOT NULL,
     domain      TEXT COLLATE NOCASE NOT NULL,
-    user_name   TEXT COLLATE NOCASE NOT NULL,
+    username   TEXT COLLATE NOCASE NOT NULL,
     notes       TEXT,
     created_at  INTEGER             NOT NULL,
     custom_icon TEXT,
     version     TEXT                NOT NULL
 );
 
-CREATE INDEX idx_keys_user_name ON keys (user_name);
+CREATE INDEX idx_keys_user_name ON keys (username);
 CREATE INDEX idx_keys_pinned ON keys (pinned);
 CREATE INDEX idx_keys_domain ON keys (domain);
 CREATE INDEX idx_keys_created_at ON keys (created_at DESC);

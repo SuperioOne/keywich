@@ -11,6 +11,9 @@ pub enum Error {
   DatabaseMigrateError(String),
   InvalidDatabasePath(PathBuf),
   InvalidTime(String),
+  InvalidHashFuncVersion,
+  InvalidJsonError(String),
+  InvalidQrError(String),
 }
 
 #[derive(Debug)]
@@ -22,6 +25,7 @@ pub enum ValidationError {
   InvalidTargetLength,
 }
 
+#[cfg(feature = "profile")]
 impl From<sqlx::Error> for Error {
   fn from(value: sqlx::Error) -> Self {
     match value {
@@ -45,6 +49,7 @@ impl From<sqlx::Error> for Error {
   }
 }
 
+#[cfg(feature = "profile")]
 impl From<sqlx::migrate::MigrateError> for Error {
   fn from(value: sqlx::migrate::MigrateError) -> Self {
     Error::DatabaseMigrateError(value.to_string())

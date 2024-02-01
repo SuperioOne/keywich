@@ -1,4 +1,4 @@
-#[cfg(test)]
+#[cfg(all(test, feature = "profile"))]
 mod test {
   use keywich_lib::profile::utils::tag_list::TagList;
   use std::collections::HashSet;

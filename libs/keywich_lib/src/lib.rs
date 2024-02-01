@@ -1,66 +1,79 @@
 pub mod charset;
 pub mod errors;
-mod hash;
+pub mod hash;
+
+#[cfg(feature = "profile")]
 pub mod profile;
 
 use crate::charset::Charset;
 use crate::errors::{Error, ValidationError};
-use crate::hash::PasswordAlgo;
-use base64::{engine::general_purpose, Engine as _};
-use qrcode::render::svg;
-use qrcode::{EcLevel, QrCode, Version};
-use serde::Serialize;
+use crate::hash::{HashAlgorithm, HashConfig, HashGenerator};
+use std::convert::Infallible;
 use std::fmt;
 use std::fmt::{Display, Formatter};
 
-pub struct Configuration<'a> {
-  pub domain: &'a [u8],
-  pub password: &'a [u8],
-  pub profile_salt: &'a [u8],
-  pub charset: Charset,
+pub struct PasswordConfig<'a> {
+  pub domain: &'a str,
+  pub password: &'a str,
+  pub username: &'a str,
+  pub charset: &'a str,
+  pub revision: i64,
   pub target_len: usize,
 }
 
-#[derive(Serialize, Debug)]
+#[derive(Debug)]
+#[cfg_attr(feature = "json", derive(serde::Serialize))]
 pub struct PasswordResult {
   pub pass: String,
   pub alg: String,
   pub ver: String,
 }
 
-pub enum OutputType {
-  PasswordText,
-  Text,
-  Base64,
-  Json,
-  QR,
-}
-
 impl PasswordResult {
-  pub fn to_formatted_string(&self, output_type: OutputType) -> String {
-    match output_type {
-      OutputType::Text => self.pass.clone(),
-      OutputType::Json => serde_json::to_string(self).unwrap_or(String::from("Invalid JSON")),
-      OutputType::Base64 => general_purpose::STANDARD_NO_PAD.encode(&self.pass),
-      OutputType::QR => {
-        let qr =
-          QrCode::with_version(self.pass.as_bytes(), Version::Normal(3), EcLevel::Q).unwrap();
-        qr.render()
-          .min_dimensions(350, 350)
-          .dark_color(svg::Color("#000000"))
-          .light_color(svg::Color("#ffffff"))
-          .build()
-      }
-      _ => self.to_string(),
-    }
+  #[cfg(any(feature = "json"))]
+  pub fn to_json(self) -> Result<String, Error> {
+    let json_text =
+      serde_json::to_string(&self).map_err(|err| Error::InvalidJsonError(err.to_string()))?;
+    Ok(json_text)
+  }
+
+  #[cfg(any(feature = "base64"))]
+  pub fn to_base64(self) -> Result<String, Infallible> {
+    use base64::Engine as _;
+
+    Ok(base64::engine::general_purpose::STANDARD_NO_PAD.encode(self.pass))
+  }
+
+  #[cfg(feature = "qr")]
+  pub fn to_qr(self) -> Result<String, Error> {
+    let qr = qrcode::QrCode::with_version(
+      self.pass.as_bytes(),
+      qrcode::Version::Normal(3),
+      qrcode::EcLevel::Q,
+    )
+    .map_err(|qr_err| Error::InvalidQrError(qr_err.to_string()))?;
+
+    let qr_string = qr
+      .render()
+      .min_dimensions(350, 350)
+      .dark_color(qrcode::render::svg::Color("#000000"))
+      .light_color(qrcode::render::svg::Color("#ffffff"))
+      .build();
+
+    Ok(qr_string)
+  }
+
+  pub fn to_phc(self) -> String {
+    self.to_string()
   }
 }
 
+/// Displays password result with PHC format
 impl Display for PasswordResult {
   fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
     write!(
       f,
-      "${alg}${ver}${pass}",
+      "${alg}$v={ver}${pass}",
       alg = self.alg,
       ver = self.ver,
       pass = self.pass
@@ -68,58 +81,53 @@ impl Display for PasswordResult {
   }
 }
 
-impl<'a> Configuration<'a> {
-  pub fn new(
-    domain: &'a str,
-    pass: &'a str,
-    salt: &'a str,
-    charset_text: &'a str,
-    target_len: usize,
-  ) -> Result<Self, Error> {
+pub fn generate_password(
+  config: PasswordConfig,
+  algorithm: HashAlgorithm,
+) -> Result<PasswordResult, Error> {
+  config.validate()?;
+
+  let charset = Charset::new(config.charset)?;
+  let generator = algorithm.get_generator();
+  let hash = generator.generate_hash(HashConfig::from(config))?;
+  let pass = charset.transform_bytes(&hash);
+
+  Ok(PasswordResult {
+    ver: generator.version().into(),
+    alg: generator.name().into(),
+    pass,
+  })
+}
+
+impl<'a> PasswordConfig<'a> {
+  #[inline]
+  fn validate(&self) -> Result<(), Error> {
     let mut errors: Vec<ValidationError> = vec![];
 
-    if target_len < 1 || target_len > 64 {
+    if self.target_len < 1 || self.target_len > 64 {
       errors.push(ValidationError::InvalidTargetLength);
     }
 
-    if domain.trim().is_empty() {
+    if self.domain.trim().is_empty() {
       errors.push(ValidationError::EmptyDomain);
     }
 
-    if pass.trim().is_empty() {
+    if self.password.trim().is_empty() {
       errors.push(ValidationError::EmptyPassword);
     }
 
-    if salt.trim().is_empty() {
+    if self.username.trim().is_empty() {
       errors.push(ValidationError::EmptySalt);
     }
 
-    if charset_text.is_empty() {
+    if self.charset.is_empty() {
       errors.push(ValidationError::EmptyCharset);
     }
 
-    if errors.is_empty() == false {
-      return Err(Error::InvalidConfiguration(errors));
+    if errors.is_empty() {
+      Ok(())
+    } else {
+      Err(Error::InvalidConfiguration(errors))
     }
-
-    let charset = Charset::new(charset_text)?;
-    Ok(Configuration {
-      target_len,
-      password: pass.as_bytes(),
-      profile_salt: salt.as_bytes(),
-      domain: domain.as_bytes(),
-      charset,
-    })
   }
-}
-
-pub fn generate_password(config: &Configuration) -> Result<PasswordResult, Error> {
-  let hash = PasswordAlgo::ScryptV1.generate_hash(config)?;
-  let pass = config.charset.transform_bytes(&hash);
-
-  Ok(PasswordResult {
-    ver: PasswordAlgo::ScryptV1.version(),
-    alg: PasswordAlgo::ScryptV1.name(),
-    pass,
-  })
 }

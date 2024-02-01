@@ -5,15 +5,23 @@ edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[features]
+default = ["qr", "json", "base64"]
+qr = ["dep:qrcode"]
+json = ["dep:serde", "dep:serde_json"]
+base64 = ["dep:base64"]
+profile = ["dep:sqlx", "dep:libsqlite3-sys", "dep:serde", "dep:serde_json"]
+
 [dependencies]
-base64 = "0.21.6"
+base64 = { version = "0.21.6", optional = true }
 log = "0.4.20"
 scrypt = { version = "0.11.0", default-features = false }
-serde = { version = "1.0.195", features = ["serde_derive"] }
-serde_json = { version = "1.0.111" }
-sqlx = { version = "0.7.3", features = ["sqlite", "migrate", "macros", "json", "sqlx-macros", "runtime-tokio"] }
-qrcode = { version = "0.13.0" }
-libsqlite3-sys = { version = "0.27", features = ["default", "bundled-sqlcipher"] }
+serde = { version = "1.0.195", features = ["serde_derive"], optional = true }
+serde_json = { version = "1.0.111", optional = true }
+sqlx = { version = "0.7.3", features = ["sqlite", "migrate", "macros", "json", "sqlx-macros", "runtime-tokio"], optional = true }
+qrcode = { version = "0.13.0", optional = true }
+libsqlite3-sys = { version = "0.27", features = ["default", "bundled-sqlcipher"], optional = true }
+bytes = { version = "1.5.0" }
 
 [dev-dependencies]
 tokio = { version = "1.35.1", features = ["macros", "rt", "test-util"] }

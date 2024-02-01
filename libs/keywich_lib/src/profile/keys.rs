@@ -27,13 +27,13 @@ pub struct KeyItemRow {
   pub revision: i64,
   pub charset: String,
   pub domain: String,
-  pub user_name: String,
+  pub username: String,
   pub notes: Option<String>,
   pub created_at: i64,
   pub custom_icon: Option<String>,
   pub version: String,
 
-  // Default value must be an empty array for tags since current sqlx version does not support nullable json columns.
+  // Query default value must be an empty array for tags since current sqlx version does not support nullable json columns.
   // See https://github.com/launchbadge/sqlx/issues/2849
   #[sqlx(json)]
   pub tags: TagList,
@@ -46,7 +46,7 @@ pub struct KeyData {
   pub revision: i64,
   pub charset: String,
   pub domain: String,
-  pub user_name: String,
+  pub username: String,
   pub notes: Option<String>,
   pub custom_icon: Option<String>,
   pub version: String,
@@ -54,7 +54,7 @@ pub struct KeyData {
 }
 
 pub struct SearchQuery {
-  pub user_name: Option<Vec<String>>,
+  pub username: Option<Vec<String>>,
   pub domain: Option<Vec<String>>,
   pub tag: Option<TagList>,
 }
@@ -70,7 +70,7 @@ impl ProfileDB {
         keys.revision,
         keys.charset,
         keys.domain,
-        keys.user_name,
+        keys.username,
         keys.notes,
         keys.created_at,
         keys.custom_icon,
@@ -100,7 +100,7 @@ impl ProfileDB {
         keys.revision,
         keys.charset,
         keys.domain,
-        keys.user_name,
+        keys.username,
         keys.notes,
         keys.created_at,
         keys.custom_icon,
@@ -132,7 +132,7 @@ impl ProfileDB {
         keys.revision,
         keys.charset,
         keys.domain,
-        keys.user_name,
+        keys.username,
         keys.notes,
         keys.created_at,
         keys.custom_icon,
@@ -147,11 +147,11 @@ impl ProfileDB {
     let mut prepend_token = false;
     let mut insert_where = true;
 
-    if let Some(user_names) = search_query.user_name {
+    if let Some(usernames) = search_query.username {
       insert_token!(&mut query_builder, &mut insert_where, " WHERE ");
       query_builder
-        .push(" keys.user_name IN ")
-        .push_tuples(user_names, |mut b, username| {
+        .push(" keys.username IN ")
+        .push_tuples(usernames, |mut b, username| {
           b.push_bind(username);
         });
       prepend_token = true;
@@ -210,14 +210,14 @@ impl ProfileDB {
     let mut transaction = conn.begin().await?;
     let key_insert = query!(
       "INSERT INTO keys
-        (pinned, target_size, revision, charset, domain, user_name, notes, created_at, custom_icon, version) VALUES
+        (pinned, target_size, revision, charset, domain, username, notes, created_at, custom_icon, version) VALUES
         (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
       item.pinned,
       item.target_size,
       item.revision,
       item.charset,
       item.domain,
-      item.user_name,
+      item.username,
       item.notes,
       now,
       item.custom_icon,
@@ -248,7 +248,7 @@ impl ProfileDB {
     let mut transaction = conn.begin().await?;
     query!(
       "UPDATE keys SET
-        (pinned, target_size, revision, charset, domain, user_name, notes, custom_icon, version) =
+        (pinned, target_size, revision, charset, domain, username, notes, custom_icon, version) =
         (?, ?, ?, ?, ?, ?, ?, ?, ?)
       WHERE keys.id = ?;",
       item.pinned,
@@ -256,7 +256,7 @@ impl ProfileDB {
       item.revision,
       item.charset,
       item.domain,
-      item.user_name,
+      item.username,
       item.notes,
       item.custom_icon,
       item.version,

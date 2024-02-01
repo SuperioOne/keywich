@@ -1,4 +1,4 @@
-#[cfg(test)]
+#[cfg(all(test, feature = "profile"))]
 mod tests {
   use keywich_lib::profile::keys::{KeyData, SearchQuery};
   use keywich_lib::profile::utils::tag_list::TagList;
@@ -11,7 +11,7 @@ mod tests {
         domain: "domain".into(),
         version: "v1".into(),
         custom_icon: Some("/tmp/icon.ico".into()),
-        user_name: "username".into(),
+        username: "username".into(),
         charset: "a..z0..9".into(),
         revision: 12,
         target_size: 12,
@@ -41,7 +41,7 @@ mod tests {
       .search_keys(SearchQuery {
         tag: Some(["tag1", "tag2"].into()),
         domain: None,
-        user_name: None,
+        username: None,
       })
       .await
       .unwrap();
@@ -58,7 +58,7 @@ mod tests {
       .search_keys(SearchQuery {
         tag: Some(["tag1", "tag2"].into()),
         domain: Some(vec![String::from("domain")]),
-        user_name: None,
+        username: None,
       })
       .await
       .unwrap();
@@ -75,7 +75,7 @@ mod tests {
       .search_keys(SearchQuery {
         tag: Some(["tag1", "tag2"].into()),
         domain: Some(vec![String::from("domain")]),
-        user_name: Some(vec![String::from("username")]),
+        username: Some(vec![String::from("username")]),
       })
       .await
       .unwrap();
@@ -106,7 +106,7 @@ mod tests {
           domain: "domain".into(),
           version: "v2".into(),
           custom_icon: Some("/tmp/icon.ico".into()),
-          user_name: "username".into(),
+          username: "username".into(),
           charset: "a..z0..9".into(),
           revision: 13,
           target_size: 13,

@@ -1,31 +1,72 @@
 use crate::errors::Error;
-use crate::Configuration;
+use crate::PasswordConfig;
+use std::fmt::{Display, Formatter};
+use std::str::FromStr;
 
 mod scrypt;
 
-use self::scrypt::hash_scrypt;
+use self::scrypt::KwScryptV1;
 
-pub enum PasswordAlgo {
+pub enum HashAlgorithm {
   // For future implementations
-  ScryptV1,
+  KwScryptV1,
 }
 
-impl PasswordAlgo {
-  pub fn generate_hash(&self, options: &Configuration) -> Result<Vec<u8>, Error> {
+pub(super) trait HashGenerator {
+  fn generate_hash(&self, options: HashConfig) -> Result<Vec<u8>, Error>;
+  fn name(&self) -> &'static str;
+  fn version(&self) -> &'static str;
+}
+
+pub(super) struct HashConfig<'a> {
+  pub(super) domain: &'a [u8],
+  pub(super) password: &'a [u8],
+  pub(super) username: &'a [u8],
+  pub(super) revision: i64,
+  pub(super) target_len: usize,
+}
+
+impl HashAlgorithm {
+  pub(super) fn get_generator(&self) -> impl HashGenerator {
     match self {
-      PasswordAlgo::ScryptV1 => hash_scrypt(options),
+      HashAlgorithm::KwScryptV1 => KwScryptV1 {},
     }
   }
+}
 
-  pub fn name(&self) -> String {
+impl Display for HashAlgorithm {
+  fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
     match self {
-      PasswordAlgo::ScryptV1 => "scrypt".into(),
+      HashAlgorithm::KwScryptV1 => f.write_str("kw_scrypt:v1"),
     }
   }
+}
 
-  pub fn version(&self) -> String {
-    match self {
-      PasswordAlgo::ScryptV1 => "v1".into(),
+impl Default for HashAlgorithm {
+  fn default() -> Self {
+    Self::KwScryptV1
+  }
+}
+
+impl FromStr for HashAlgorithm {
+  type Err = Error;
+
+  fn from_str(s: &str) -> Result<Self, Self::Err> {
+    match s.split_once(':') {
+      Some(("kw_scrypt", "v1")) => Ok(Self::KwScryptV1),
+      _ => Err(Self::Err::InvalidHashFuncVersion),
+    }
+  }
+}
+
+impl<'a> From<PasswordConfig<'a>> for HashConfig<'a> {
+  fn from(value: PasswordConfig<'a>) -> Self {
+    Self {
+      username: value.username.as_bytes(),
+      target_len: value.target_len,
+      domain: value.domain.as_bytes(),
+      password: value.password.as_bytes(),
+      revision: value.revision,
     }
   }
 }

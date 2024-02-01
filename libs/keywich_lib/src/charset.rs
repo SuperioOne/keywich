@@ -1,18 +1,17 @@
 use crate::charset::parser::parse;
 use crate::errors::Error;
+use std::fmt::{Display, Formatter};
 
 pub mod parser;
 
 pub struct Charset {
-  pub charset: String,
+  charset: Box<str>,
 }
 
 impl Charset {
   pub fn new(dictionary_text: &str) -> Result<Charset, Error> {
-    let characters = parse(dictionary_text)?;
-    Ok(Charset {
-      charset: characters,
-    })
+    let charset = Self::try_from(dictionary_text)?;
+    Ok(charset)
   }
 
   pub fn transform_str(&self, content: &str) -> String {
@@ -33,5 +32,22 @@ impl Charset {
     });
 
     String::from_iter(mapped)
+  }
+}
+
+impl TryFrom<&str> for Charset {
+  type Error = Error;
+
+  fn try_from(value: &str) -> Result<Self, Self::Error> {
+    let characters = parse(value)?;
+    Ok(Charset {
+      charset: characters.into_boxed_str(),
+    })
+  }
+}
+
+impl Display for Charset {
+  fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+    f.write_str(self.charset.as_ref())
   }
 }

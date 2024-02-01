@@ -540,6 +540,7 @@ name = "keywich_lib"
 version = "0.1.0"
 dependencies = [
  "base64",
+ "bytes",
  "libsqlite3-sys",
  "log",
  "qrcode",

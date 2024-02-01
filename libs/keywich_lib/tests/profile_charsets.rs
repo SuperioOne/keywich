@@ -1,4 +1,4 @@
-#[cfg(test)]
+#[cfg(all(test, feature = "profile"))]
 mod tests {
   use keywich_lib::profile::charsets::CharsetItem;
   use keywich_lib::profile::ProfileDB;
@@ -16,7 +16,7 @@ mod tests {
   #[tokio::test]
   async fn read_charsets() {
     let profile_db = ProfileDB::connect("sqlite::memory:").await.unwrap();
-    let inserted = profile_db
+    profile_db
       .insert_charset(generate_charset!())
       .await
       .unwrap();
