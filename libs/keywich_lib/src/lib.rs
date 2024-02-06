@@ -38,10 +38,10 @@ impl PasswordResult {
   }
 
   #[cfg(any(feature = "base64"))]
-  pub fn to_base64(self) -> Result<String, Infallible> {
+  pub fn to_base64(self) -> String {
     use base64::Engine as _;
 
-    Ok(base64::engine::general_purpose::STANDARD_NO_PAD.encode(self.pass))
+    base64::engine::general_purpose::STANDARD_NO_PAD.encode(self.pass)
   }
 
   #[cfg(feature = "qr")]

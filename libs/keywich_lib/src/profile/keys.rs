@@ -2,7 +2,7 @@ use crate::errors::Error;
 use crate::profile::utils::tag_list::TagList;
 use crate::profile::utils::timestamp::get_unix_timestamp;
 use crate::profile::ProfileDB;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use sqlx::{query, query_as, Connection, FromRow, QueryBuilder, Sqlite};
 
 /// Inserts token if given flag is true and resets the flags afterward.
@@ -39,7 +39,7 @@ pub struct KeyItemRow {
   pub tags: TagList,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct KeyData {
   pub pinned: bool,
   pub target_size: i64,
@@ -53,6 +53,7 @@ pub struct KeyData {
   pub tags: TagList,
 }
 
+#[derive(Serialize, Deserialize)]
 pub struct SearchQuery {
   pub username: Option<Vec<String>>,
   pub domain: Option<Vec<String>>,

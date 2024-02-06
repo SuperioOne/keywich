@@ -1,9 +1,9 @@
 use crate::errors::Error;
 use crate::profile::ProfileDB;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use sqlx::{query, query_as, FromRow};
 
-#[derive(Debug, FromRow, Serialize)]
+#[derive(Debug, FromRow, Serialize, Deserialize)]
 pub struct CharsetItem {
   pub name: String,
   pub charset: String,
@@ -20,7 +20,7 @@ impl ProfileDB {
     Ok(result)
   }
 
-  pub async fn insert_charset(&self, item: CharsetItem) -> Result<u64, Error> {
+  pub async fn insert_charset(&self, item: CharsetItem) -> Result<i64, Error> {
     _ = crate::charset::parser::parse(&item.charset)?;
     let mut conn = self.pool.acquire().await?;
 
@@ -33,7 +33,7 @@ impl ProfileDB {
     .execute(&mut *conn)
     .await?;
 
-    Ok(result.rows_affected())
+    Ok(result.last_insert_rowid())
   }
 
   pub async fn delete_charset(&self, name: &str) -> Result<u64, Error> {
