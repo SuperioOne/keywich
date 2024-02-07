@@ -1,6 +1,6 @@
 <script lang="ts">
   import type {ModalActionResult} from "./types";
-  import type {PropertyError, CharsetOptions, CharsetItem} from "@keywich/rpc";
+  import type {PropertyError, CharsetOptions, CharsetItem} from "@keywich/api";
   import {getModalStore} from "@skeletonlabs/skeleton";
   import {Log} from "../../logger";
   import {ModalAction} from "./types";
@@ -54,22 +54,22 @@
     const formData = new FormData(formElement);
     const charsetData = form_to_object(formData) as unknown as CharsetOptions;
 
-    let result = await RPC.Charset.create_charset(charsetData);
+    try {
+      let result = await RPC.insert_charset(charsetData);
 
-    if (result.success) {
-      const modalResult: ModalActionResult<CharsetItem> = {
+      const modalResult: ModalActionResult<string> = {
         type: ModalAction.submitted,
-        data: result.data
+        data: result
       }
+
       modalInstance.response?.(modalResult);
       modalStore.close();
-    } else {
-      if (typeof result.error === "string") {
-        Log.error(result.error);
-        toastStore.trigger_error(result.error);
-      } else {
-        errors = result.error;
-      }
+    } catch (err) {
+      Log.error(err);
+      toastStore.trigger_error(err as string);
+
+      // TODO: get validation errors
+      // errors = result.error;
     }
   }
 </script>

@@ -1,7 +1,7 @@
-import {parse_CharsetOptions} from "@keywich/rpc/parsers";
+import {parse_CharsetOptions} from "./parsers/index.js";
 
 /**
- * @type {import("@keywich/rpc").CharsetItem[]}
+ * @type {import("@keywich/api").CharsetItem[]}
  */
 const MEMORY_STORE = [
   {
@@ -26,7 +26,7 @@ const MEMORY_STORE = [
 let NEXT_ID = 4;
 
 /**
- * @type {import("@keywich/rpc").CharsetRPC}
+ * @type {import("@keywich/api").CharsetRPC}
  */
 const module = {
   create_charset(charset) {
@@ -35,7 +35,7 @@ const module = {
     if (validationResult?.success === false) return Promise.resolve(validationResult);
 
     /**
-     * @type {import("@keywich/rpc").CharsetItem}
+     * @type {import("@keywich/api").CharsetItem}
      */
     const newCharset = {
       ...charset,

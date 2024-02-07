@@ -1,7 +1,7 @@
 <script lang="ts">
   import PlusCircleIcon from "$lib/icons/plus-circle.svelte";
   import TrashIcon from "$lib/icons/trash-2.svelte";
-  import type {CharsetItem} from "@keywich/rpc";
+  import type {CharsetItem} from "@keywich/api";
   import {App, i18nStore} from "$lib";
   import {fly} from "svelte/transition";
   import {invalidateAll} from "$app/navigation";
@@ -41,7 +41,7 @@
         {i18nStore.getKey("i18:/settings/charsets/empty-list", "Empty charset list")}
       </li>
     {:else}
-      {#each charsets as charset (charset.id)}
+      {#each charsets as charset (charset.name)}
         <li class="py-4 flex flex-row justify-between items-center" transition:fly={{duration:200, y:20}}>
           <dl>
             <dt>

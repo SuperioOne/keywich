@@ -1,5 +1,5 @@
-import type {CharsetOptions, KeyOptions} from "../types/contracts.js";
-import type {PropertyError, RPCErrorResult} from "../types/utility.js";
+import type {CharsetOptions, KeyOptions} from "@keywich/api/src/contracts.js";
+import type {PropertyError, RPCErrorResult} from "@keywich/api/src/utility.js";
 
 export function parse_KeyOptions(options: KeyOptions): RPCErrorResult<PropertyError<KeyOptions>> | undefined;
 

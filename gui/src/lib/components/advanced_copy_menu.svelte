@@ -4,7 +4,7 @@
   import QrIcon from "../icons/qr.svelte"
   import TerminalIcon from "../icons/terminal.svelte"
   import TypeIcon from "../icons/type.svelte"
-  import type {PasswordOutputType} from "@keywich/rpc";
+  import type {PasswordOutputType} from "@keywich/api";
   import {CodeBlock, getModalStore, ProgressRadial} from "@skeletonlabs/skeleton";
   import {Log} from "../logger";
   import {RPC} from "../rpc";
@@ -22,31 +22,29 @@
   async function get_password(output_type: PasswordOutputType) {
     try {
       data = {state: "loading"};
-      const result = await RPC.KeyMetadata.generate_password(keyId, output_type);
-
-      if (result.success === false) {
-        Log.error(result.error);
-        data = {state: "failed"};
-        return;
-      }
+      const result = await RPC.generate_password_from({
+        content: "test",
+        output_type: output_type,
+        profile_id: keyId
+      });
 
       let displayData: string;
       switch (output_type) {
-        case "qr": {
-          displayData = `data:image/svg+xml;base64,${btoa(result.data)}`;
+        case "Qr": {
+          displayData = `data:image/svg+xml;base64,${btoa(result)}`;
           break;
         }
-        case "text":
-        case "base64":
-        case "uri":
+        case "Text":
+        case "Base64":
+        case "Uri":
         default:
-          displayData = result.data;
+          displayData = result;
           break;
       }
 
       data = {
         type: output_type,
-        raw: result.data,
+        raw: result,
         state: "completed",
         display: displayData
       };
@@ -59,7 +57,7 @@
 
   async function save_qr(data: string) {
     const buffer = new TextEncoder().encode(data);
-    await RPC.Utility.save_file(buffer);
+    await RPC.save_file(buffer);
   }
 </script>
 
@@ -69,7 +67,7 @@
     {#if data?.state === "loading"}
       <ProgressRadial stroke={160} meter="stroke-primary-500" track="stroke-primary-500/30"/>
     {:else if data?.state === "completed"}
-      {#if data.type === "qr" }
+      {#if data.type === "Qr" }
         <div class="card w-full overflow-hidden aspect-square">
           <img width="100%" src={data.display} alt="qr"/>
         </div>
@@ -96,7 +94,7 @@
       <hr class="!border-t-2 w-full"/>
       <div class="grid grid-cols-2 gap-2 w-full">
         <button
-            on:click={() => get_password("text")}
+            on:click={() => get_password("Text")}
             type="button"
             class="aspect-square btn p-2 variant-filled-secondary flex flex-col gap-2 justify-center align-middle"
         >
@@ -104,7 +102,7 @@
           <span class="font-mono text-sm text-center w-full !m-0">TEXT</span>
         </button>
         <button
-            on:click={() => get_password("qr")}
+            on:click={() => get_password("Qr")}
             type="button"
             class="aspect-square btn p-2 variant-filled-secondary flex flex-col gap-2 justify-center align-middle"
         >
@@ -112,7 +110,7 @@
           <span class="font-mono text-sm text-center w-full !m-0">QR</span>
         </button>
         <button
-            on:click={() => get_password("base64")}
+            on:click={() => get_password("Base64")}
             type="button"
             class="aspect-square btn p-2 variant-filled-secondary flex flex-col gap-2 justify-center align-middle"
         >
@@ -120,7 +118,7 @@
           <span class="font-mono text-sm text-center w-full !m-0">BASE64</span>
         </button>
         <button
-            on:click={() => get_password("uri")}
+            on:click={() => get_password("Uri")}
             type="button"
             class="aspect-square btn p-2 variant-filled-secondary flex flex-col gap-2 justify-center align-middle"
         >

@@ -1,32 +1,31 @@
 {
   "private": true,
-  "type": "module",
-  "name": "@keywich/rpc",
+  "name": "@keywich/memory_api",
   "version": "1.0.0",
-  "description": "Standard definition and helper methods to implement platform specific RPC.",
+  "description": "In-Memory Keywich RPC implementation for testing.",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "check": "tsc --noEmit"
   },
   "main": "src/index.js",
-  "types": "./src/index.d.ts",
+  "types": "src/index.d.ts",
   "exports": {
     ".": {
       "import": "./src/index.js",
       "types": "./src/index.d.ts"
-    },
-    "./parsers": {
-      "import": "./src/parsers/index.js",
-      "types": "./src/parsers/index.d.ts"
     }
   },
+  "type": "module",
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "devDependencies": {
+    "typescript": "^5.3.3"
+  },
   "dependencies": {
     "zod": "^3.22.4"
   },
-  "devDependencies": {
-    "typescript": "^5.3.3"
+  "peerDependencies": {
+    "@keywich/api": "workspace:*"
   }
 }

@@ -3,6 +3,7 @@ use crate::hash::{HashConfig, HashGenerator};
 use bytes::{BufMut, BytesMut};
 use scrypt::errors::{InvalidOutputLen, InvalidParams};
 use scrypt::{scrypt, Params};
+use std::io::Read;
 
 const SCRYPT_LOG_N: u8 = 10;
 const SCRYPT_R: u32 = 8;

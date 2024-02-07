@@ -5,22 +5,22 @@
   import KeyIcon from "$lib/icons/key.svelte";
   import StarIcon from "$lib/icons/star.svelte";
   import TrashIcon from "$lib/icons/trash-2.svelte";
-  import type {KeyMetadataItem} from "@keywich/rpc";
+  import type {KeyItem} from "@keywich/api";
   import type {PopupSettings} from "@skeletonlabs/skeleton";
   import {createEventDispatcher} from "svelte";
   import {popup} from "@skeletonlabs/skeleton";
 
-  export let item: KeyMetadataItem;
+  export let item: KeyItem;
   export let active: boolean = false;
 
   const dispatch = createEventDispatcher<{
-    remove: KeyMetadataItem;
-    copyAux: KeyMetadataItem;
-    copy: KeyMetadataItem;
-    copyAlt: KeyMetadataItem;
-    delete: KeyMetadataItem;
-    update: KeyMetadataItem;
-    pin: KeyMetadataItem;
+    remove: KeyItem;
+    copyAux: KeyItem;
+    copy: KeyItem;
+    copyAlt: KeyItem;
+    delete: KeyItem;
+    update: KeyItem;
+    pin: KeyItem;
     tagSelect: string;
   }>();
 
@@ -58,7 +58,7 @@
         <dt class="font-bold text-lg mb-0.5">
           <div class="flex flex-row items-center gap-1">
             <span>
-              {item.user_name}
+              {item.username}
             </span>
             <button
               class="btn !bg-transparent !m-0 !p-0"

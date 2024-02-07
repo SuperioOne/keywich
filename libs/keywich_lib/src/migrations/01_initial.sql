@@ -6,7 +6,7 @@ CREATE TABLE keys
     revision    INTEGER             NOT NULL,
     charset     TEXT                NOT NULL,
     domain      TEXT COLLATE NOCASE NOT NULL,
-    username   TEXT COLLATE NOCASE NOT NULL,
+    username    TEXT COLLATE NOCASE NOT NULL,
     notes       TEXT,
     created_at  INTEGER             NOT NULL,
     custom_icon TEXT,
@@ -40,3 +40,8 @@ CREATE VIEW vw_tag_list (tags, key_id) AS
 SELECT json_group_array(name) as tags, key_id
 FROM tags
 GROUP BY key_id;
+
+INSERT INTO charsets (name, charset, description)
+VALUES ('Alpha Numeric', 'a..zA..Z0..9', NULL),
+       ('Numeric', '0..9', NULL),
+       ('Alpha', 'a..zA..Z', NULL);

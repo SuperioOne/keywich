@@ -98,7 +98,7 @@ mod test {
     };
 
     let pass = generate_password(config, HashAlgorithm::KwScryptV1).unwrap();
-    let base64_string = pass.to_base64().unwrap();
+    let base64_string = pass.to_base64();
 
     assert_eq!("Y3JvZnBpcW93Ym5s", &base64_string);
   }

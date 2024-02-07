@@ -20,7 +20,7 @@ impl ProfileDB {
     Ok(result)
   }
 
-  pub async fn insert_charset(&self, item: CharsetItem) -> Result<i64, Error> {
+  pub async fn insert_charset(&self, item: CharsetItem) -> Result<String, Error> {
     _ = crate::charset::parser::parse(&item.charset)?;
     let mut conn = self.pool.acquire().await?;
 
@@ -33,7 +33,7 @@ impl ProfileDB {
     .execute(&mut *conn)
     .await?;
 
-    Ok(result.last_insert_rowid())
+    Ok(item.name)
   }
 
   pub async fn delete_charset(&self, name: &str) -> Result<u64, Error> {

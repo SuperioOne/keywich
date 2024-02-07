@@ -1,3 +1,3 @@
-import _rpc from "@keywich/memory_rpc";
+import _rpc from "../../../libs/tauri_api";
 
 export const RPC = _rpc;

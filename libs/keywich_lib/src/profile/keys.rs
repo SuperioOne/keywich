@@ -20,7 +20,7 @@ macro_rules! insert_token {
 }
 
 #[derive(Debug, FromRow, Serialize)]
-pub struct KeyItemRow {
+pub struct KeyItem {
   pub id: i64,
   pub pinned: bool,
   pub target_size: i64,
@@ -61,9 +61,9 @@ pub struct SearchQuery {
 }
 
 impl ProfileDB {
-  pub async fn get_key_by_id(&self, key_id: i64) -> Result<Option<KeyItemRow>, Error> {
+  pub async fn get_key_by_id(&self, key_id: i64) -> Result<Option<KeyItem>, Error> {
     let mut conn = self.pool.acquire().await?;
-    let row = query_as::<Sqlite, KeyItemRow>(
+    let row = query_as::<Sqlite, KeyItem>(
       "SELECT
         keys.id,
         keys.pinned,
@@ -92,7 +92,7 @@ impl ProfileDB {
     }
   }
 
-  pub async fn get_keys(&self, pinned_only: bool) -> Result<Vec<KeyItemRow>, Error> {
+  pub async fn get_keys(&self, pinned_only: bool) -> Result<Vec<KeyItem>, Error> {
     let mut query_builder: QueryBuilder<Sqlite> = QueryBuilder::new(
       "SELECT
         keys.id,
@@ -117,14 +117,14 @@ impl ProfileDB {
         .push_bind(pinned_only);
     }
 
-    let query = query_builder.build_query_as::<KeyItemRow>();
+    let query = query_builder.build_query_as::<KeyItem>();
     let mut conn = self.pool.acquire().await?;
-    let result: Vec<KeyItemRow> = query.fetch_all(&mut *conn).await?;
+    let result: Vec<KeyItem> = query.fetch_all(&mut *conn).await?;
 
     Ok(result)
   }
 
-  pub async fn search_keys(&self, search_query: SearchQuery) -> Result<Vec<KeyItemRow>, Error> {
+  pub async fn search_keys(&self, search_query: SearchQuery) -> Result<Vec<KeyItem>, Error> {
     let mut query_builder: QueryBuilder<Sqlite> = QueryBuilder::new(
       "SELECT DISTINCT
         keys.id,
@@ -182,8 +182,8 @@ impl ProfileDB {
     }
 
     let mut conn = self.pool.acquire().await?;
-    let query = query_builder.build_query_as::<KeyItemRow>();
-    let result: Vec<KeyItemRow> = query.fetch_all(&mut *conn).await?;
+    let query = query_builder.build_query_as::<KeyItem>();
+    let result: Vec<KeyItem> = query.fetch_all(&mut *conn).await?;
 
     Ok(result)
   }

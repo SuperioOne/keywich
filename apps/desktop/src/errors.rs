@@ -1,9 +1,8 @@
 use keywich_lib::errors::Error;
 use serde::ser::SerializeStruct;
 use serde::{Serialize, Serializer};
-use std::fmt::{Display, Formatter};
+use std::fmt::{Debug, Display, Formatter};
 
-#[derive(Debug)]
 pub enum AppErrors {
   GenericError,
 }
@@ -17,7 +16,13 @@ impl From<keywich_lib::errors::Error> for AppErrors {
 
 impl Display for AppErrors {
   fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-    write!(f, "{}", self)
+    write!(f, "{}", "???")
+  }
+}
+
+impl Debug for AppErrors {
+  fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+    write!(f, "{}", "!!!")
   }
 }
 
@@ -36,6 +41,7 @@ impl Serialize for AppErrors {
   where
     S: Serializer,
   {
+    // serializer.serialize_str(self.to_string().as_ref())
     let mut error_obj = serializer.serialize_struct("Error", 2)?;
     error_obj.serialize_field("code", "ERR0000")?;
     error_obj.serialize_field("message", &self.to_string())?;

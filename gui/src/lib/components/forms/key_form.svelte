@@ -1,16 +1,16 @@
 <script lang="ts">
   import UploadIcon from "../../icons/upload.svelte";
   import type {ModalActionResult} from "./types";
-  import type {PropertyError, KeyOptions, CharsetItem, KeyMetadataItem} from "@keywich/rpc";
-  import {InputChip, RangeSlider, getModalStore, FileDropzone} from "@skeletonlabs/skeleton";
-  import {Log} from "../../logger";
   import {ModalAction} from "./types";
+  import type {CharsetItem, KeyItem, KeyOptions, PropertyError} from "@keywich/api";
+  import {FileDropzone, getModalStore, InputChip, RangeSlider} from "@skeletonlabs/skeleton";
+  import {Log} from "../../logger";
   import {RPC} from "../../rpc";
   import {getExtendedToastStore, i18nStore} from "../../stores";
   import {onDestroy, onMount} from "svelte";
   import {or_default} from "../../utils";
 
-  export let data: KeyMetadataItem | undefined = undefined;
+  export let data: KeyItem | undefined = undefined;
 
   let charsetList: CharsetItem[] = [];
   let errors: PropertyError<KeyOptions> = {};
@@ -27,11 +27,11 @@
   const maximumPassLength: number = 64;
 
   onMount(async () => {
-    const charsetResult = await RPC.Charset.get_charsets();
-    if (charsetResult.success) {
-      charsetList = charsetResult.data;
-    } else {
-      Log.error(charsetResult.error);
+    try {
+      charsetList = await RPC.get_charsets();
+
+    } catch (err) {
+      Log.error(err);
       toastStore.trigger_error(i18nStore.getKey("i18:/key-form/errors/charset-error", "Unable to load charset list."));
     }
   });
@@ -55,16 +55,16 @@
       return;
     }
 
-    const modalResult: ModalActionResult<KeyMetadataItem> = {
+    const modalResult: ModalActionResult<boolean> = {
       type: ModalAction.closed
     }
     modalInstance.response?.(modalResult);
     modalStore.close();
   }
 
-  function form_to_object(form: FormData) {
+  function form_to_object(form: FormData): KeyOptions {
     const domain = form.get("domain");
-    const user_name = form.get("user_name");
+    const username = form.get("username");
     const charset = form.get("charset");
     const target_size = or_default(Number(form.get("target_size")), 32);
     const notes = form.get("notes");
@@ -73,14 +73,16 @@
     const custom_icon = form.get("custom_icon");
 
     return {
-      domain: domain,
-      charset: charset,
-      custom_icon: custom_icon,
-      notes: notes,
+      domain: domain as string,
+      charset: charset as string,
+      // custom_icon: custom_icon as string,
+      notes: notes as string,
       revision: revision,
-      tags: tags,
+      tags: tags as string[],
       target_size: target_size,
-      user_name: user_name
+      username: username as string,
+      version: "kw_scrypt:v1",
+      pinned: false
     }
   }
 
@@ -99,26 +101,28 @@
     const formData = new FormData(formElement);
     const keyData = form_to_object(formData) as unknown as KeyOptions;
 
-    const result = data && !isNaN(Number(data.id))
-      ? await RPC.KeyMetadata.update_key(data.id, keyData)
-      : await RPC.KeyMetadata.create_key(keyData);
+    try {
+      if (data && !isNaN(Number(data.id))) {
+        await RPC.update_key(data.id, keyData);
+      } else {
+        await RPC.insert_key(keyData);
+      }
 
-    if (result.success) {
-      const modalResult: ModalActionResult<KeyMetadataItem> = {
+      const modalResult: ModalActionResult<boolean> = {
         type: ModalAction.submitted,
-        data: result.data
+        data: true
       }
       modalInstance.response?.(modalResult);
       modalStore.close();
-    } else {
-      if (typeof result.error === "string") {
-        Log.error(result.error);
-        toastStore.trigger_error(result.error);
-      } else {
-        errors = result.error;
-      }
+
+    } catch (err) {
+
+      Log.error(err);
+      toastStore.trigger_error("failed");
+      // errors = result.error;
     }
   }
+
 
   function on_custom_icon(event: Event) {
     const inputElement = event.target as HTMLInputElement;
@@ -171,18 +175,18 @@
         <label class="label">
           <span class="font-bold">{i18nStore.getKey("i18:/key-form/labels/username", "Username")}</span>
           <input
-              class:input-error={errors.user_name}
+              class:input-error={errors.username}
               class="input"
               type="text"
-              name="user_name"
+              name="username"
               placeholder={i18nStore.getKey("i18:/key-form/desc/username", "")}
               required
-              value={data?.user_name ?? null}
+              value={data?.username ?? null}
           />
         </label>
-        {#if errors.user_name}
+        {#if errors.username}
           <ul class="m-1 font-light text-sm text-error-500-400-token list-disc list-inside">
-            {#each errors.user_name as error}
+            {#each errors.username as error}
               <li>{error}</li>
             {/each}
           </ul>

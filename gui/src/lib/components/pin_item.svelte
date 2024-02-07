@@ -1,6 +1,6 @@
 <script lang="ts">
   import KeyIcon from "../icons/key.svelte";
-  import type {KeyMetadataItem} from "@keywich/rpc";
+  import type {KeyMetadataItem} from "@keywich/api";
   import {App} from "../app";
 
   export let item: KeyMetadataItem;

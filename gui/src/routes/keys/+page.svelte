@@ -1,7 +1,7 @@
 <script lang="ts">
   import FilterIcon from "$lib/icons/filter.svelte";
   import PlusCircleIcon from "$lib/icons/plus-circle.svelte";
-  import type {KeyMetadataItem} from "@keywich/rpc";
+  import type {KeyItem} from "@keywich/api";
   import type {PageData} from "./$types";
   import type {TokenType} from "$lib";
   import {KeyRow, KeyFilterInput, i18nStore, App} from "$lib";
@@ -19,29 +19,29 @@
     }
   }
 
-  async function update_key(event: CustomEvent<KeyMetadataItem>) {
+  async function update_key(event: CustomEvent<KeyItem>) {
     const updated = await App.Actions.update_key(event.detail);
     if (updated) {
       await invalidateAll();
     }
   }
 
-  async function flip_pin(event: CustomEvent<KeyMetadataItem>) {
+  async function flip_pin(event: CustomEvent<KeyItem>) {
     const success = await App.Actions.flip_pin(event.detail);
     if (success) {
       await invalidateAll();
     }
   }
 
-  async function quick_copy(event: CustomEvent<KeyMetadataItem>) {
+  async function quick_copy(event: CustomEvent<KeyItem>) {
     return await App.Actions.quick_copy(event.detail);
   }
 
-  async function advanced_copy(event: CustomEvent<KeyMetadataItem>) {
+  async function advanced_copy(event: CustomEvent<KeyItem>) {
     return await App.Actions.advanced_copy(event.detail);
   }
 
-  async function delete_key(event: CustomEvent<KeyMetadataItem>) {
+  async function delete_key(event: CustomEvent<KeyItem>) {
     const success = await App.Actions.delete_key(event.detail);
     if (success) {
       await invalidateAll();

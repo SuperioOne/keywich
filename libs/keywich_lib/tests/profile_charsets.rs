@@ -16,14 +16,10 @@ mod tests {
   #[tokio::test]
   async fn read_charsets() {
     let profile_db = ProfileDB::connect("sqlite::memory:").await.unwrap();
-    profile_db
-      .insert_charset(generate_charset!())
-      .await
-      .unwrap();
-
     let charset_items = profile_db.get_charsets().await.unwrap();
 
-    assert_eq!(1, charset_items.len())
+    // By default 3 charset should be available.
+    assert_eq!(3, charset_items.len())
   }
 
   #[tokio::test]
@@ -35,7 +31,7 @@ mod tests {
       .await
       .unwrap();
 
-    assert_eq!(1, inserted);
+    assert_eq!("__test", &inserted);
 
     let deleted_row = profile_db.delete_charset("__test").await.unwrap();
 

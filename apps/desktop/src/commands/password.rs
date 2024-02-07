@@ -24,7 +24,7 @@ pub struct PasswordGenerateRequest {
   pub output_type: PasswordOutputType,
 }
 
-#[tauri::command]
+#[tauri::command(rename_all = "snake_case")]
 pub async fn generate_password_from(
   state: State<'_, AppRpcState>,
   request: PasswordRequest,
@@ -53,7 +53,7 @@ pub async fn generate_password_from(
   }
 }
 
-#[tauri::command]
+#[tauri::command(rename_all = "snake_case")]
 pub fn generate_password(request: PasswordGenerateRequest) -> Result<String, AppErrors> {
   let PasswordGenerateRequest {
     content,

@@ -81,7 +81,6 @@ fn start_gui() {
   tauri::Builder::default()
     .setup(|app| {
       // TODO: get rid of unwraps
-
       let app_data_dir = &app.path_resolver().app_data_dir().unwrap();
       let db_path = Path::join(&app_data_dir, "app.db");
       let path_str = db_path.to_str().unwrap();

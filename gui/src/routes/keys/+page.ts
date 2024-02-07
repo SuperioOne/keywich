@@ -1,28 +1,23 @@
-import type {KeyFilter} from "@keywich/rpc";
+import type {SearchQuery} from "@keywich/api";
 import type {PageLoad} from './$types';
 import type {TokenType, TokenTypeName} from "$lib";
-import {RPC, Log} from "$lib";
+import {RPC} from "$lib";
 
 export const load: PageLoad = async ({url}) => {
   const filter = get_filter(url);
-  const result = await RPC.KeyMetadata.get_key_collection(filter?.keyFilter);
 
-  if (result.success) {
-    return {
-      keys: result.data,
-      tokens: filter?.tokens
-    };
-  } else {
-    Log.error(result.error);
-    return {
-      keys: [],
-      tokens: filter?.tokens
-    }
-  }
+  const keys = filter?.keyFilter
+    ? await RPC.search_keys(filter.keyFilter)
+    : await RPC.get_keys();
+
+  return {
+    keys: keys,
+    tokens: filter?.tokens
+  };
 };
 
 type FilterObject = {
-  keyFilter: KeyFilter;
+  keyFilter: SearchQuery;
   tokens: TokenType[];
 }
 
@@ -58,7 +53,6 @@ function get_filter(url: URL): FilterObject | undefined {
         username,
         tag,
         domain,
-        searchTokens: terms
       },
       tokens: to_tokens(segments)
     }
