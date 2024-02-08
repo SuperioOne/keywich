@@ -35,6 +35,7 @@ pub async fn delete_key(state: State<'_, AppRpcState>, key_id: i64) -> Result<()
 
 #[tauri::command(rename_all = "snake_case")]
 pub async fn insert_key(state: State<'_, AppRpcState>, data: KeyData) -> Result<i64, AppErrors> {
+  println!("{:?}", &data);
   let result = state.profile_db.insert_key(data).await?;
   Ok(result)
 }

@@ -44,6 +44,10 @@ impl TagList {
     self.internal.len()
   }
 
+  pub fn is_empty(&self) -> bool {
+    self.internal.is_empty()
+  }
+
   pub fn insert(&mut self, value: &str) -> bool {
     self.internal.insert(Box::from(value))
   }

@@ -10,35 +10,40 @@
   import {RPC} from "../rpc";
   import {i18nStore} from "../stores/i18n_store";
 
-  const modalStore = getModalStore();
+  const modal_store = getModalStore();
 
+  type OutType = PasswordOutputType | "UriEncoded";
   type DisplayData =
-    { display: string, raw: string, type: PasswordOutputType, state: "completed" }
+    { display: string, raw: string, type: OutType, state: "completed" }
     | { state: "loading" | "failed" }
 
   export let keyId: number;
   let data: DisplayData;
 
-  async function get_password(output_type: PasswordOutputType) {
+  async function get_password(output_type: OutType) {
     try {
       data = {state: "loading"};
+
       const result = await RPC.generate_password_from({
         content: "test",
-        output_type: output_type,
+        output_type: output_type === "UriEncoded" ? "Text" : output_type,
         profile_id: keyId
       });
 
-      let displayData: string;
+      let display_data: string;
       switch (output_type) {
         case "Qr": {
-          displayData = `data:image/svg+xml;base64,${btoa(result)}`;
+          display_data = `data:image/svg+xml;base64,${btoa(result)}`;
+          break;
+        }
+        case "UriEncoded": {
+          display_data = encodeURIComponent(result);
           break;
         }
         case "Text":
         case "Base64":
-        case "Uri":
         default:
-          displayData = result;
+          display_data = result;
           break;
       }
 
@@ -46,7 +51,7 @@
         type: output_type,
         raw: result,
         state: "completed",
-        display: displayData
+        display: display_data
       };
 
     } catch (err) {
@@ -61,7 +66,7 @@
   }
 </script>
 
-{#if $modalStore[0]}
+{#if $modal_store[0]}
   <div
       class="card p-6 flex flex-col items-center gap-5 w-full sm:w-modal-slim">
     {#if data?.state === "loading"}
@@ -77,7 +82,7 @@
         >
           <span><DownloadIcon/></span>
           <span>{
-            i18nStore.getKey("i18:/generic/save", "Save")
+            i18nStore.get_key("i18:/generic/save", "Save")
           }</span>
         </button>
       {:else }
@@ -89,7 +94,7 @@
       <span class="text-error-300-600-token">Failed</span>
     {:else}
       <p class="font-bold w-full text-center">
-        {$modalStore[0].title}
+        {$modal_store[0].title}
       </p>
       <hr class="!border-t-2 w-full"/>
       <div class="grid grid-cols-2 gap-2 w-full">
@@ -118,7 +123,7 @@
           <span class="font-mono text-sm text-center w-full !m-0">BASE64</span>
         </button>
         <button
-            on:click={() => get_password("Uri")}
+            on:click={() => get_password("UriEncoded")}
             type="button"
             class="aspect-square btn p-2 variant-filled-secondary flex flex-col gap-2 justify-center align-middle"
         >

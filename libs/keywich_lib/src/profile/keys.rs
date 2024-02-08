@@ -224,21 +224,24 @@ impl ProfileDB {
       item.custom_icon,
       item.version
     )
-    .execute(&mut *transaction)
-    .await?;
+      .execute(&mut *transaction)
+      .await?;
 
     let key_id = key_insert.last_insert_rowid();
-    let mut query_builder: QueryBuilder<Sqlite> =
-      QueryBuilder::new("INSERT INTO tags (name, key_id) ");
 
-    query_builder.push_values(item.tags.iter(), |mut b, tag| {
-      b.push_bind(tag.as_ref());
-      b.push_bind(key_id);
-    });
+    if !item.tags.is_empty() {
+      let mut query_builder: QueryBuilder<Sqlite> =
+        QueryBuilder::new("INSERT INTO tags (name, key_id) ");
 
-    let query = query_builder.build();
+      query_builder.push_values(item.tags.iter(), |mut b, tag| {
+        b.push_bind(tag.as_ref());
+        b.push_bind(key_id);
+      });
 
-    query.execute(&mut *transaction).await?;
+      let query = query_builder.build();
+      query.execute(&mut *transaction).await?;
+    }
+
     transaction.commit().await?;
 
     Ok(key_id)

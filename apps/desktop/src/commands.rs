@@ -1,6 +1,7 @@
 pub mod charsets;
 pub mod keys;
 pub mod password;
+pub mod utilities;
 
 #[macro_export]
 macro_rules! generate_keywich_handler {
@@ -20,6 +21,8 @@ macro_rules! generate_keywich_handler {
       $crate::commands::keys::pin_key,
       $crate::commands::keys::unpin_key,
       $crate::commands::keys::get_key_by_id,
+      $crate::commands::utilities::create_guid,
+      $crate::commands::utilities::get_content_path,
     ]
   };
 }

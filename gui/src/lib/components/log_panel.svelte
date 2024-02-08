@@ -10,7 +10,7 @@
   const dispatch = createEventDispatcher();
   export let maxHeight = 500
   export let minHeight = 200;
-  export let title = i18nStore.getKey("i18:/log-panel/title","Logs")
+  export let title = i18nStore.get_key("i18:/log-panel/title","Logs")
 
   let containerElement: HTMLDivElement;
   let topBarElement: HTMLDivElement;

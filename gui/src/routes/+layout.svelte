@@ -16,17 +16,17 @@
 
   const menuItems: MenuItem[] = [
     {
-      label: i18nStore.getKey("i18:/nav/home", "Home"),
+      label: i18nStore.get_key("i18:/nav/home", "Home"),
       target: "/",
       icon: HomeIcon,
     },
     {
-      label: i18nStore.getKey("i18:/nav/keys", "Keys"),
+      label: i18nStore.get_key("i18:/nav/keys", "Keys"),
       target: "/keys",
       icon: KeyIcon,
     },
     {
-      label: i18nStore.getKey("i18:/nav/settings", "Settings"),
+      label: i18nStore.get_key("i18:/nav/settings", "Settings"),
       target: "/settings",
       icon: SettingsIcon,
     },
@@ -77,7 +77,7 @@
     </div>
   </svelte:fragment>
   <div class="flex justify-center w-full">
-    <div class="p-3 sm:p-6 md:p-12 w-full max-w-screen-lg">
+    <div class="p-3 sm:p-6 md:p-12 w-full max-w-screen-lg ">
       <slot/>
     </div>
   </div>
@@ -85,6 +85,6 @@
     {#if displayLogger}
       <LogPanel on:close={on_log_panel_close}/>
     {/if}
+
   </svelte:fragment>
 </AppShell>
-

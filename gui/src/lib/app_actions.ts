@@ -35,7 +35,7 @@ export function init_actions(rpcInstance: KeywichRpcApi): AppActions {
         component: {
           ref: KeyForm,
         },
-        title: i18nStore.getKey("i18:/actions/create-key/title", "Create New Key"),
+        title: i18nStore.get_key("i18:/actions/create-key/title", "Create New Key"),
         backdropClasses: "backdrop-blur-sm",
         type: "component",
         response: (r: ModalActionResult<KeyItem>) => resolve(r),
@@ -45,7 +45,7 @@ export function init_actions(rpcInstance: KeywichRpcApi): AppActions {
     if (response?.type === ModalAction.submitted) {
 
       toastStore.trigger_success(
-        i18nStore.getKey(
+        i18nStore.get_key(
           `i18:/actions/create-key/msg/success?$noCache&domain=${response.data.domain}`,
           "New key created.")
       );
@@ -64,7 +64,7 @@ export function init_actions(rpcInstance: KeywichRpcApi): AppActions {
             data: item
           }
         },
-        title: i18nStore.getKey("i18:/actions/update-key/title", "Update Key"),
+        title: i18nStore.get_key("i18:/actions/update-key/title", "Update Key"),
         backdropClasses: "backdrop-blur-sm",
         type: "component",
         response: (r: ModalActionResult<KeyItem>) => resolve(r),
@@ -73,7 +73,7 @@ export function init_actions(rpcInstance: KeywichRpcApi): AppActions {
 
     if (response?.type === ModalAction.submitted) {
       toastStore.trigger_success(
-        i18nStore.getKey(
+        i18nStore.get_key(
           `i18:/actions/update-key/msg/success`,
           "Key updated successfully.")
       );
@@ -94,7 +94,7 @@ export function init_actions(rpcInstance: KeywichRpcApi): AppActions {
     } catch (err) {
       Log.error(err);
       toastStore.trigger_error(
-        i18nStore.getKey(
+        i18nStore.get_key(
           `i18:/actions/pin-key/msg/error`,
           "Unable to pin")
       );
@@ -113,7 +113,7 @@ export function init_actions(rpcInstance: KeywichRpcApi): AppActions {
       await rpcInstance.copy_to_clipboard(result);
 
       toastStore.trigger_success(
-        i18nStore.getKey(
+        i18nStore.get_key(
           `i18:/actions/copy-key/msg/success`,
           "Key copied.")
       );
@@ -123,7 +123,7 @@ export function init_actions(rpcInstance: KeywichRpcApi): AppActions {
       Log.error(err);
 
       toastStore.trigger_error(
-        i18nStore.getKey(
+        i18nStore.get_key(
           `i18:/actions/copy-key/msg/error`,
           "Key generation failed.")
       );
@@ -142,7 +142,7 @@ export function init_actions(rpcInstance: KeywichRpcApi): AppActions {
               keyId: item.id
             }
           },
-          title: i18nStore.getKey(`i18:/actions/advanced-copy/title`, "Advanced"),
+          title: i18nStore.get_key(`i18:/actions/advanced-copy/title`, "Advanced"),
           backdropClasses: "backdrop-blur-sm",
           type: "component",
           response: (r: ModalActionResult<KeyItem>) => resolve(r),
@@ -160,13 +160,13 @@ export function init_actions(rpcInstance: KeywichRpcApi): AppActions {
     const confirmation = await new Promise((resolve) => {
       modalStore.trigger({
         type: "confirm",
-        title: i18nStore.getKey("i18:/actions/delete-key/title", "Confirm Action"),
-        body: i18nStore.getKey(
+        title: i18nStore.get_key("i18:/actions/delete-key/title", "Confirm Action"),
+        body: i18nStore.get_key(
           `i18:/actions/delete-key/message?$noCache&username=${item.username}&domain=${item.domain}`,
           "Are you sure to delete key?"
         ),
-        buttonTextConfirm: i18nStore.getKey("i18:/generic/delete", "Delete"),
-        buttonTextCancel: i18nStore.getKey("i18:/generic/cancel", "Cancel"),
+        buttonTextConfirm: i18nStore.get_key("i18:/generic/delete", "Delete"),
+        buttonTextCancel: i18nStore.get_key("i18:/generic/cancel", "Cancel"),
         response: (r: boolean) => resolve(r),
       });
     });
@@ -176,7 +176,7 @@ export function init_actions(rpcInstance: KeywichRpcApi): AppActions {
         await rpcInstance.delete_key(item.id);
 
         toastStore.trigger_warning(
-          i18nStore.getKey(
+          i18nStore.get_key(
             "i18:/actions/delete-key/msg/success",
             "Key deleted from store."));
 
@@ -185,7 +185,7 @@ export function init_actions(rpcInstance: KeywichRpcApi): AppActions {
         Log.warn(err);
 
         toastStore.trigger_error(
-          i18nStore.getKey(
+          i18nStore.get_key(
             "i18:/actions/delete-key/msg/error",
             "Unable to delete key."));
       }
@@ -230,13 +230,13 @@ export function init_actions(rpcInstance: KeywichRpcApi): AppActions {
     const confirmation = await new Promise((resolve) => {
       modalStore.trigger({
         type: "confirm",
-        title: i18nStore.getKey("i18:/actions/delete-charset/title", "Confirm Action"),
-        body: i18nStore.getKey(
+        title: i18nStore.get_key("i18:/actions/delete-charset/title", "Confirm Action"),
+        body: i18nStore.get_key(
           `i18:/actions/delete-charset/message?$noCache&name=${charset.name}`,
           "Are you sure to delete charset?"
         ),
-        buttonTextConfirm: i18nStore.getKey("i18:/generic/delete", "Delete"),
-        buttonTextCancel: i18nStore.getKey("i18:/generic/cancel", "Cancel"),
+        buttonTextConfirm: i18nStore.get_key("i18:/generic/delete", "Delete"),
+        buttonTextCancel: i18nStore.get_key("i18:/generic/cancel", "Cancel"),
         response: (r: boolean) => resolve(r),
       });
     });
@@ -246,7 +246,7 @@ export function init_actions(rpcInstance: KeywichRpcApi): AppActions {
         await rpcInstance.delete_charset(charset.name);
 
         toastStore.trigger_warning(
-          i18nStore.getKey(
+          i18nStore.get_key(
             "i18:/actions/delete-charset/msg/success",
             "Charset deleted."));
 
@@ -255,7 +255,7 @@ export function init_actions(rpcInstance: KeywichRpcApi): AppActions {
         Log.warn(err);
 
         toastStore.trigger_error(
-          i18nStore.getKey(
+          i18nStore.get_key(
             "i18:/actions/delete-charset/msg/error",
             "Unable to delete charset."));
       }
@@ -266,7 +266,6 @@ export function init_actions(rpcInstance: KeywichRpcApi): AppActions {
 
   async function set_theme_color(theme: ThemeOptionType) {
     themeStore.set_theme(theme);
-
     return true;
   }
 
@@ -286,7 +285,7 @@ export function init_actions(rpcInstance: KeywichRpcApi): AppActions {
         component: {
           ref: CharsetForm,
         },
-        title: i18nStore.getKey("i18:/actions/create-charset/title", "New Charset"),
+        title: i18nStore.get_key("i18:/actions/create-charset/title", "New Charset"),
         backdropClasses: "backdrop-blur-sm",
         type: "component",
         response: (r: ModalActionResult<string>) => resolve(r),
@@ -295,7 +294,7 @@ export function init_actions(rpcInstance: KeywichRpcApi): AppActions {
 
     if (response?.type === ModalAction.submitted) {
       toastStore.trigger_success(
-        i18nStore.getKey(
+        i18nStore.get_key(
           `i18:/actions/create-charset/msg/success?$noCache&name=${response}`,
           "New charset created.")
       );

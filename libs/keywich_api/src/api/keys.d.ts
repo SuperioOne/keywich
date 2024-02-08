@@ -1,9 +1,9 @@
-export interface KeyOptions {
+export interface KeyRequest {
   /** The target length of the password. */
   target_size: number;
 
   /** The revision number. */
-  revision: number;
+  revision?: number;
 
   /** Allowed character set to generate password. */
   charset: string;
@@ -20,8 +20,11 @@ export interface KeyOptions {
   /** Optional array of tags associated with the key. */
   tags?: string[];
 
-  /** Optional custom icon for the key. */
-  custom_icon?: string;
+  /** Optional custom icon data for the key. */
+  custom_icon?: Uint8Array;
+
+  /** Optional password generator version. */
+  version?: string;
 }
 
 export interface KeyItem {
@@ -55,7 +58,7 @@ export interface KeysRpcApi {
 
   get_pinned_keys(): Promise<KeyItem[]>;
 
-  insert_key(options: KeyOptions): Promise<number>;
+  insert_key(options: KeyRequest): Promise<number>;
 
   pin_key(id: number): Promise<void>;
 
@@ -63,5 +66,5 @@ export interface KeysRpcApi {
 
   unpin_key(id: number): Promise<void>;
 
-  update_key(id: number, options: KeyOptions): Promise<void>;
+  update_key(id: number, options: KeyRequest): Promise<void>;
 }

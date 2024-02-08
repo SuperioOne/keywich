@@ -16,6 +16,12 @@
         "default": "./src/index.js",
         "types": "./src/index.d.ts"
       }
+    },
+    "./utils": {
+      "import": {
+        "default": "./src/utils/index.js",
+        "types": "./src/utils/index.d.ts"
+      }
     }
   },
   "keywords": [],

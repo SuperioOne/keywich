@@ -8,12 +8,12 @@
 
 <div class="flex flex-col gap-7 justify-center">
   <div>
-    <h4 class="font-bold mb-5 text-2xl">
-      {i18nStore.getKey("i18:/home/pinned-keys", "Pinned Keys")}
+    <h4 class="font-bold mb-5 text-3xl">
+      {i18nStore.get_key("i18:/home/pinned-keys", "Pinned Keys")}
     </h4>
     {#if data.pinnedItems.length < 1}
       <p class="text-center w-full font-light text-xl">
-        {i18nStore.getKey("i18:/home/no-pinned-key")}
+        {i18nStore.get_key("i18:/home/no-pinned-key")}
       </p>
     {:else}
       <div

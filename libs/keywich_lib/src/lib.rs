@@ -46,12 +46,16 @@ impl PasswordResult {
 
   #[cfg(feature = "qr")]
   pub fn to_qr(self) -> Result<String, Error> {
-    let qr = qrcode::QrCode::with_version(
-      self.pass.as_bytes(),
-      qrcode::Version::Normal(3),
-      qrcode::EcLevel::Q,
-    )
-    .map_err(|qr_err| Error::InvalidQrError(qr_err.to_string()))?;
+    let bytes = self.pass.as_bytes();
+    let qr_options = match bytes.len() {
+      ..=16 => (qrcode::Version::Normal(2), qrcode::EcLevel::Q),
+      17..=32 => (qrcode::Version::Normal(4), qrcode::EcLevel::Q),
+      33..=48 => (qrcode::Version::Normal(5), qrcode::EcLevel::Q),
+      _ => (qrcode::Version::Normal(6), qrcode::EcLevel::Q),
+    };
+
+    let qr = qrcode::QrCode::with_version(bytes, qr_options.0, qr_options.1)
+      .map_err(|qr_err| Error::InvalidQrError(qr_err.to_string()))?;
 
     let qr_string = qr
       .render()

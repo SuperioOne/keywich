@@ -87,13 +87,13 @@
     >
       <div>
         <label class="label">
-          <span class="font-bold">{i18nStore.getKey("i18:/charset-form/labels/name", "Name")}</span>
+          <span class="font-bold">{i18nStore.get_key("i18:/charset-form/labels/name", "Name")}</span>
           <input
               class:input-error={errors.name}
               class="input"
               name="name"
               type="text"
-              placeholder={i18nStore.getKey("i18:/charset-form/desc/name", "")}
+              placeholder={i18nStore.get_key("i18:/charset-form/desc/name", "")}
               required
           />
         </label>
@@ -108,13 +108,13 @@
 
       <div>
         <label class="label">
-          <span class="font-bold">{i18nStore.getKey("i18:/charset-form/labels/charset", "Charset")}</span>
+          <span class="font-bold">{i18nStore.get_key("i18:/charset-form/labels/charset", "Charset")}</span>
           <input
               class:input-error={errors.charset}
               class="input"
               type="text"
               name="charset"
-              placeholder={i18nStore.getKey("i18:/charset-form/desc/charset", "")}
+              placeholder={i18nStore.get_key("i18:/charset-form/desc/charset", "")}
               required
           />
         </label>
@@ -129,13 +129,13 @@
 
       <div>
         <label class="label">
-          <span class="font-bold">{i18nStore.getKey("i18:/charset-form/labels/description", "Description")}</span>
+          <span class="font-bold">{i18nStore.get_key("i18:/charset-form/labels/description", "Description")}</span>
           <input
               class:input-error={errors.description}
               class="input"
               type="text"
               name="description"
-              placeholder={i18nStore.getKey("i18:/charset-form/desc/description", "")}
+              placeholder={i18nStore.get_key("i18:/charset-form/desc/description", "")}
           />
         </label>
         {#if errors.description}
@@ -154,7 +154,7 @@
           class="btn variant-soft"
           on:click|preventDefault={on_popup_close}
       >
-        <span>{i18nStore.getKey("i18:/generic/cancel", "Cancel")}</span>
+        <span>{i18nStore.get_key("i18:/generic/cancel", "Cancel")}</span>
       </button>
 
       <button
@@ -162,7 +162,7 @@
           class="btn variant-filled-primary"
           on:click={on_submit}
       >
-        <span>{i18nStore.getKey("i18:/generic/confirm", "Confirm")}</span>
+        <span>{i18nStore.get_key("i18:/generic/confirm", "Confirm")}</span>
       </button>
     </div>
   </div>

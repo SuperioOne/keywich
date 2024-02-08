@@ -15,14 +15,22 @@
       "fs": {
         "readFile": true,
         "writeFile": true,
-        "exists": true
+        "exists": true,
+        "scope": [
+          "$APPLOCALDATA",
+          "$APPLOCALDATA/contents/*"
+        ]
       },
       "dialog": {
         "open": true,
         "save": true
       },
       "protocol": {
-        "asset": true
+        "asset": true,
+        "assetScope": [
+          "$APPLOCALDATA",
+          "$APPLOCALDATA/contents/*"
+        ]
       },
       "clipboard": {
         "writeText": true
@@ -62,7 +70,7 @@
       }
     },
     "security": {
-      "csp": "default-src 'self'; img-src 'self'; font-src 'self'; asset: https://asset.localhost"
+      "csp": "default-src 'self'; img-src 'self' asset: https://asset.localhost"
     },
     "updater": {
       "active": false

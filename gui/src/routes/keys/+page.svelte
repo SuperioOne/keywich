@@ -67,7 +67,7 @@
           class="btn variant-filled-primary w-full sm:w-auto"
       >
         <PlusCircleIcon/>
-        <span class="font-bold"> {i18nStore.getKey("i18:/keys/button/create", "Create")} </span>
+        <span class="font-bold"> {i18nStore.get_key("i18:/keys/button/create", "Create")} </span>
       </button>
     </div>
     <div class="col-span-full sm:col-span-1 flex flex-row flex-wrap gap-2 justify-end">
@@ -78,7 +78,7 @@
         >
           <FilterIcon size={18}/>
           <span>
-            {i18nStore.getKey("i18:/keys/button/filter", "Filter")}
+            {i18nStore.get_key("i18:/keys/button/filter", "Filter")}
           </span>
         </KeyFilterInput>
       </div>
@@ -87,7 +87,7 @@
 
   {#if data.keys.length < 1}
     <p class="text-center w-full font-light text-xl py-6">
-      {i18nStore.getKey("i18:/keys/empty-list", "Empty list")}
+      {i18nStore.get_key("i18:/keys/empty-list", "Empty list")}
     </p>
   {:else }
     <div class="flex flex-col gap-1">

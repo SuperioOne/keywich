@@ -17,12 +17,12 @@ function init_i18n_store() {
   let cache: Record<string, string> = {};
 
   return {
-    setLocale: (locale: string) => {
+    set_locale: (locale: string) => {
       cache = {};
       set(locale);
     },
     subscribe,
-    getKey: (keyURI: string | URL, fallback?: string) => {
+    get_key: (keyURI: string | URL, fallback?: string) => {
       if (typeof keyURI === "string" && cache[keyURI]) {
         return cache[keyURI];
       }

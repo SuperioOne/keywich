@@ -18,11 +18,11 @@
   <div class="flex flex-row flex-wrap justify-between gap-2 w-full sm:w-auto">
     <div>
       <h2 class="font-bold">
-        {i18nStore.getKey("i18:/settings/appearance/color-theme/title", "Color Theme")}
+        {i18nStore.get_key("i18:/settings/appearance/color-theme/title", "Color Theme")}
       </h2>
       <p class="font-light">
         <small>
-          {i18nStore.getKey("i18:/settings/appearance/color-theme/desc", "Choose a color theme")}
+          {i18nStore.get_key("i18:/settings/appearance/color-theme/desc", "Choose a color theme")}
         </small>
       </p>
     </div>
@@ -36,15 +36,15 @@
   <div class="flex flex-row flex-wrap justify-between items-center">
     <div>
       <h2 class="font-bold">
-        {i18nStore.getKey("i18:/settings/appearance/theme/title", "Theme")}
+        {i18nStore.get_key("i18:/settings/appearance/theme/title", "Theme")}
       </h2>
       <p class="font-light">
         <small>
           <span>
             {#if $themeStore.isLight}
-              {i18nStore.getKey("i18:/settings/appearance/theme/light", "Light Theme")}
+              {i18nStore.get_key("i18:/settings/appearance/theme/light", "Light Theme")}
             {:else}
-              {i18nStore.getKey("i18:/settings/appearance/theme/dark", "Dark Theme")}
+              {i18nStore.get_key("i18:/settings/appearance/theme/dark", "Dark Theme")}
             {/if}
             </span>
         </small>

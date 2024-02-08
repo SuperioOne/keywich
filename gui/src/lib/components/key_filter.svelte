@@ -14,15 +14,15 @@
   const searchOptions = [
     {
       value: "username:",
-      description: i18nStore.getKey("i18:/filter/by-username-desc", "Filter by username")
+      description: i18nStore.get_key("i18:/filter/by-username-desc", "Filter by username")
     },
     {
       value: "domain:",
-      description: i18nStore.getKey("i18:/filter/by-domain-desc", "Filter by domain")
+      description: i18nStore.get_key("i18:/filter/by-domain-desc", "Filter by domain")
     },
     {
       value: "tag:",
-      description: i18nStore.getKey("i18:/filter/by-tag-desc", "Filter by tag")
+      description: i18nStore.get_key("i18:/filter/by-tag-desc", "Filter by tag")
     }];
 
   let inputElement: HTMLElement;
@@ -189,7 +189,7 @@
     class="absolute top-0 left-0 card px-4 py-5 bg-surface-200-700-token flex flex-col gap-2 z-50"
   >
     <div>
-      <span class="font-bold">{i18nStore.getKey("i18:/filter/options", "Filter options:")}</span>
+      <span class="font-bold">{i18nStore.get_key("i18:/filter/options", "Filter options:")}</span>
       <ul class="p-1">
         {#each searchOptions as option (option)}
           <li>
@@ -212,12 +212,12 @@
       <hr class="!border-t-2"/>
       <div>
         <div class="flex flex-row justify-between items-center">
-          <span class="font-bold">{i18nStore.getKey("i18:/filter/history", "History")}</span>
+          <span class="font-bold">{i18nStore.get_key("i18:/filter/history", "History")}</span>
           <button
             class="btn btn-sm text-error-400-500-token text-sm"
             on:click={() => filterHistoryStore.clear()}
           >
-            {i18nStore.getKey("i18:/generic/clear", "Clear")}
+            {i18nStore.get_key("i18:/generic/clear", "Clear")}
           </button>
         </div>
         <ul class="p-1">

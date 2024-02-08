@@ -32,13 +32,13 @@
         class="btn variant-filled-primary w-full sm:w-auto"
     >
       <PlusCircleIcon/>
-      <span class="font-bold"> {i18nStore.getKey("i18:/settings/charsets/create", "Create")} </span>
+      <span class="font-bold"> {i18nStore.get_key("i18:/settings/charsets/create", "Create")} </span>
     </button>
   </div>
   <ul>
     {#if charsets.length < 1 }
       <li class="text-center w-full text-xl font-light">
-        {i18nStore.getKey("i18:/settings/charsets/empty-list", "Empty charset list")}
+        {i18nStore.get_key("i18:/settings/charsets/empty-list", "Empty charset list")}
       </li>
     {:else}
       {#each charsets as charset (charset.name)}
