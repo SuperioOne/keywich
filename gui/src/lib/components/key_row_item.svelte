@@ -35,16 +35,16 @@
 
 <div
     class:bg-surface-active-token={active}
-    class="card flex justify-between gap-2 w-full p-4 items-center variant-glass-surface"
+    class="card flex justify-between gap-4 w-full p-4 items-center variant-glass-surface"
     tabindex="-1"
 >
   <div class="flex-none gap-3 items-center">
     <button
         type="button"
-        class="text-primary-500 bg-surface-200-700-token btn btn-icon-xl p-1 aspect-square overflow-hidden"
+        class="text-primary-500 rounded-xl overflow-hidden aspect-square"
         on:click|preventDefault={() => dispatch("copy", item)}
     >
-      <KeyIcon icon={item.custom_icon}/>
+      <KeyIcon icon={item.custom_icon} size={48}/>
     </button>
   </div>
 
@@ -67,7 +67,7 @@
     </p>
 
     <div class="flex flex-wrap mt-3 gap-1 min-h-[24px]">
-      {#each item.tags as tag (tag)}
+      {#each item.tags.sort() as tag (tag)}
         <button
             class="btn chip font-bold text-xs variant-soft-secondary w-fit px-2 py-1"
             on:click|preventDefault={() => dispatch("tagSelect", tag)}

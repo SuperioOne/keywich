@@ -23,6 +23,7 @@ macro_rules! generate_keywich_handler {
       $crate::commands::keys::get_key_by_id,
       $crate::commands::utilities::create_guid,
       $crate::commands::utilities::get_content_path,
+      $crate::commands::utilities::get_config_path,
     ]
   };
 }

@@ -1,6 +1,6 @@
 export interface AppConfig {
-  is_dark_theme?: boolean;
-  colorTheme?: string;
+  is_light_theme?: boolean;
+  color_theme?: string;
   locale?: string;
 }
 

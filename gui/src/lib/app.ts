@@ -1,9 +1,10 @@
 import {type AppActions, init_actions} from "./app_actions";
 import {Log} from "./logger";
-import {getModeAutoPrefers, initializeStores, storePopup} from "@skeletonlabs/skeleton";
+import {initializeStores, storePopup} from "@skeletonlabs/skeleton";
 import {arrow, autoUpdate, computePosition, flip, offset, shift} from "@floating-ui/dom";
-import {themeStore} from "./stores/theme_store";
+import {configStore} from "./stores/config_store";
 import {RPC} from "./rpc";
+import type {AppConfig} from "@keywich/api";
 
 export class App {
   static #actions: AppActions | undefined;
@@ -17,14 +18,11 @@ export class App {
     }
   }
 
-  static init() {
+  static init(conf: AppConfig) {
     initializeStores();
 
     storePopup.set({computePosition, autoUpdate, flip, shift, offset, arrow});
-    themeStore.set({
-      name: "crimson",
-      isLight: getModeAutoPrefers()
-    });
+    configStore.set(conf);
 
     this.#actions = init_actions(RPC);
   }

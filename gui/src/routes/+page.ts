@@ -5,6 +5,6 @@ export const load: PageLoad = async () => {
   const pinned_items = await RPC.get_pinned_keys();
 
   return {
-    pinnedItems: pinned_items
+    pinned_items: pinned_items
   };
 }

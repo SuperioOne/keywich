@@ -149,36 +149,40 @@ impl ProfileDB {
     let mut insert_where = true;
 
     if let Some(usernames) = search_query.username {
-      insert_token!(&mut query_builder, &mut insert_where, " WHERE ");
-      query_builder
-        .push(" keys.username IN ")
-        .push_tuples(usernames, |mut b, username| {
-          b.push_bind(username);
-        });
-      prepend_token = true;
+      if !usernames.is_empty() {
+        insert_token!(&mut query_builder, &mut insert_where, " WHERE ");
+        query_builder
+          .push(" keys.username IN ")
+          .push_tuples(usernames, |mut b, username| {
+            b.push_bind(username);
+          });
+        prepend_token = true;
+      }
     }
-
-    insert_token!(&mut query_builder, &mut prepend_token, " AND ");
 
     if let Some(domains) = search_query.domain {
-      insert_token!(&mut query_builder, &mut insert_where, " WHERE ");
-      query_builder
-        .push(" keys.domain IN ")
-        .push_tuples(domains, |mut b, domain| {
-          b.push_bind(domain);
-        });
-      prepend_token = true;
+      if !domains.is_empty() {
+        insert_token!(&mut query_builder, &mut prepend_token, " AND ");
+        insert_token!(&mut query_builder, &mut insert_where, " WHERE ");
+        query_builder
+          .push(" keys.domain IN ")
+          .push_tuples(domains, |mut b, domain| {
+            b.push_bind(domain);
+          });
+        prepend_token = true;
+      }
     }
 
-    insert_token!(&mut query_builder, &mut prepend_token, " AND ");
-
     if let Some(tags) = search_query.tag {
-      insert_token!(&mut query_builder, &mut insert_where, " WHERE ");
-      query_builder
-        .push(" t.name IN ")
-        .push_tuples(tags.iter(), |mut b, tag| {
-          b.push_bind(tag.clone());
-        });
+      if !tags.is_empty() {
+        insert_token!(&mut query_builder, &mut prepend_token, " AND ");
+        insert_token!(&mut query_builder, &mut insert_where, " WHERE ");
+        query_builder
+          .push(" t.name IN ")
+          .push_tuples(tags.iter(), |mut b, tag| {
+            b.push_bind(tag.clone());
+          });
+      }
     }
 
     let mut conn = self.pool.acquire().await?;

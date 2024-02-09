@@ -9,7 +9,7 @@ import {LogLevel} from "../types";
  */
 export const ConsoleSink = (maxLevel: LogLevelType): LoggerSink => {
   return {
-    onLogEvent: (message, level) => {
+    on_log_event: (message, level) => {
       if (level <= maxLevel) {
         switch (level) {
           case LogLevel.ERROR:

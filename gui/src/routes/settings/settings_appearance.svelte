@@ -1,15 +1,15 @@
 <script lang="ts">
   import type {ThemeOptionType,} from "$lib";
-  import {App, i18nStore, ThemeOptions, themeStore} from "$lib";
+  import {App, i18nStore, ThemeOptions, configStore} from "$lib";
   import {SlideToggle} from "@skeletonlabs/skeleton";
 
   async function theme_color_change(event: Event) {
-    const selectElement = event.target as HTMLSelectElement;
-    await App.Actions.set_theme_color(selectElement.value as ThemeOptionType ?? "crimson");
+    const select_element = event.target as HTMLSelectElement;
+    await App.Actions.set_theme_color(select_element.value as ThemeOptionType ?? "crimson");
   }
 
-  async function flip_mode(currentMode: boolean) {
-    await App.Actions.set_theme_mode(!currentMode);
+  async function flip_mode(current_mode: boolean) {
+    await App.Actions.set_theme_mode(!current_mode);
   }
 </script>
 
@@ -28,7 +28,7 @@
     </div>
     <select class="select w-full sm:w-[200px]" on:change={theme_color_change}>
       {#each ThemeOptions as option (option)}
-        <option selected={option === $themeStore.name} value={option}>{option}</option>
+        <option selected={option === $configStore.color_theme} value={option}>{option}</option>
       {/each}
     </select>
   </div>
@@ -41,7 +41,7 @@
       <p class="font-light">
         <small>
           <span>
-            {#if $themeStore.isLight}
+            {#if $configStore.is_light_theme}
               {i18nStore.get_key("i18:/settings/appearance/theme/light", "Light Theme")}
             {:else}
               {i18nStore.get_key("i18:/settings/appearance/theme/dark", "Dark Theme")}
@@ -53,8 +53,8 @@
     <SlideToggle
         size="sm"
         name="theme-toggle"
-        checked={$themeStore.isLight}
-        on:click={() => flip_mode($themeStore.isLight)}
+        checked={$configStore.is_light_theme}
+        on:click={() => flip_mode($configStore.is_light_theme ?? false)}
     >
     </SlideToggle>
   </div>

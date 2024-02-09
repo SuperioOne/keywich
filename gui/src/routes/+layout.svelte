@@ -5,16 +5,18 @@
   import KeyIcon from "$lib/icons/key.svelte";
   import SettingsIcon from "$lib/icons/settings.svelte";
   import type {LayoutData} from "./$types";
-  import type {MenuItem} from "./menu.config";
   import {AppShell, Modal, Toast} from "@skeletonlabs/skeleton";
   import {LogPanel, App, i18nStore} from "$lib";
+  import type {ComponentType} from "svelte";
+  import type {LayoutRouteId} from "./$types";
 
-  export let data: LayoutData;
-  let displayLogger: boolean = false;
+  type NavItem = {
+    label: string;
+    target?: LayoutRouteId;
+    icon?: ComponentType;
+  }
 
-  App.init();
-
-  const menuItems: MenuItem[] = [
+  const nav_items: NavItem[] = [
     {
       label: i18nStore.get_key("i18:/nav/home", "Home"),
       target: "/",
@@ -32,13 +34,18 @@
     },
   ];
 
+  export let data: LayoutData;
+  let is_display_logger: boolean = false;
+
+  App.init(data.app_config);
+
   function on_log_panel_close() {
-    displayLogger = false;
+    is_display_logger = false;
   }
 
   function on_log_panel_flip(event: KeyboardEvent) {
     if (event.code === "KeyI" && event.ctrlKey) {
-      displayLogger = !displayLogger;
+      is_display_logger = !is_display_logger;
     }
   }
 </script>
@@ -51,10 +58,10 @@
     <div class="grid grid-flow-col grid-cols-12 bg-surface-200-700-token px-3 shadow">
       <div class="col-span-3"/>
       <div class="col-span-6 flex flex-row justify-center">
-        {#each menuItems as item, index (index)}
+        {#each nav_items as item, index (index)}
           <a
               class:bg-initial={true}
-              class:bg-primary-active-token={data.routeId === item.target}
+              class:bg-primary-active-token={data.route_id === item.target}
               class="btn bg-surface-token hover:bg-primary-hover-token rounded-none sm:w-36 w-fit"
               data-sveltekit-preload-data="tap"
               href={item.target}
@@ -82,7 +89,7 @@
     </div>
   </div>
   <svelte:fragment slot="footer">
-    {#if displayLogger}
+    {#if is_display_logger}
       <LogPanel on:close={on_log_panel_close}/>
     {/if}
 

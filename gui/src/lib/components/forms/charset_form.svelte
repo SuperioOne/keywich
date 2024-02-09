@@ -8,23 +8,23 @@
   import {getExtendedToastStore, i18nStore} from "../../stores";
 
   let errors: PropertyError<CharsetOptions> = {};
-  let formElement: HTMLFormElement;
+  let form_element: HTMLFormElement;
 
-  const modalStore = getModalStore();
-  const toastStore = getExtendedToastStore();
+  const modal_store = getModalStore();
+  const toast_store = getExtendedToastStore();
 
   function on_popup_close() {
-    const modalInstance = $modalStore[0];
-    if (!modalInstance) {
+    const modal = $modal_store[0];
+    if (!modal) {
       Log.error(new Error("Close action failed. Modal component is created but unable to access modal itself."));
       return;
     }
 
-    const modalResult: ModalActionResult<CharsetItem> = {
+    const response: ModalActionResult<CharsetItem> = {
       type: ModalAction.closed
     }
-    modalInstance.response?.(modalResult);
-    modalStore.close();
+    modal.response?.(response);
+    modal_store.close();
   }
 
   function form_to_object(form: FormData) {
@@ -40,33 +40,33 @@
   }
 
   async function on_submit() {
-    const modalInstance = $modalStore[0];
-    if (!modalInstance) {
+    const modal = $modal_store[0];
+    if (!modal) {
       Log.error(new Error("Submit failed. Modal component is created but unable to access modal itself."));
       return;
     }
 
-    if (!formElement) {
+    if (!form_element) {
       Log.error(new Error("Charset form ref is empty."));
       return;
     }
 
-    const formData = new FormData(formElement);
-    const charsetData = form_to_object(formData) as unknown as CharsetOptions;
+    const form_data = new FormData(form_element);
+    const charset = form_to_object(form_data) as unknown as CharsetOptions;
 
     try {
-      let result = await RPC.insert_charset(charsetData);
+      let result = await RPC.insert_charset(charset);
 
-      const modalResult: ModalActionResult<string> = {
+      const response: ModalActionResult<string> = {
         type: ModalAction.submitted,
         data: result
       }
 
-      modalInstance.response?.(modalResult);
-      modalStore.close();
+      modal.response?.(response);
+      modal_store.close();
     } catch (err) {
       Log.error(err);
-      toastStore.trigger_error(err as string);
+      toast_store.trigger_error(err as string);
 
       // TODO: get validation errors
       // errors = result.error;
@@ -74,13 +74,13 @@
   }
 </script>
 
-{#if $modalStore[0]}
+{#if $modal_store[0]}
   <div class="card px-16 py-8 w-full sm:w-modal flex flex-col gap-10">
     <h2 class="font-bold h2">
-      {$modalStore[0].title}
+      {$modal_store[0].title}
     </h2>
     <form
-        bind:this={formElement}
+        bind:this={form_element}
         id="charset_form"
         class="flex gap-5 flex-col"
         on:submit|preventDefault={on_submit}

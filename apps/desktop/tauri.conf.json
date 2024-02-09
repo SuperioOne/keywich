@@ -18,6 +18,8 @@
         "exists": true,
         "scope": [
           "$APPLOCALDATA",
+          "$APPLOCALDATA/config.json",
+          "$APPLOCALDATA/locales/*",
           "$APPLOCALDATA/contents/*"
         ]
       },

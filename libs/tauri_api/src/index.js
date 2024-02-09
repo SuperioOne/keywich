@@ -22,7 +22,7 @@
 import {invoke} from "@tauri-apps/api/tauri";
 import {is_null_or_empty, or_default} from "@keywich/api/utils";
 import {save} from "@tauri-apps/api/dialog";
-import {writeBinaryFile} from "@tauri-apps/api/fs";
+import {writeBinaryFile, readTextFile, writeTextFile} from "@tauri-apps/api/fs";
 import {writeText} from "@tauri-apps/api/clipboard";
 import {get_content_url, save_content} from "./contents.js";
 
@@ -101,7 +101,7 @@ const _api = {
       revision: or_default(data.revision, 0),
       custom_icon: icon_name
     };
-    
+
     return invoke("update_key", {key_id: id, data: key_data});
   },
 
@@ -130,10 +130,6 @@ const _api = {
     return true;
   },
 
-  get_system_locale: function () {
-    throw new Error("Function not implemented.");
-  },
-
   load_locale: function (locale) {
     throw new Error("Function not implemented.");
   },
@@ -156,6 +152,19 @@ const _api = {
 
   convert_content_src: function (content_name) {
     return get_content_url(content_name);
+  },
+
+  update_configs: async function (configs) {
+    /** @type {string} **/
+    const config_path = await invoke("get_config_path");
+    await writeTextFile(config_path, JSON.stringify(configs, null, 4));
+  },
+
+  get_configs: async function () {
+    /** @type {string} **/
+    const config_path = await invoke("get_config_path");
+    const content = await readTextFile(config_path);
+    return JSON.parse(content);
   }
 }
 

@@ -45,7 +45,7 @@ function format_message(value: unknown) {
  */
 export const ApplicationSink = (maxLevel: LogLevelType, maxHistory = 1000): LoggerSink => {
   return {
-    onLogEvent: (message, level) => {
+    on_log_event: (message, level) => {
       if (level <= maxLevel) {
         const formattedMessage = format_message(message);
         update((currentBuffer) => {

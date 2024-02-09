@@ -11,9 +11,9 @@ const CaseFlag = {
 type CaseFlagType = 0 | 1 | -1
 
 function init_i18n_store() {
-  const activeKeys: Record<string, string> = EN; // TODO: replace with proper loader
-  const localeStore = writable<string>("en");
-  const {set, subscribe} = localeStore;
+  const active_keys: Record<string, string> = EN; // TODO: replace with proper loader
+  const locale_store = writable<string>("en");
+  const {set, subscribe} = locale_store;
   let cache: Record<string, string> = {};
 
   return {
@@ -38,7 +38,7 @@ function init_i18n_store() {
         return fallback ?? key;
       }
 
-      let value = activeKeys[key];
+      let value = active_keys[key];
 
       if (!value) {
         Log.error(`Invalid key URI does not exists: ${target}`);
@@ -46,7 +46,7 @@ function init_i18n_store() {
       }
 
       if (target.searchParams.size > 0) {
-        const currentLocale = get(localeStore) ?? "en";
+        const currentLocale = get(locale_store) ?? "en";
         value = apply_operators(value, target, currentLocale);
       }
 

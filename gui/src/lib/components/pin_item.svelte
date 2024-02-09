@@ -14,7 +14,7 @@
         class="flex flex-col gap-2 justify-center items-center overflow-hidden"
     >
       <div
-          class="text-on-secondary-token p-0 btn btn-icon-xl w-16 h-16 overflow-hidden"
+          class="text-primary-500 p-0 btn btn-icon-xl w-16 h-16 overflow-hidden"
       >
         <KeyIcon icon={item.custom_icon} size={34}/>
       </div>

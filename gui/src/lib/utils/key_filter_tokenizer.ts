@@ -87,11 +87,11 @@ function resolve_unknown_type(input: string): TokenType {
  * @return - The resolved token type.
  */
 function resolve_tag_token(iterator: Iterator<string, string>, tagType: TagType): TokenType {
-  const tagValue = get_next_token(iterator);
+  const tag_value = get_next_token(iterator);
 
   return {
     type: tagType,
-    value: tagValue
+    value: tag_value
   };
 }
 

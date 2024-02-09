@@ -92,18 +92,7 @@
   {:else }
     <div class="flex flex-col gap-1">
       {#each data.keys as row,index (row.id)}
-        <div class="flex flex-row gap-1" transition:fly={{duration:200, y:20}}>
-          <div class="w-4 hidden sm:flex flex-col justify-center items-start">
-            {#if index === selected}
-              <div class="text-sm font-bold text-on-secondary-token">
-                {index + 1}
-              </div>
-            {:else}
-            <span class="text-sm font-bold text-secondary-100-800-token select-none">
-              {index + 1}
-            </span>
-            {/if}
-          </div>
+        <div class="w-full" transition:fly={{duration:200, y:20}}>
           <KeyRow
               item={row}
               active={index === selected}

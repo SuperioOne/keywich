@@ -10,22 +10,22 @@
   const dispatch = createEventDispatcher();
   export let maxHeight = 500
   export let minHeight = 200;
-  export let title = i18nStore.get_key("i18:/log-panel/title","Logs")
+  export let title = i18nStore.get_key("i18:/log-panel/title", "Logs")
 
-  let containerElement: HTMLDivElement;
-  let topBarElement: HTMLDivElement;
-  let autoScroll: boolean = true;
+  let container_element: HTMLDivElement;
+  let top_bar_element: HTMLDivElement;
+  let is_auto_scroll: boolean = true;
   let height = minHeight;
-  let dragEnabled = false;
+  let drag_enabled = false;
 
   onMount(() => {
-    containerElement.focus();
+    container_element.focus();
 
     const unsubscribe = ApplicationLogReader.subscribe(() => {
       tick().then(() => {
-        if (autoScroll) {
-          containerElement.scroll({
-            top: containerElement.scrollHeight,
+        if (is_auto_scroll) {
+          container_element.scroll({
+            top: container_element.scrollHeight,
           })
         }
       });
@@ -37,8 +37,8 @@
   });
 
   function on_resize(event: MouseEvent) {
-    if (dragEnabled) {
-      const nextHeight = height + containerElement.offsetTop - event.clientY - topBarElement.clientHeight;
+    if (drag_enabled) {
+      const nextHeight = height + container_element.offsetTop - event.clientY - top_bar_element.clientHeight;
 
       if (nextHeight > maxHeight) {
         height = maxHeight;
@@ -51,18 +51,18 @@
   }
 
   function on_key_controls(event: KeyboardEvent) {
-    if (document.activeElement === containerElement || containerElement.contains(document.activeElement as Node)) {
+    if (document.activeElement === container_element || container_element.contains(document.activeElement as Node)) {
       switch (event.code) {
         case "End" :
-          autoScroll = true;
-          containerElement.scroll({top: containerElement.scrollHeight});
+          is_auto_scroll = true;
+          container_element.scroll({top: container_element.scrollHeight});
           break;
         case "Home" :
         case "PageDown" :
         case "PageUp" :
         case "ArrowUp" :
         case "ArrowDown" :
-          autoScroll = false;
+          is_auto_scroll = false;
           break;
         default:
           break;
@@ -110,19 +110,19 @@
 </script>
 
 <svelte:window
-  on:mouseup={() => {dragEnabled = false}}
-  on:mousemove={on_resize}
-  on:keyup={on_key_controls}
+    on:mouseup={() => {drag_enabled = false}}
+    on:mousemove={on_resize}
+    on:keyup={on_key_controls}
 />
 <div transition:fly={{duration:100, y:500 }}>
   <div
-    on:mousedown|stopPropagation|preventDefault={() => {dragEnabled = true}}
-    on:mouseup|stopPropagation|preventDefault={() => {dragEnabled = false}}
-    class="bg-surface-active-token w-full h-0.5 cursor-row-resize"
+      on:mousedown|stopPropagation|preventDefault={() => {drag_enabled = true}}
+      on:mouseup|stopPropagation|preventDefault={() => {drag_enabled = false}}
+      class="bg-surface-active-token w-full h-0.5 cursor-row-resize"
   />
   <div
-    bind:this={topBarElement}
-    class="py-1 px-3 grid grid-cols-2 w-full bg-surface-200-700-token"
+      bind:this={top_bar_element}
+      class="py-1 px-3 grid grid-cols-2 w-full bg-surface-200-700-token"
   >
     <div class="flex flex-row gap-2 items-center">
       <div>
@@ -134,27 +134,27 @@
     </div>
     <div class="w-full flex flex-row justify-end gap-2">
       <button
-        on:click={on_clear_logs}
-        type="button"
-        class="btn-icon-sm btn-icon variant-soft-error"
+          on:click={on_clear_logs}
+          type="button"
+          class="btn-icon-sm btn-icon variant-soft-error"
       >
         <TrashIcon size={18}/>
       </button>
       <button
-        on:click={on_close}
-        type="button"
-        class="btn-icon-sm btn-icon variant-soft"
+          on:click={on_close}
+          type="button"
+          class="btn-icon-sm btn-icon variant-soft"
       >
         <CloseIcon size={18}/>
       </button>
     </div>
   </div>
   <div
-    transition:fly={{duration:150}}
-    class="w-full h-full overflow-y-auto break-words p-2 bg-black"
-    bind:this={containerElement}
-    style:height={`${height}px`}
-    tabindex="-1"
+      transition:fly={{duration:150}}
+      class="w-full h-full overflow-y-auto break-words p-2 bg-black"
+      bind:this={container_element}
+      style:height={`${height}px`}
+      tabindex="-1"
   >
     <ol class="font-mono text-sm">
       {#each $ApplicationLogReader as log}

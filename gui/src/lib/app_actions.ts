@@ -4,7 +4,7 @@ import type {ThemeOptionType} from "./stores";
 import type {TokenType} from "./utils/key_filter_tokenizer";
 import {AdvancedCopyMenu, CharsetForm, KeyForm, ModalAction} from "./components";
 import {Log} from "./logger";
-import {getExtendedToastStore, themeStore} from "./stores";
+import {getExtendedToastStore, configStore} from "./stores";
 import {getModalStore} from "@skeletonlabs/skeleton";
 import {goto} from "$app/navigation";
 import {i18nStore} from "./stores/i18n_store";
@@ -265,15 +265,15 @@ export function init_actions(rpcInstance: KeywichRpcApi): AppActions {
   }
 
   async function set_theme_color(theme: ThemeOptionType) {
-    themeStore.set_theme(theme);
+    configStore.set_theme(theme);
     return true;
   }
 
   async function set_theme_mode(isLight: boolean) {
     if (isLight) {
-      themeStore.set_light_mode();
+      configStore.set_light_mode();
     } else {
-      themeStore.set_dark_mode();
+      configStore.set_dark_mode();
     }
 
     return true;

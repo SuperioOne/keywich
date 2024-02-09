@@ -10,7 +10,7 @@ export class LogEmitter {
   emit(message: unknown, level: LogLevelType) {
     for (const listener of this.#listeners) {
       try {
-        listener.onLogEvent(message, level);
+        listener.on_log_event(message, level);
       } catch (err) {
         console.error("Congratulations! the logger's itself throws error...", err);
       }
@@ -20,8 +20,8 @@ export class LogEmitter {
   async close() {
     for (const listener of this.#listeners) {
       try {
-        if (listener.onCloseEvent) {
-          await listener.onCloseEvent();
+        if (listener.on_close_event) {
+          await listener.on_close_event();
         }
       } catch (err) {
         console.error(err);

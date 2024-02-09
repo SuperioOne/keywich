@@ -56,6 +56,12 @@ enum KeywichCommand {
   GUI,
 }
 
+const DEFAULT_CONFIG: &'static [u8] = br#"{
+    "is_light_theme": false,
+    "color_theme": "crimson",
+    "locale": "en"
+}"#;
+
 #[derive(ValueEnum, Copy, Clone, Debug, PartialEq, Eq, Deserialize)]
 pub enum PasswordOutputType {
   PHC,
@@ -87,6 +93,14 @@ fn start_gui() {
       let connection_string = format!("sqlite:{}", path_str);
       let profile_db =
         tauri::async_runtime::block_on(ProfileDB::connect(&connection_string)).unwrap();
+
+      let config_file = Path::join(&app_data_dir, "config.json");
+
+      if !config_file.exists() {
+        let mut fs = std::fs::File::create(config_file).unwrap();
+        fs.write_all(DEFAULT_CONFIG).unwrap();
+        fs.flush().unwrap();
+      }
 
       app.manage(AppRpcState { profile_db });
 
