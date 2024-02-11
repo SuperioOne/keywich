@@ -26,6 +26,8 @@ import {writeBinaryFile, readTextFile, writeTextFile} from "@tauri-apps/api/fs";
 import {writeText} from "@tauri-apps/api/clipboard";
 import {get_content_url, save_content} from "./contents.js";
 
+const DEFAULT_HASH_VERSION = "kw_scrypt:v1";
+
 /** @type {import("@keywich/api").KeywichRpcApi} */
 const _api = {
   delete_key: function (id) {
@@ -47,6 +49,7 @@ const _api = {
   insert_key: async function (data) {
     /** @type {string | undefined} */
     let icon_name = undefined;
+
     if (data.custom_icon && data.custom_icon.length > 0) {
       icon_name = await save_content(data.custom_icon);
     }
@@ -58,7 +61,7 @@ const _api = {
       tags: or_default(data.tags, []),
       domain: data.domain,
       notes: data.notes,
-      version: or_default(data.version, "kw_scrypt:v1"),
+      version: or_default(data.version, DEFAULT_HASH_VERSION),
       pinned: false,
       target_size: data.target_size,
       revision: or_default(data.revision, 0),
@@ -81,9 +84,9 @@ const _api = {
   },
 
   update_key: async function (id, data) {
-
     /** @type {string | undefined} */
     let icon_name = undefined;
+
     if (data.custom_icon && data.custom_icon.length > 0) {
       icon_name = await save_content(data.custom_icon);
     }
@@ -95,7 +98,7 @@ const _api = {
       tags: or_default(data.tags, []),
       domain: data.domain,
       notes: data.notes,
-      version: or_default(data.version, "kw_scrypt:v1"),
+      version: or_default(data.version, DEFAULT_HASH_VERSION),
       pinned: false,
       target_size: data.target_size,
       revision: or_default(data.revision, 0),
@@ -120,7 +123,7 @@ const _api = {
     if (is_null_or_empty(target_path)) {
       target_path = await save();
 
-      // action is cancelled, if target path is still null.
+      // If target path is still null, action is cancelled.
       if (is_null_or_empty(target_path)) {
         return false;
       }
@@ -130,8 +133,13 @@ const _api = {
     return true;
   },
 
-  load_locale: function (locale) {
-    throw new Error("Function not implemented.");
+  load_locale: async function (locale) {
+    /** @type {string} **/
+    const path = await invoke("get_locale_path", {locale: locale});
+    console.debug(path);
+    const locale_content = await readTextFile(path);
+    console.debug(locale_content);
+    return JSON.parse(locale_content);
   },
 
   insert_charset: function (charset) {
@@ -165,6 +173,14 @@ const _api = {
     const config_path = await invoke("get_config_path");
     const content = await readTextFile(config_path);
     return JSON.parse(content);
+  },
+
+  get_locales: function () {
+    return Promise.resolve([
+      "en",
+      "tr",
+      "jp"
+    ])
   }
 }
 

@@ -4,11 +4,11 @@
   import HomeIcon from "$lib/icons/home.svelte";
   import KeyIcon from "$lib/icons/key.svelte";
   import SettingsIcon from "$lib/icons/settings.svelte";
-  import type {LayoutData} from "./$types";
-  import {AppShell, Modal, Toast} from "@skeletonlabs/skeleton";
-  import {LogPanel, App, i18nStore} from "$lib";
   import type {ComponentType} from "svelte";
-  import type {LayoutRouteId} from "./$types";
+  import type {LayoutData, LayoutRouteId} from "./$types";
+  import {AppShell, Modal, storePopup, Toast, initializeStores} from "@skeletonlabs/skeleton";
+  import {LogPanel, i18nStore, logPanelStore} from "$lib";
+  import {arrow, autoUpdate, computePosition, flip, offset, shift} from "@floating-ui/dom";
 
   type NavItem = {
     label: string;
@@ -16,36 +16,36 @@
     icon?: ComponentType;
   }
 
-  const nav_items: NavItem[] = [
+  $: nav_items = [
     {
-      label: i18nStore.get_key("i18:/nav/home", "Home"),
+      label: $i18nStore.get_key("i18:/nav/home", "Home"),
       target: "/",
       icon: HomeIcon,
     },
     {
-      label: i18nStore.get_key("i18:/nav/keys", "Keys"),
+      label: $i18nStore.get_key("i18:/nav/keys", "Keys"),
       target: "/keys",
       icon: KeyIcon,
     },
     {
-      label: i18nStore.get_key("i18:/nav/settings", "Settings"),
+      label: $i18nStore.get_key("i18:/nav/settings", "Settings"),
       target: "/settings",
       icon: SettingsIcon,
     },
-  ];
+  ] as NavItem[];
 
   export let data: LayoutData;
-  let is_display_logger: boolean = false;
 
-  App.init(data.app_config);
+  initializeStores();
+  storePopup.set({computePosition, autoUpdate, flip, shift, offset, arrow});
 
   function on_log_panel_close() {
-    is_display_logger = false;
+    logPanelStore.close();
   }
 
   function on_log_panel_flip(event: KeyboardEvent) {
     if (event.code === "KeyI" && event.ctrlKey) {
-      is_display_logger = !is_display_logger;
+      logPanelStore.flip();
     }
   }
 </script>
@@ -89,9 +89,8 @@
     </div>
   </div>
   <svelte:fragment slot="footer">
-    {#if is_display_logger}
+    {#if $logPanelStore}
       <LogPanel on:close={on_log_panel_close}/>
     {/if}
-
   </svelte:fragment>
 </AppShell>

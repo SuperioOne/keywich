@@ -39,3 +39,15 @@ pub async fn get_config_path(handle: AppHandle) -> Result<String, AppErrors> {
 
   Ok(String::from(path))
 }
+
+#[tauri::command(rename_all = "snake_case")]
+pub async fn get_locale_path(handle: AppHandle, locale: String) -> Result<String, AppErrors> {
+  let locale_data = handle
+    .path_resolver()
+    .resolve_resource(format!("locales/{}.json", locale))
+    .ok_or(AppErrors::GenericError)?;
+
+  let path = locale_data.to_str().ok_or(AppErrors::GenericError)?;
+
+  Ok(String::from(path))
+}

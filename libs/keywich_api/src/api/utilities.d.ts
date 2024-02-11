@@ -6,4 +6,6 @@ export interface UtilityRpcApi {
   convert_content_src(content_name: string): Promise<string>;
 
   copy_to_clipboard(value: string): Promise<void>;
+
+  get_locales(): Promise<string[]>;
 }

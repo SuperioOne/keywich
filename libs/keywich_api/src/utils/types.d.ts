@@ -12,7 +12,7 @@ export function is_error_response(error: unknown): error is ErrorResponse;
  * @param {string | unknown[] | null | undefined} value - value to check.
  * @returns {value is undefined | null}
  */
-export function is_null_or_empty(value: string | unknown[] | null | undefined): value is null;
+export function is_null_or_empty(value: string | unknown[] | null | undefined): value is null | undefined;
 
 /**
  * Function to return the provided value if it is not null, undefined, or NaN,
@@ -23,7 +23,7 @@ export function is_null_or_empty(value: string | unknown[] | null | undefined): 
  * @param {T} defaultValue - The default value to return if the provided value is null, undefined, or NaN.
  * @returns - The value if it is not null, undefined, or NaN, otherwise returns the default value.
  */
-export function or_default<T>(value: T, defaultValue: T): T;
+export function or_default<T>(value: T, defaultValue: NonNullable<T>): NonNullable<T>;
 
 export type DebounceOptions<T> = {
   timeout: number;

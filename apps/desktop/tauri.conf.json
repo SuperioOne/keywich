@@ -20,7 +20,8 @@
           "$APPLOCALDATA",
           "$APPLOCALDATA/config.json",
           "$APPLOCALDATA/locales/*",
-          "$APPLOCALDATA/contents/*"
+          "$APPLOCALDATA/contents/*",
+          "$RESOURCE/locales/*"
         ]
       },
       "dialog": {
@@ -62,7 +63,9 @@
         "providerShortName": null,
         "signingIdentity": null
       },
-      "resources": [],
+      "resources": [
+        "locales/*"
+      ],
       "shortDescription": "",
       "targets": "all",
       "windows": {

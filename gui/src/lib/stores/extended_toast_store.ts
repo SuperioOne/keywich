@@ -1,7 +1,7 @@
-import {getToastStore} from "@skeletonlabs/skeleton";
+import {getToastStore as skeletonToastStore} from "@skeletonlabs/skeleton";
 
-export const getExtendedToastStore = () => {
-  const {subscribe, close, trigger, freeze, unfreeze, clear} = getToastStore();
+export const getToastStore = () => {
+  const {subscribe, close, trigger, freeze, unfreeze, clear} = skeletonToastStore();
 
   return {
     subscribe,

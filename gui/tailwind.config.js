@@ -32,6 +32,10 @@ export default {
           "wintry",
           "rocket",
           "vintage",
+          "modern",
+          "seafoam",
+          "gold-nouveau",
+          "sahara"
         ],
       }
     })

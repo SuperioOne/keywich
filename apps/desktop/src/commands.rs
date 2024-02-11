@@ -24,6 +24,7 @@ macro_rules! generate_keywich_handler {
       $crate::commands::utilities::create_guid,
       $crate::commands::utilities::get_content_path,
       $crate::commands::utilities::get_config_path,
+      $crate::commands::utilities::get_locale_path,
     ]
   };
 }

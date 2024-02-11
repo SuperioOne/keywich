@@ -6,7 +6,7 @@
   import {Log} from "../../logger";
   import {ModalAction} from "./types";
   import {RPC} from "../../rpc";
-  import {getExtendedToastStore, i18nStore} from "../../stores";
+  import {getToastStore, i18nStore} from "../../stores";
   import {onDestroy, onMount} from "svelte";
   import {or_default} from "@keywich/api/utils";
 
@@ -22,7 +22,7 @@
   let tags: string[] = data?.tags ?? [];
 
   const modal_store = getModalStore();
-  const toast_store = getExtendedToastStore();
+  const toast_store = getToastStore();
   const max_note_len: number = 200;
   const max_pass_len: number = 64;
 
@@ -31,7 +31,7 @@
       charset_list = await RPC.get_charsets();
     } catch (err) {
       Log.error(err);
-      toast_store.trigger_error(i18nStore.get_key("i18:/key-form/errors/charset-error", "Unable to load charset list."));
+      toast_store.trigger_error($i18nStore.get_key("i18:/key-form/errors/charset-error", "Unable to load charset list."));
     }
   });
 
@@ -153,13 +153,13 @@
     >
       <div>
         <label class="label">
-          <span class="font-bold">{i18nStore.get_key("i18:/key-form/labels/domain", "Domain")}</span>
+          <span class="font-bold">{$i18nStore.get_key("i18:/key-form/labels/domain", "Domain")}</span>
           <input
               class:input-error={errors.domain}
               class="input"
               name="domain"
               type="text"
-              placeholder={i18nStore.get_key("i18:/key-form/desc/domain", "")}
+              placeholder={$i18nStore.get_key("i18:/key-form/desc/domain", "")}
               required
               value={data?.domain ?? null}
           />
@@ -175,13 +175,13 @@
 
       <div>
         <label class="label">
-          <span class="font-bold">{i18nStore.get_key("i18:/key-form/labels/username", "Username")}</span>
+          <span class="font-bold">{$i18nStore.get_key("i18:/key-form/labels/username", "Username")}</span>
           <input
               class:input-error={errors.username}
               class="input"
               type="text"
               name="username"
-              placeholder={i18nStore.get_key("i18:/key-form/desc/username", "")}
+              placeholder={$i18nStore.get_key("i18:/key-form/desc/username", "")}
               required
               value={data?.username ?? null}
           />
@@ -197,7 +197,7 @@
 
       <div>
         <label class="label" for="charset">
-          <span class="font-bold">{i18nStore.get_key("i18:/key-form/labels/charset", "Charset")}</span>
+          <span class="font-bold">{$i18nStore.get_key("i18:/key-form/labels/charset", "Charset")}</span>
           <select
               class:input-error={errors.charset}
               class="select"
@@ -225,7 +225,7 @@
 
       <div>
         <label class="label" for="target_size">
-          <span class="font-bold">{i18nStore.get_key("i18:/key-form/labels/pass-length", "Password Length")}</span>
+          <span class="font-bold">{$i18nStore.get_key("i18:/key-form/labels/pass-length", "Password Length")}</span>
           <RangeSlider
               name="target_size"
               bind:value={slider_value}
@@ -248,12 +248,12 @@
 
       <div>
         <label class="label" for="tags">
-          <span class="font-bold">{i18nStore.get_key("i18:/key-form/labels/tags", "Tags")}</span>
+          <span class="font-bold">{$i18nStore.get_key("i18:/key-form/labels/tags", "Tags")}</span>
           <InputChip
               bind:value={tags}
               name="tags"
               chips="variant-filled-primary"
-              placeholder={i18nStore.get_key("i18:/key-form/desc/tags", "")}
+              placeholder={$i18nStore.get_key("i18:/key-form/desc/tags", "")}
           />
         </label>
         {#if errors.tags}
@@ -267,13 +267,13 @@
 
       <div>
         <label class="label">
-          <span class="font-bold">{i18nStore.get_key("i18:/key-form/labels/note", "Note")}</span>
+          <span class="font-bold">{$i18nStore.get_key("i18:/key-form/labels/note", "Note")}</span>
           <textarea
               class:input-error={errors.notes}
               class="textarea"
               rows="4"
               name="notes"
-              placeholder={i18nStore.get_key("i18:/key-form/desc/note", "")}
+              placeholder={$i18nStore.get_key("i18:/key-form/desc/note", "")}
               maxlength={max_note_len}
               bind:value={note_value}
           />
@@ -292,7 +292,7 @@
 
       <div>
         <label class="label">
-          <span class="font-bold">{i18nStore.get_key("i18:/key-form/labels/revision", "Revision No")}</span>
+          <span class="font-bold">{$i18nStore.get_key("i18:/key-form/labels/revision", "Revision No")}</span>
           <input
               class:input-error={errors.revision}
               class="input"
@@ -300,7 +300,7 @@
               name="revision"
               min="0"
               step="1"
-              placeholder={i18nStore.get_key("i18:/key-form/desc/revision", "")}
+              placeholder={$i18nStore.get_key("i18:/key-form/desc/revision", "")}
               value={data?.revision ?? 0}
           />
         </label>
@@ -315,7 +315,7 @@
 
       <div>
         <label class="label" for="custom_icon">
-          <span class="font-bold">{i18nStore.get_key("i18:/key-form/labels/icon", "Custom Icon")}</span>
+          <span class="font-bold">{$i18nStore.get_key("i18:/key-form/labels/icon", "Custom Icon")}</span>
           <FileDropzone
               accept="image/png, image/jpeg, image/svg+xml"
               on:change={on_custom_icon}
@@ -332,7 +332,7 @@
             </svelte:fragment>
             <svelte:fragment slot="message">
               <p>
-                {i18nStore.get_key("i18:/key-form/desc/icon", "Upload a image or drag and drop")}
+                {$i18nStore.get_key("i18:/key-form/desc/icon", "Upload a image or drag and drop")}
               </p>
             </svelte:fragment>
           </FileDropzone>
@@ -352,7 +352,7 @@
           class="btn variant-soft"
           on:click|preventDefault={on_popup_close}
       >
-        <span>{i18nStore.get_key("i18:/generic/cancel", "Cancel")}</span>
+        <span>{$i18nStore.get_key("i18:/generic/cancel", "Cancel")}</span>
       </button>
 
       <button
@@ -360,7 +360,7 @@
           class="btn variant-filled-primary"
           on:click={on_submit}
       >
-        <span>{i18nStore.get_key("i18:/generic/confirm", "Confirm")}</span>
+        <span>{$i18nStore.get_key("i18:/generic/confirm", "Confirm")}</span>
       </button>
     </div>
   </div>

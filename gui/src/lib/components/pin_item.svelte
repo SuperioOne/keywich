@@ -1,15 +1,35 @@
 <script lang="ts">
   import KeyIcon from "./key_icon.svelte";
   import type {KeyItem} from "@keywich/api";
-  import {App} from "../app";
+  import {RPC} from "$lib/rpc";
+  import {i18nStore} from "$lib/stores/i18n_store";
+  import {Log} from "$lib/logger";
+  import {getToastStore} from "$lib/stores/extended_toast_store";
 
   export let item: KeyItem;
+  const toast_store = getToastStore();
+
+  async function quick_copy() {
+    try {
+      const result = await RPC.generate_password_from({
+        content: "test",
+        profile_id: item.id,
+        output_type: "Text"
+      });
+
+      await RPC.copy_to_clipboard(result);
+      toast_store.trigger_success($i18nStore.get_key(`i18:/actions/copy-key/msg/success`, "Key copied."));
+    } catch (err) {
+      Log.error(err);
+      toast_store.trigger_error($i18nStore.get_key(`i18:/actions/copy-key/msg/error`, "Key generation failed."));
+    }
+  }
 </script>
 
 <div
     class="block card card-hover overflow-hidden">
   <a href="#" class="inline-block variant-glass-secondary p-5 w-full h-full"
-     on:click|preventDefault={() => App.Actions.quick_copy(item)}>
+     on:click|preventDefault={quick_copy}>
     <div
         class="flex flex-col gap-2 justify-center items-center overflow-hidden"
     >

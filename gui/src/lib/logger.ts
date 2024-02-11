@@ -1,4 +1,4 @@
-import type {LoggerSink} from "./logger/types";
+import {type LoggerSink, LogLevel, type LogLevelType} from "./logger/types";
 import {GlobalLogger} from "./logger/global_logger";
 import {LogEmitter} from "./logger/log_emitter";
 
@@ -23,3 +23,20 @@ export const LoggerConfigurator = (sinks: LoggerSink[]) => {
  * Global Logger. Represents a global logger instance with an emitter
  */
 export const Log = new GlobalLogger(emitter);
+
+export function try_parse_log_level(value: string): LogLevelType | undefined {
+  switch (value.toUpperCase()) {
+    case "ERROR":
+      return LogLevel.ERROR;
+    case "WARN":
+      return LogLevel.WARN;
+    case "INFO":
+      return LogLevel.INFO;
+    case "DEBUG":
+      return LogLevel.DEBUG;
+    case "TRACE":
+      return LogLevel.TRACE;
+    default:
+      return undefined;
+  }
+}

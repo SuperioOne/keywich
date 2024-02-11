@@ -10,19 +10,20 @@
   import {RPC} from "../rpc";
   import {i18nStore} from "../stores/i18n_store";
 
-  const modal_store = getModalStore();
-
   type OutType = PasswordOutputType | "UriEncoded";
   type DisplayData =
-    { display: string, raw: string, type: OutType, state: "completed" }
-    | { state: "loading" | "failed" }
+    { state: "completed", display: string, raw: string, type: OutType } |
+    { state: "loading" } |
+    { state: "failed", message: string }
 
   export let keyId: number;
-  let data: DisplayData;
+
+  const modal_store = getModalStore();
+  let display: DisplayData;
 
   async function get_password(output_type: OutType) {
     try {
-      data = {state: "loading"};
+      display = {state: "loading"};
 
       const result = await RPC.generate_password_from({
         content: "test",
@@ -47,16 +48,15 @@
           break;
       }
 
-      data = {
+      display = {
         type: output_type,
         raw: result,
         state: "completed",
         display: display_data
       };
-
     } catch (err) {
       Log.error(err);
-      data = {state: "failed"};
+      display = {state: "failed", message: "Key generation failed."};
     }
   }
 
@@ -69,29 +69,31 @@
 {#if $modal_store[0]}
   <div
       class="card p-6 flex flex-col items-center gap-5 w-full sm:w-modal-slim">
-    {#if data?.state === "loading"}
+    {#if display?.state === "loading"}
       <ProgressRadial stroke={160} meter="stroke-primary-500" track="stroke-primary-500/30"/>
-    {:else if data?.state === "completed"}
-      {#if data.type === "Qr" }
+
+    {:else if display?.state === "completed"}
+      {#if display.type === "Qr" }
         <div class="card w-full overflow-hidden aspect-square">
-          <img width="100%" src={data.display} alt="qr"/>
+          <img width="100%" src={display.display} alt="qr"/>
         </div>
         <button
             class="btn variant-filled-primary cursor-pointer"
-            on:click={() => save_qr(data.raw)}
+            on:click={() => save_qr(display.raw)}
         >
           <span><DownloadIcon/></span>
-          <span>{
-            i18nStore.get_key("i18:/generic/save", "Save")
-          }</span>
+          <span>{$i18nStore.get_key("i18:/generic/save", "Save")}</span>
         </button>
+
       {:else }
         <div class="w-full">
-          <CodeBlock language={data.type} code={data.display}/>
+          <CodeBlock language={display.type} code={display.display}/>
         </div>
       {/if}
-    {:else if data?.state === "failed"}
-      <span class="text-error-300-600-token">Failed</span>
+
+    {:else if display?.state === "failed"}
+      <span class="text-error-300-600-token">{display.message}</span>
+
     {:else}
       <p class="font-bold w-full text-center">
         {$modal_store[0].title}
