@@ -8,4 +8,6 @@ export interface UtilityRpcApi {
   copy_to_clipboard(value: string): Promise<void>;
 
   get_locales(): Promise<string[]>;
+
+  upload_icon(data: Uint8Array): Promise<string>;
 }

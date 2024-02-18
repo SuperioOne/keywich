@@ -3,9 +3,9 @@
   import PlusCircleIcon from "$lib/icons/plus-circle.svelte";
   import type {KeyItem} from "@keywich/api";
   import type {PageData} from "./$types";
-  import {AdvancedCopyMenu, type ModalActionResult, type TokenType} from "$lib";
+  import type {ModalActionResult, TokenType} from "$lib";
   import {
-    KeyRow, KeyFilterInput, i18nStore, getToastStore, KeyForm, Log, ModalAction, RPC
+    KeyRow, KeyFilterInput, i18nStore, getToastStore, KeyForm, KeyUpdateForm, AdvancedCopyMenu, Log, ModalAction, RPC
   } from "$lib";
   import {fly} from "svelte/transition";
   import {goto, invalidateAll} from "$app/navigation";
@@ -40,7 +40,7 @@
     const modal_response = await new Promise<ModalActionResult<void>>((resolve) => {
       modal_store.trigger({
         component: {
-          ref: KeyForm,
+          ref: KeyUpdateForm,
           props: {
             data: event.detail
           }

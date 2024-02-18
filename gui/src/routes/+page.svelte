@@ -3,6 +3,8 @@
   import type {PageData} from "./$types";
 
   export let data: PageData;
+
+
 </script>
 
 <div class="flex flex-col gap-7 justify-center">
@@ -10,6 +12,8 @@
     <h4 class="font-bold mb-5 text-3xl">
       {$i18nStore.get_key("i18:/home/pinned-keys", "Pinned Keys")}
     </h4>
+    <img src="kwicon://localhost/018dbb65-529f-7045-8275-898ee357d72a" alt="dsg" width="100" height="100"/>
+
     {#if data.pinned_items.length < 1}
       <p class="text-center w-full font-light text-xl">
         {$i18nStore.get_key("i18:/home/no-pinned-key")}

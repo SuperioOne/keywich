@@ -36,7 +36,7 @@
       <div
           class="text-primary-500 p-0 btn btn-icon-xl w-16 h-16 overflow-hidden"
       >
-        <KeyIcon icon={item.custom_icon} size={34}/>
+        <KeyIcon icon={item.custom_icon} size={64}/>
       </div>
       <div class="font-bold truncate w-[90%] text-center"> {item.username} </div>
       <div class="font-light text-xs truncate w-[90%] text-center">

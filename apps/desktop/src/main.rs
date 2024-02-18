@@ -5,8 +5,10 @@
 
 mod commands;
 mod errors;
+mod icon_scheme;
 
 use crate::commands::password::generate;
+use crate::icon_scheme::{icon_protocol_handler, ICON_PROTOCOL};
 use clap::{Parser, Subcommand, ValueEnum};
 use keywich_lib::profile::ProfileDB;
 use keywich_lib::PasswordConfig;
@@ -107,6 +109,7 @@ fn start_gui() {
       Ok(())
     })
     .invoke_handler(generate_keywich_handler!())
+    .register_uri_scheme_protocol(ICON_PROTOCOL, icon_protocol_handler)
     .run(tauri::generate_context!())
     .expect("error while running tauri application");
 }

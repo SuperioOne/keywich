@@ -1,6 +1,6 @@
 <script lang="ts">
   import UploadIcon from "../../icons/upload.svelte";
-  import type {CharsetItem, KeyItem, KeyRequest, PropertyError} from "@keywich/api";
+  import type {CharsetItem, KeyRequest, PropertyError} from "@keywich/api";
   import type {ModalActionResult} from "./types";
   import {FileDropzone, getModalStore, InputChip, RangeSlider} from "@skeletonlabs/skeleton";
   import {Log} from "../../logger";
@@ -8,23 +8,20 @@
   import {RPC} from "../../rpc";
   import {getToastStore, i18nStore} from "../../stores";
   import {onDestroy, onMount} from "svelte";
-  import {or_default} from "@keywich/api/utils";
-
-  export let data: KeyItem | undefined = undefined;
-
-  let charset_list: CharsetItem[] = [];
-  let errors: PropertyError<KeyRequest> = {};
-  let form_element: HTMLFormElement;
-  let icon: File | null = null;
-  let icon_url: string | null = data?.custom_icon ?? null;
-  let note_value: string | null = data?.notes ?? null;
-  let slider_value: number = data?.target_size ?? 32;
-  let tags: string[] = data?.tags ?? [];
+  import {is_null_or_empty, or_default} from "@keywich/api/utils";
 
   const modal_store = getModalStore();
   const toast_store = getToastStore();
   const max_note_len: number = 200;
   const max_pass_len: number = 64;
+
+  let charset_list: CharsetItem[] = [];
+  let errors: PropertyError<KeyRequest> = {};
+  let form_element: HTMLFormElement;
+  let icon_url: string | undefined;
+  let icon: File | null = null;
+  let slider_value: number = 32;
+  let note_value: string | null = null;
 
   onMount(async () => {
     try {
@@ -35,16 +32,19 @@
     }
   });
 
-  onDestroy(() => revoke_local_image());
+  onDestroy(() => revoke_local_img());
 
-  function revoke_local_image() {
-    if (icon_url && icon_url !== data?.custom_icon) {
+  function revoke_local_img() {
+    if (!is_null_or_empty(icon_url)) {
+      Log.debug(`Revoke local object ${icon_url}`);
       URL.revokeObjectURL(icon_url);
+      icon_url = undefined;
     }
+  }
 
-    if (icon_url && icon_url === data?.custom_icon) {
-      Log.debug(`Url is provided by data: ${icon_url}`);
-    }
+  function on_clear_icon() {
+    icon_url = undefined;
+    icon = null;
   }
 
   function on_popup_close() {
@@ -65,15 +65,14 @@
     const domain = form.get("domain");
     const username = form.get("username");
     const charset = form.get("charset");
-    const target_size = or_default(Number(form.get("target_size")), 32);
+    const target_size = or_default(parseInt(form.get("target_size")?.toString() ?? ""), 32);
     const notes = form.get("notes");
-    const revision = or_default(Number(form.get("revision")), 1);
+    const revision = or_default(parseInt(form.get("revision")?.toString() ?? ""), 1);
     const tags = form.getAll("tags");
-    const custom_icon = form.get("custom_icon");
 
     let icon_data;
-    if (custom_icon instanceof File) {
-      const buffer = await custom_icon.arrayBuffer();
+    if (icon instanceof File && icon.size > 0) {
+      const buffer = await icon.arrayBuffer();
       icon_data = new Uint8Array(buffer);
     }
 
@@ -101,35 +100,27 @@
       return;
     }
 
-    const form_data = new FormData(form_element);
-    const key_data = await form_to_object(form_data);
-
     try {
-      if (data && !isNaN(Number(data.id))) {
-        await RPC.update_key(data.id, key_data);
-      } else {
-        await RPC.insert_key(key_data);
-      }
+      const form_data = new FormData(form_element);
+      const key_data = await form_to_object(form_data);
+
+      await RPC.insert_key(key_data);
 
       const model_result: ModalActionResult<boolean> = {
         type: ModalAction.submitted,
         data: true
-      }
+      };
       modal_inst.response?.(model_result);
       modal_store.close();
-
     } catch (err) {
-
       Log.error(err);
       toast_store.trigger_error("failed");
-      // errors = result.error;
     }
   }
 
   function on_custom_icon(event: Event) {
     const input_element = event.target as HTMLInputElement;
-
-    revoke_local_image();
+    revoke_local_img();
 
     if (input_element.files && input_element.files.length > 0) {
       icon = input_element.files.item(0);
@@ -148,7 +139,7 @@
     <form
         bind:this={form_element}
         id="new_key_form"
-        class="flex gap-5 flex-col"
+        class="flex gap-4 flex-col"
         on:submit|preventDefault={on_submit}
     >
       <div>
@@ -161,7 +152,6 @@
               type="text"
               placeholder={$i18nStore.get_key("i18:/key-form/desc/domain", "")}
               required
-              value={data?.domain ?? null}
           />
         </label>
         {#if errors.domain}
@@ -183,7 +173,6 @@
               name="username"
               placeholder={$i18nStore.get_key("i18:/key-form/desc/username", "")}
               required
-              value={data?.username ?? null}
           />
         </label>
         {#if errors.username}
@@ -205,10 +194,7 @@
               required
           >
             {#each charset_list as charsetItem (charsetItem.name)}
-              <option
-                  selected="{data?.charset === charsetItem.charset}"
-                  value={charsetItem.charset}
-              >
+              <option value={charsetItem.charset}>
                 {charsetItem.name}
               </option>
             {/each}
@@ -217,7 +203,7 @@
         {#if errors.charset}
           <ul class="m-1 font-light text-sm text-error-500-400-token list-disc list-inside">
             {#each errors.charset as error}
-              <li> {error}</li>
+              <li>{error}</li>
             {/each}
           </ul>
         {/if}
@@ -250,7 +236,6 @@
         <label class="label" for="tags">
           <span class="font-bold">{$i18nStore.get_key("i18:/key-form/labels/tags", "Tags")}</span>
           <InputChip
-              bind:value={tags}
               name="tags"
               chips="variant-filled-primary"
               placeholder={$i18nStore.get_key("i18:/key-form/desc/tags", "")}
@@ -259,7 +244,7 @@
         {#if errors.tags}
           <ul class="m-1 font-light text-sm text-error-500-400-token list-disc list-inside">
             {#each errors.tags as error}
-              <li> {error}</li>
+              <li>{error}</li>
             {/each}
           </ul>
         {/if}
@@ -301,13 +286,13 @@
               min="0"
               step="1"
               placeholder={$i18nStore.get_key("i18:/key-form/desc/revision", "")}
-              value={data?.revision ?? 0}
+              value={0}
           />
         </label>
         {#if errors.revision}
           <ul class="m-1 font-light text-sm text-error-500-400-token list-disc list-inside">
             {#each errors.revision as error}
-              <li> {error}</li>
+              <li>{error}</li>
             {/each}
           </ul>
         {/if}
@@ -317,7 +302,7 @@
         <label class="label" for="custom_icon">
           <span class="font-bold">{$i18nStore.get_key("i18:/key-form/labels/icon", "Custom Icon")}</span>
           <FileDropzone
-              accept="image/png, image/jpeg, image/svg+xml"
+              accept="image/png, image/jpeg, image/webp"
               on:change={on_custom_icon}
               name="custom_icon"
           >
@@ -336,6 +321,15 @@
               </p>
             </svelte:fragment>
           </FileDropzone>
+          {#if icon !== null}
+            <button
+                type="button"
+                class="btn btn-sm variant-ghost-secondary"
+                on:click={on_clear_icon}
+            >
+              {$i18nStore.get_key("i18:/generic/clear", "Clear")}
+            </button>
+          {/if}
         </label>
         {#if errors.custom_icon}
           <ul class="m-1 font-light text-sm text-error-500-400-token list-disc list-inside">

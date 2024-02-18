@@ -1,4 +1,4 @@
-export interface KeyRequest {
+interface BaseKeyRequest {
   /** The target length of the password. */
   target_size: number;
 
@@ -20,12 +20,21 @@ export interface KeyRequest {
   /** Optional array of tags associated with the key. */
   tags?: string[];
 
-  /** Optional custom icon data for the key. */
-  custom_icon?: Uint8Array;
-
   /** Optional password generator version. */
   version?: string;
 }
+
+export interface KeyRequest extends BaseKeyRequest {
+  /** Optional custom icon data for the key. */
+  custom_icon?: Uint8Array;
+}
+
+export interface KeyUpdateRequest extends BaseKeyRequest {
+  /** Optional custom icon data for the key. */
+  custom_icon?: CustomIconType;
+}
+
+export type CustomIconType = { type: "buffer", data: Uint8Array } | { type: "name", name: string };
 
 export interface KeyItem {
   id: number;
@@ -58,7 +67,7 @@ export interface KeysRpcApi {
 
   get_pinned_keys(): Promise<KeyItem[]>;
 
-  insert_key(options: KeyRequest): Promise<number>;
+  insert_key(request: KeyRequest): Promise<number>;
 
   pin_key(id: number): Promise<void>;
 
@@ -66,5 +75,5 @@ export interface KeysRpcApi {
 
   unpin_key(id: number): Promise<void>;
 
-  update_key(id: number, options: KeyRequest): Promise<void>;
+  update_key(id: number, request: KeyUpdateRequest): Promise<void>;
 }

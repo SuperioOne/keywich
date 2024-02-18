@@ -12,21 +12,28 @@
  *   domain: string;
  *   username: string;
  *   notes?: string;
- *   pinned: boolean;
  *   tags?: string[];
  *   version?: string;
  *   custom_icon?: string;
  * }} KeyOptions
  */
 
-import {invoke} from "@tauri-apps/api/tauri";
+import {convertFileSrc, invoke} from "@tauri-apps/api/tauri";
 import {is_null_or_empty, or_default} from "@keywich/api/utils";
 import {save} from "@tauri-apps/api/dialog";
 import {writeBinaryFile, readTextFile, writeTextFile} from "@tauri-apps/api/fs";
 import {writeText} from "@tauri-apps/api/clipboard";
-import {get_content_url, save_content} from "./contents.js";
 
 const DEFAULT_HASH_VERSION = "kw_scrypt:v1";
+
+
+/**
+ * @param {Uint8Array} data
+ * @returns {Promise<string>}
+ */
+function upload_icon(data) {
+  return invoke("upload_icon", {data: data});
+}
 
 /** @type {import("@keywich/api").KeywichRpcApi} */
 const _api = {
@@ -51,7 +58,7 @@ const _api = {
     let icon_name = undefined;
 
     if (data.custom_icon && data.custom_icon.length > 0) {
-      icon_name = await save_content(data.custom_icon);
+      icon_name = await upload_icon(data.custom_icon);
     }
 
     /** @type {KeyOptions} */
@@ -62,7 +69,6 @@ const _api = {
       domain: data.domain,
       notes: data.notes,
       version: or_default(data.version, DEFAULT_HASH_VERSION),
-      pinned: false,
       target_size: data.target_size,
       revision: or_default(data.revision, 0),
       custom_icon: icon_name
@@ -87,8 +93,15 @@ const _api = {
     /** @type {string | undefined} */
     let icon_name = undefined;
 
-    if (data.custom_icon && data.custom_icon.length > 0) {
-      icon_name = await save_content(data.custom_icon);
+    if (data.custom_icon) {
+      switch (data.custom_icon.type) {
+        case "buffer":
+          icon_name = await upload_icon(data.custom_icon.data);
+          break;
+        case "name":
+          icon_name = data.custom_icon.name;
+          break;
+      }
     }
 
     /** @type {KeyOptions} */
@@ -99,7 +112,6 @@ const _api = {
       domain: data.domain,
       notes: data.notes,
       version: or_default(data.version, DEFAULT_HASH_VERSION),
-      pinned: false,
       target_size: data.target_size,
       revision: or_default(data.revision, 0),
       custom_icon: icon_name
@@ -158,8 +170,10 @@ const _api = {
     return writeText(value);
   },
 
-  convert_content_src: function (content_name) {
-    return get_content_url(content_name);
+  convert_content_src: async function (content_name) {
+    /** @type {string} **/
+    const data_dir = await invoke("get_content_path", {file_name: content_name});
+    return convertFileSrc(data_dir);
   },
 
   update_configs: async function (configs) {
@@ -180,8 +194,10 @@ const _api = {
       "en",
       "tr",
       "jp"
-    ])
-  }
+    ]);
+  },
+
+  upload_icon: upload_icon
 }
 
 export default _api;

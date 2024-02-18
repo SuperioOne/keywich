@@ -1,12 +1,8 @@
 use crate::errors::AppErrors;
+use image::imageops::FilterType;
 use std::fs::create_dir;
 use std::path::Path;
 use tauri::AppHandle;
-
-#[tauri::command(rename_all = "snake_case")]
-pub async fn create_guid() -> String {
-  uuid::Uuid::now_v7().to_string()
-}
 
 #[tauri::command(rename_all = "snake_case")]
 pub async fn get_content_path(handle: AppHandle, file_name: String) -> Result<String, AppErrors> {
@@ -50,4 +46,29 @@ pub async fn get_locale_path(handle: AppHandle, locale: String) -> Result<String
   let path = locale_data.to_str().ok_or(AppErrors::GenericError)?;
 
   Ok(String::from(path))
+}
+
+#[tauri::command(rename_all = "snake_case")]
+pub async fn upload_icon(handle: AppHandle, data: Vec<u8>) -> Result<String, AppErrors> {
+  let local_data_dir = handle
+    .path_resolver()
+    .app_local_data_dir()
+    .ok_or(AppErrors::GenericError)?;
+
+  let mut file_path = Path::join(&local_data_dir, "contents");
+
+  if !file_path.exists() {
+    create_dir(&file_path).map_err(|_err| AppErrors::GenericError)?;
+  }
+
+  let file_name = uuid::Uuid::now_v7().to_string();
+  file_path.push(&file_name);
+
+  let image_file = image::load_from_memory(&data).map_err(|err| AppErrors::GenericError)?;
+  let resized = image_file.resize(128, 128, FilterType::Nearest);
+  resized
+    .save(&file_path)
+    .map_err(|err| AppErrors::GenericError)?;
+
+  Ok(file_name)
 }

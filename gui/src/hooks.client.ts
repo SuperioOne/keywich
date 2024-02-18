@@ -19,9 +19,12 @@ LoggerConfigurator([
   ApplicationSink(LOG_LEVEL, 1000)
 ]);
 
-const app_config = await RPC.get_configs();
-const locale = app_config.locale ?? "en";
-const resources = await RPC.load_locale(locale);
+RPC.get_configs().then(async (app_config) => {
+  const locale = app_config.locale ?? "en";
+  configStore.init(app_config);
+  const resources = await RPC.load_locale(locale);
+  i18nStore.init_locale(locale, resources);
+});
 
-configStore.init(app_config);
-i18nStore.init_locale(locale, resources);
+
+

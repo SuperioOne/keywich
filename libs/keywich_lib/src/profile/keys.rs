@@ -41,7 +41,6 @@ pub struct KeyItem {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct KeyData {
-  pub pinned: bool,
   pub target_size: i64,
   pub revision: i64,
   pub charset: String,
@@ -217,7 +216,7 @@ impl ProfileDB {
       "INSERT INTO keys
         (pinned, target_size, revision, charset, domain, username, notes, created_at, custom_icon, version) VALUES
         (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-      item.pinned,
+      false,
       item.target_size,
       item.revision,
       item.charset,
@@ -256,10 +255,9 @@ impl ProfileDB {
     let mut transaction = conn.begin().await?;
     query!(
       "UPDATE keys SET
-        (pinned, target_size, revision, charset, domain, username, notes, custom_icon, version) =
-        (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        (target_size, revision, charset, domain, username, notes, custom_icon, version) =
+        (?, ?, ?, ?, ?, ?, ?, ?)
       WHERE keys.id = ?;",
-      item.pinned,
       item.target_size,
       item.revision,
       item.charset,

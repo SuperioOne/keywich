@@ -116,6 +116,6 @@
   </div>
 </div>
 
-<div class="card p-3 variant-filled-surface rounded-md max-w-sm" data-popup={note_tooltip.target}>
+<div class="card p-3 variant-filled-surface rounded-md max-w-sm z-50" data-popup={note_tooltip.target}>
   <p class="font-light">{item.notes}</p>
 </div>
