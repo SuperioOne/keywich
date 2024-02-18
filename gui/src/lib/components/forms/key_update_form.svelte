@@ -22,7 +22,7 @@
   let errors: PropertyError<KeyRequest> = {};
   let form_element: HTMLFormElement;
   let icon_file: File | string | null = data.custom_icon ?? null;
-  let icon_url: string | undefined;
+  let icon_url: string | undefined = data.custom_icon ? RPC.convert_icon_src(data.custom_icon) : undefined;
   let note_value: string | null = data.notes ?? null;
   let slider_value: number = data.target_size ?? 32;
   let tags: string[] = data.tags ?? [];
@@ -30,10 +30,6 @@
   onMount(async () => {
     try {
       charset_list = await RPC.get_charsets();
-
-      if (data.custom_icon) {
-        icon_url = await RPC.convert_content_src(data.custom_icon);
-      }
     } catch (err) {
       Log.error(err);
       toast_store.trigger_error($i18nStore.get_key("i18:/key-form/errors/charset-error", "Unable to load charset list."));

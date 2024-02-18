@@ -3,7 +3,7 @@ export interface UtilityRpcApi {
 
   load_locale(locale: string): Promise<Record<string, string>>;
 
-  convert_content_src(content_name: string): Promise<string>;
+  convert_icon_src(icon_name: string): string;
 
   copy_to_clipboard(value: string): Promise<void>;
 

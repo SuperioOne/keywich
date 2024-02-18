@@ -23,8 +23,6 @@ where
     .decode_utf8_lossy()
     .to_string();
 
-  println!("request received {}", &path);
-
   let local_data_dir = app
     .path_resolver()
     .app_local_data_dir()

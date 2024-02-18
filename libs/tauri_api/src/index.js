@@ -170,10 +170,8 @@ const _api = {
     return writeText(value);
   },
 
-  convert_content_src: async function (content_name) {
-    /** @type {string} **/
-    const data_dir = await invoke("get_content_path", {file_name: content_name});
-    return convertFileSrc(data_dir);
+  convert_icon_src: function (icon_name) {
+    return convertFileSrc(icon_name, "kwicon");
   },
 
   update_configs: async function (configs) {
