@@ -1,7 +1,6 @@
 use crate::errors::AppErrors;
 use const_format::concatcp;
 use std::fs;
-use std::fs::create_dir;
 use std::path::Path;
 use tauri::http::{Request, Response, ResponseBuilder};
 use tauri::AppHandle;
@@ -17,7 +16,6 @@ pub(crate) fn icon_protocol_handler<R>(
 where
   R: tauri::Runtime,
 {
-  let response = ResponseBuilder::new();
   let path = request.uri().strip_prefix(PREFIX).unwrap();
   let path = percent_encoding::percent_decode(path.as_bytes())
     .decode_utf8_lossy()
@@ -28,17 +26,13 @@ where
     .app_local_data_dir()
     .ok_or(AppErrors::GenericError)?;
 
-  let mut content_dir = Path::join(&local_data_dir, "contents");
+  let mut icon_path = Path::join(&local_data_dir, "contents");
+  icon_path.push(&path);
 
-  if !content_dir.exists() {
-    create_dir(&content_dir).map_err(|_err| AppErrors::GenericError)?;
-  }
-
-  content_dir.push(&path);
-
-  if content_dir.is_file() && content_dir.exists() {
-    match fs::read(content_dir) {
-      Ok(data) => response.mimetype("text/plain").status(200).body(data),
+  let response = ResponseBuilder::new();
+  if icon_path.is_file() && icon_path.exists() {
+    match fs::read(icon_path) {
+      Ok(data) => response.status(200).body(data),
       Err(err) => response.status(400).body(err.to_string().into_bytes()),
     }
   } else {

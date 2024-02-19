@@ -34,6 +34,8 @@
   "/generic/save": "Kaydet",
   "/home/no-pinned-keys": "Pinlenmiş anahtar bulunamadı.",
   "/home/pinned-keys": "Pinlenmiş Edilmiş Anahtarlar",
+  "/key-form/advanced": "Gelişmiş Seçenekler",
+  "/key-form/advanced/warning-desc": "Gelişmiş seçeneklerde değisiklik yapılması durumunda var olan şifrede değişecektir!",
   "/key-form/desc/charset": "Karakter Seti",
   "/key-form/desc/domain": "Örnek: gitea.com, ev, benim gizli depolama",
   "/key-form/desc/icon": "Resim yükleyin veya sürükleyip bırakın",
@@ -60,6 +62,8 @@
   "/nav/settings": "Ayarlar",
   "/settings/appearance/color-theme/desc": "Bu uygulamaya özelizde tercih edilen renk temanızı seçiniz.",
   "/settings/appearance/color-theme/title": "Renk Teması",
+  "/settings/appearance/locale/desc": "Dil seçin",
+  "/settings/appearance/locale/title": "Dil",
   "/settings/appearance/theme/dark": "Karanlık Mod",
   "/settings/appearance/theme/light": "Flashbang!",
   "/settings/appearance/theme/title": "Tema Seçiniz",
@@ -68,5 +72,4 @@
   "/settings/nav/about": "Hakkında",
   "/settings/nav/appearance": "Görsel",
   "/settings/nav/charsets": "Karakterler"
-
 }

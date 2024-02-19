@@ -2,7 +2,7 @@
   import UploadIcon from "../../icons/upload.svelte";
   import type {CharsetItem, KeyRequest, PropertyError} from "@keywich/api";
   import type {ModalActionResult} from "./types";
-  import {FileDropzone, getModalStore, InputChip, RangeSlider} from "@skeletonlabs/skeleton";
+  import {FileDropzone, getModalStore, InputChip, ProgressRadial, RangeSlider} from "@skeletonlabs/skeleton";
   import {Log} from "../../logger";
   import {ModalAction} from "./types";
   import {RPC} from "../../rpc";
@@ -22,6 +22,7 @@
   let icon: File | null = null;
   let slider_value: number = 32;
   let note_value: string | null = null;
+  let submitting: boolean = false;
 
   onMount(async () => {
     try {
@@ -140,7 +141,6 @@
         bind:this={form_element}
         id="new_key_form"
         class="flex gap-4 flex-col"
-        on:submit|preventDefault={on_submit}
     >
       <div>
         <label class="label">
@@ -322,13 +322,15 @@
             </svelte:fragment>
           </FileDropzone>
           {#if icon !== null}
-            <button
-                type="button"
-                class="btn btn-sm variant-ghost-secondary"
-                on:click={on_clear_icon}
-            >
-              {$i18nStore.get_key("i18:/generic/clear", "Clear")}
-            </button>
+            <span class="flex flex-row justify-end py-2">
+              <button
+                  type="button"
+                  class="btn btn-sm variant-ghost-secondary"
+                  on:click={on_clear_icon}
+              >
+                {$i18nStore.get_key("i18:/generic/clear", "Clear")}
+              </button>
+            </span>
           {/if}
         </label>
         {#if errors.custom_icon}
@@ -350,11 +352,20 @@
       </button>
 
       <button
+          disabled={submitting}
           type="button"
           class="btn variant-filled-primary"
-          on:click={on_submit}
+          on:click={async () => {
+            submitting = true;
+            await on_submit();
+            submitting = false;
+          }}
       >
-        <span>{$i18nStore.get_key("i18:/generic/confirm", "Confirm")}</span>
+        {#if submitting}
+          <ProgressRadial width="w-6"/>
+        {:else}
+          <span>{$i18nStore.get_key("i18:/generic/confirm", "Confirm")}</span>
+        {/if}
       </button>
     </div>
   </div>

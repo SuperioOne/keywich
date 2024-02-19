@@ -21,10 +21,10 @@ macro_rules! generate_keywich_handler {
       $crate::commands::keys::pin_key,
       $crate::commands::keys::unpin_key,
       $crate::commands::keys::get_key_by_id,
-      $crate::commands::utilities::get_content_path,
       $crate::commands::utilities::get_config_path,
       $crate::commands::utilities::get_locale_path,
-      $crate::commands::utilities::upload_icon,
+      $crate::commands::utilities::process_icon,
+      $crate::commands::utilities::alloc_temp_path,
     ]
   };
 }

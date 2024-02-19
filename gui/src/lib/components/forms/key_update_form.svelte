@@ -4,7 +4,15 @@
   import type {CharsetItem, CustomIconType, KeyItem, KeyRequest, KeyUpdateRequest, PropertyError} from "@keywich/api";
   import type {ModalActionResult} from "./types";
   import {ModalAction} from "./types";
-  import {Accordion, AccordionItem, FileDropzone, getModalStore, InputChip, RangeSlider} from "@skeletonlabs/skeleton";
+  import {
+    Accordion,
+    AccordionItem,
+    FileDropzone,
+    getModalStore,
+    InputChip,
+    ProgressRadial,
+    RangeSlider
+  } from "@skeletonlabs/skeleton";
   import {Log} from "../../logger";
   import {RPC} from "../../rpc";
   import {getToastStore, i18nStore} from "../../stores";
@@ -26,6 +34,7 @@
   let note_value: string | null = data.notes ?? null;
   let slider_value: number = data.target_size ?? 32;
   let tags: string[] = data.tags ?? [];
+  let submitting: boolean = false;
 
   onMount(async () => {
     try {
@@ -73,6 +82,7 @@
         name: icon_file
       };
     } else if (icon_file !== null) {
+      icon_file.webkitRelativePath
       const buffer = await icon_file.arrayBuffer()
       icon_value = {
         type: "buffer",
@@ -154,7 +164,6 @@
         bind:this={form_element}
         id="new_key_form"
         class="flex gap-4 flex-col"
-        on:submit|preventDefault={on_submit}
     >
       <div>
         <label class="label" for="tags">
@@ -401,11 +410,20 @@
       </button>
 
       <button
+          disabled={submitting}
           type="button"
           class="btn variant-filled-primary"
-          on:click={on_submit}
+          on:click={async () => {
+            submitting = true;
+            await on_submit();
+            submitting = false;
+          }}
       >
-        <span>{$i18nStore.get_key("i18:/generic/confirm", "Confirm")}</span>
+        {#if submitting}
+          <ProgressRadial width="w-6"/>
+        {:else}
+          <span>{$i18nStore.get_key("i18:/generic/confirm", "Confirm")}</span>
+        {/if}
       </button>
     </div>
   </div>

@@ -21,18 +21,32 @@
 import {convertFileSrc, invoke} from "@tauri-apps/api/tauri";
 import {is_null_or_empty, or_default} from "@keywich/api/utils";
 import {save} from "@tauri-apps/api/dialog";
-import {writeBinaryFile, readTextFile, writeTextFile} from "@tauri-apps/api/fs";
+import {writeBinaryFile, readTextFile, writeTextFile, removeFile} from "@tauri-apps/api/fs";
 import {writeText} from "@tauri-apps/api/clipboard";
 
 const DEFAULT_HASH_VERSION = "kw_scrypt:v1";
-
 
 /**
  * @param {Uint8Array} data
  * @returns {Promise<string>}
  */
-function upload_icon(data) {
-  return invoke("upload_icon", {data: data});
+async function upload_icon(data) {
+  /** @type {string} **/
+  const temp_path = await invoke("alloc_temp_path");
+  await writeBinaryFile(temp_path, data);
+
+  setTimeout(() => {
+    removeFile(temp_path)
+      .then(() => {
+      })
+      .catch(err => {
+        // TODO: connect with own logger
+        console.error(err);
+      });
+  }, 0)
+
+  /** @type {string} **/
+  return await invoke("process_icon", {file_path: temp_path});
 }
 
 /** @type {import("@keywich/api").KeywichRpcApi} */
@@ -148,9 +162,8 @@ const _api = {
   load_locale: async function (locale) {
     /** @type {string} **/
     const path = await invoke("get_locale_path", {locale: locale});
-    console.debug(path);
     const locale_content = await readTextFile(path);
-    console.debug(locale_content);
+
     return JSON.parse(locale_content);
   },
 

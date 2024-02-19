@@ -51,8 +51,8 @@
 </script>
 
 <svelte:window on:keyup|preventDefault={on_log_panel_flip}/>
-<Modal buttonNeutral="variant-soft" buttonPositive="variant-filled-primary"/>
-<Toast/>
+<Modal zIndex="z-[998]" buttonNeutral="variant-soft" buttonPositive="variant-filled-primary"/>
+<Toast zIndex="z-[999]"/>
 <AppShell class="h-full">
   <svelte:fragment slot="header">
     <div class="grid grid-flow-col grid-cols-12 bg-surface-200-700-token px-3 shadow">

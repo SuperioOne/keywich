@@ -15,12 +15,14 @@
       "fs": {
         "readFile": true,
         "writeFile": true,
+        "removeFile": true,
         "exists": true,
         "scope": [
           "$APPLOCALDATA",
           "$APPLOCALDATA/config.json",
           "$APPLOCALDATA/locales/*",
           "$APPLOCALDATA/contents/*",
+          "$APPLOCALDATA/temp/*",
           "$RESOURCE/locales/*"
         ]
       },
@@ -37,7 +39,8 @@
       },
       "clipboard": {
         "writeText": true
-      }
+      },
+      "all": false
     },
     "bundle": {
       "active": true,

@@ -25,7 +25,8 @@ export const ThemeOptions = [
   "modern",
   "seafoam",
   "gold-nouveau",
-  "sahara"
+  "sahara",
+  "default"
 ] as const;
 
 export type ThemeOptionType = typeof ThemeOptions[number];

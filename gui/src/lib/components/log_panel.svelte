@@ -114,7 +114,7 @@
     on:mousemove={on_resize}
     on:keyup={on_key_controls}
 />
-<div transition:fly={{duration:100, y:500 }}>
+<div class="z-[999]" transition:fly={{duration:100, y:500 }}>
   <div
       on:mousedown|stopPropagation|preventDefault={() => {drag_enabled = true}}
       on:mouseup|stopPropagation|preventDefault={() => {drag_enabled = false}}
