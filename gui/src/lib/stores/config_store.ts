@@ -17,16 +17,16 @@ const CONFIG_DEFAULTS: AppConfig = {
 
 export const ThemeOptions = [
   "crimson",
-  "skeleton",
-  "hamlindigo",
-  "wintry",
-  "rocket",
-  "vintage",
-  "modern",
-  "seafoam",
+  "default",
   "gold-nouveau",
+  "hamlindigo",
+  "modern",
+  "rocket",
   "sahara",
-  "default"
+  "seafoam",
+  "skeleton",
+  "vintage",
+  "wintry",
 ] as const;
 
 export type ThemeOptionType = typeof ThemeOptions[number];

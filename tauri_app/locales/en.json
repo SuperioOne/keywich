@@ -71,5 +71,9 @@
   "/settings/charsets/empty-list": "No charset available",
   "/settings/nav/about": "About",
   "/settings/nav/appearance": "Appearance",
-  "/settings/nav/charsets": "Charsets"
+  "/settings/nav/charsets": "Charsets",
+  "/errors/00004": "Validation error",
+  "/field-errors/length": "Invalid input length.",
+  "/field-errors/range": "Input range is not valid.",
+  "/field-errors/charset": "Charset pattern syntax is not valid."
 }

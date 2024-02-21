@@ -14,6 +14,8 @@ function apply_operators(text: string, localizationURI: URL, locale: string) {
 
   for (const [key, param] of localizationURI.searchParams) {
     switch (key) {
+      case "$noCache":
+        break;
       case "$toUpper" :
         caseFlag = CaseFlag.UpperCase;
         break;

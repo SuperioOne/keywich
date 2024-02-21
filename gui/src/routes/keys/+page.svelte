@@ -10,6 +10,7 @@
   import {fly} from "svelte/transition";
   import {goto, invalidateAll} from "$app/navigation";
   import {getModalStore} from "@skeletonlabs/skeleton";
+  import {is_error_response} from "@keywich/api/utils";
 
   export let data: PageData;
 
@@ -66,8 +67,11 @@
       await invalidateAll();
     } catch (err) {
       Log.error(err);
-      toast_store.trigger_error($i18nStore.get_key(`i18:/actions/pin-key/msg/error`, "Unable to pin")
-      );
+      toast_store.trigger_error($i18nStore.get_key(`i18:/actions/pin-key/msg/error`, "Unable to pin"));
+
+      if (is_error_response(err)) {
+        toast_store.trigger_error($i18nStore.get_key(`i18:/errors/${err.code}`, err.message));
+      }
     }
   }
 
@@ -84,6 +88,10 @@
     } catch (err) {
       Log.error(err);
       toast_store.trigger_error($i18nStore.get_key(`i18:/actions/copy-key/msg/error`, "Key generation failed."));
+
+      if (is_error_response(err)) {
+        toast_store.trigger_error($i18nStore.get_key(`i18:/errors/${err.code}`, err.message));
+      }
     }
   }
 
@@ -105,6 +113,10 @@
       });
     } catch (err) {
       Log.error(err);
+
+      if (is_error_response(err)) {
+        toast_store.trigger_error($i18nStore.get_key(`i18:/errors/${err.code}`, err.message));
+      }
     }
   }
 
@@ -131,6 +143,10 @@
       } catch (err) {
         Log.warn(err);
         toast_store.trigger_error($i18nStore.get_key("i18:/actions/delete-key/msg/error", "Unable to delete key."));
+
+        if (is_error_response(err)) {
+          toast_store.trigger_error($i18nStore.get_key(`i18:/errors/${err.code}`, err.message));
+        }
       }
     }
   }

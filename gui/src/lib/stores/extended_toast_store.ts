@@ -12,22 +12,22 @@ export const getToastStore = () => {
     clear,
     trigger_success: (message: string) => trigger({
       message: message,
-      background: "variant-filled-success",
+      background: "variant-glass-success",
       timeout: 1500
     }),
     trigger_error: (message: string) => trigger({
       message: message,
-      background: "variant-filled-error",
+      background: "variant-glass-error",
       timeout: 3000
     }),
     trigger_warning: (message: string) => trigger({
       message: message,
-      background: "variant-filled-warning",
+      background: "variant-glass-warning",
       timeout: 2500
     }),
     trigger_info: (message: string) => trigger({
       message: message,
-      background: "variant-filled-secondary",
+      background: "variant-glass-secondary",
       timeout: 1500
     }),
   }

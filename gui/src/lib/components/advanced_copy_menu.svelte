@@ -103,7 +103,7 @@
         <button
             on:click={() => get_password("Text")}
             type="button"
-            class="aspect-square btn p-2 variant-filled-secondary flex flex-col gap-2 justify-center align-middle"
+            class="aspect-square btn p-2 variant-glass-secondary flex flex-col gap-2 justify-center align-middle"
         >
           <TypeIcon size={48}/>
           <span class="font-mono text-sm text-center w-full !m-0">TEXT</span>
@@ -111,7 +111,7 @@
         <button
             on:click={() => get_password("Qr")}
             type="button"
-            class="aspect-square btn p-2 variant-filled-secondary flex flex-col gap-2 justify-center align-middle"
+            class="aspect-square btn p-2 variant-glass-secondary flex flex-col gap-2 justify-center align-middle"
         >
           <QrIcon size={48}/>
           <span class="font-mono text-sm text-center w-full !m-0">QR</span>
@@ -119,7 +119,7 @@
         <button
             on:click={() => get_password("Base64")}
             type="button"
-            class="aspect-square btn p-2 variant-filled-secondary flex flex-col gap-2 justify-center align-middle"
+            class="aspect-square btn p-2 variant-glass-secondary flex flex-col gap-2 justify-center align-middle"
         >
           <TerminalIcon size={48}/>
           <span class="font-mono text-sm text-center w-full !m-0">BASE64</span>
@@ -127,7 +127,7 @@
         <button
             on:click={() => get_password("UriEncoded")}
             type="button"
-            class="aspect-square btn p-2 variant-filled-secondary flex flex-col gap-2 justify-center align-middle"
+            class="aspect-square btn p-2 variant-glass-secondary flex flex-col gap-2 justify-center align-middle"
         >
           <LinkIcon size={48}/>
           <span class="font-mono text-sm text-center w-full !m-0">URI Encoded</span>

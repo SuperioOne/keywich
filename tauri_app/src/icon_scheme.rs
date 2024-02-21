@@ -24,7 +24,7 @@ where
   let local_data_dir = app
     .path_resolver()
     .app_local_data_dir()
-    .ok_or(AppErrors::GenericError)?;
+    .ok_or(AppErrors::LocalDataDirNotFound)?;
 
   let mut icon_path = Path::join(&local_data_dir, "contents");
   icon_path.push(&path);

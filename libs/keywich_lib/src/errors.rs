@@ -6,7 +6,6 @@ pub enum Error {
   InvalidHashOutput,
   ParserInvalidRange,
   InvalidInput,
-  InvalidConfiguration(Vec<ValidationError>),
   DatabaseError(String),
   DatabaseMigrateError(String),
   InvalidDatabasePath(PathBuf),
@@ -14,15 +13,13 @@ pub enum Error {
   InvalidHashFuncVersion,
   InvalidJsonError(String),
   InvalidQrError(String),
+  ValidationError(validator::ValidationErrors),
 }
 
-#[derive(Debug)]
-pub enum ValidationError {
-  EmptyCharset,
-  EmptySalt,
-  EmptyPassword,
-  EmptyDomain,
-  InvalidTargetLength,
+impl From<validator::ValidationErrors> for Error {
+  fn from(value: validator::ValidationErrors) -> Self {
+    Self::ValidationError(value)
+  }
 }
 
 #[cfg(feature = "profile")]

@@ -1,13 +1,15 @@
 <script lang="ts">
   import type {ModalActionResult} from "./types";
-  import type {PropertyError, CharsetOptions, CharsetItem} from "@keywich/api";
+  import type {CharsetOptions, CharsetItem} from "@keywich/api";
   import {getModalStore} from "@skeletonlabs/skeleton";
   import {Log} from "../../logger";
   import {ModalAction} from "./types";
   import {RPC} from "../../rpc";
+  import type {ValidationError} from "../../utils";
   import {getToastStore, i18nStore} from "../../stores";
+  import {is_error_response, is_validation_error_response} from "@keywich/api/utils";
 
-  let errors: PropertyError<CharsetOptions> = {};
+  let field_errors: ValidationError<CharsetOptions> = {};
   let form_element: HTMLFormElement;
 
   const modal_store = getModalStore();
@@ -42,12 +44,16 @@
   async function on_submit() {
     const modal = $modal_store[0];
     if (!modal) {
-      Log.error(new Error("Submit failed. Modal component is created but unable to access modal itself."));
+      Log.error("Submit failed. Modal component is created but unable to access modal itself.");
       return;
     }
 
     if (!form_element) {
-      Log.error(new Error("Charset form ref is empty."));
+      Log.error("Charset form ref is empty.");
+      return;
+    }
+
+    if (!form_element.reportValidity()) {
       return;
     }
 
@@ -66,10 +72,16 @@
       modal_store.close();
     } catch (err) {
       Log.error(err);
-      toast_store.trigger_error(err as string);
 
-      // TODO: get validation errors
-      // errors = result.error;
+      if (is_error_response(err)) {
+        toast_store.trigger_error($i18nStore.get_key(`i18:/errors/${err.code}`, err.message));
+
+        if (is_validation_error_response(err)) {
+          field_errors = err.fields;
+        }
+      } else {
+        toast_store.trigger_error($i18nStore.get_key("i18:/charset-form/unknown-error", "Charset save failed."));
+      }
     }
   }
 </script>
@@ -89,7 +101,7 @@
         <label class="label">
           <span class="font-bold">{$i18nStore.get_key("i18:/charset-form/labels/name", "Name")}</span>
           <input
-              class:input-error={errors.name}
+              class:input-error={field_errors.name}
               class="input"
               name="name"
               type="text"
@@ -97,10 +109,12 @@
               required
           />
         </label>
-        {#if errors.name}
+        {#if field_errors.name}
           <ul class="m-1 font-light text-sm text-error-500-400-token list-disc list-inside">
-            {#each errors.name as error}
-              <li> {error}</li>
+            {#each field_errors.name as error}
+              <li>
+                {$i18nStore.get_key(`i18:/field-errors/${error.code}?field=name&$noCache`, error.message ?? "")}
+              </li>
             {/each}
           </ul>
         {/if}
@@ -110,7 +124,7 @@
         <label class="label">
           <span class="font-bold">{$i18nStore.get_key("i18:/charset-form/labels/charset", "Charset")}</span>
           <input
-              class:input-error={errors.charset}
+              class:input-error={field_errors.charset}
               class="input"
               type="text"
               name="charset"
@@ -118,10 +132,12 @@
               required
           />
         </label>
-        {#if errors.charset}
+        {#if field_errors.charset}
           <ul class="m-1 font-light text-sm text-error-500-400-token list-disc list-inside">
-            {#each errors.charset as error}
-              <li> {error}</li>
+            {#each field_errors.charset as error}
+              <li>
+                {$i18nStore.get_key(`i18:/field-errors/${error.code}?field=charset&$noCache`, error.message ?? "")}
+              </li>
             {/each}
           </ul>
         {/if}
@@ -131,17 +147,19 @@
         <label class="label">
           <span class="font-bold">{$i18nStore.get_key("i18:/charset-form/labels/description", "Description")}</span>
           <input
-              class:input-error={errors.description}
+              class:input-error={field_errors.description}
               class="input"
               type="text"
               name="description"
               placeholder={$i18nStore.get_key("i18:/charset-form/desc/description", "")}
           />
         </label>
-        {#if errors.description}
+        {#if field_errors.description}
           <ul class="m-1 font-light text-sm text-error-500-400-token list-disc list-inside">
-            {#each errors.description as error}
-              <li> {error}</li>
+            {#each field_errors.description as error}
+              <li>
+                {$i18nStore.get_key(`i18:/field-errors/${error.code}?field=description&$noCache`, error.message ?? "")}
+              </li>
             {/each}
           </ul>
         {/if}

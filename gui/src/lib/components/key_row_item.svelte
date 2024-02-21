@@ -35,7 +35,7 @@
 
 <div
     class:bg-surface-active-token={active}
-    class="card flex justify-between gap-4 w-full p-4 items-center variant-glass-surface"
+    class="card flex justify-between gap-4 w-full p-4 items-center variant-glass-secondary"
     tabindex="-1"
 >
   <div class="flex-none gap-3 items-center">
@@ -69,7 +69,7 @@
     <div class="flex flex-wrap mt-3 gap-1 min-h-[24px]">
       {#each item.tags.sort() as tag (tag)}
         <button
-            class="btn chip font-bold text-xs variant-soft-secondary w-fit px-2 py-1"
+            class="btn chip font-bold text-xs variant-glass-tertiary w-fit px-2 py-1"
             on:click|preventDefault={() => dispatch("tagSelect", tag)}
         >
           {tag}
@@ -86,7 +86,7 @@
         on:contextmenu|preventDefault={() => dispatch("copyAlt", item)}
         on:auxclick|preventDefault={() => dispatch("copyAux", item)}
         on:click|preventDefault={() => dispatch("copy", item)}
-        class="btn btn-sm variant-filled-primary btn-icon-base h-fit"
+        class="btn btn-sm variant-glass-primary btn-icon-base h-fit"
     >
       <ClipboardIcon/>
     </button>
@@ -94,14 +94,14 @@
         type="button"
         class="btn btn-sm btn-icon-base h-fit"
         class:variant-filled-warning={item.pinned}
-        class:variant-soft={!item.pinned}
+        class:variant-glass-surface={!item.pinned}
         on:click|preventDefault={() => dispatch("pin", item)}
     >
       <StarIcon/>
     </button>
     <button
         type="button"
-        class="btn btn-sm variant-filled-secondary btn-icon-base h-fit"
+        class="btn btn-sm variant-glass-secondary btn-icon-base h-fit"
         on:click|preventDefault={() => dispatch("update", item)}
     >
       <EditIcon/>
@@ -109,7 +109,7 @@
     <button
         on:click|preventDefault={() => dispatch("delete", item)}
         type="button"
-        class="btn btn-sm variant-filled-error btn-icon-base h-fit"
+        class="btn btn-sm variant-glass-error btn-icon-base h-fit"
     >
       <TrashIcon/>
     </button>

@@ -5,19 +5,26 @@ pub mod hash;
 #[cfg(feature = "profile")]
 pub mod profile;
 
-use crate::charset::Charset;
-use crate::errors::{Error, ValidationError};
+use crate::charset::{validate_charset, Charset};
+use crate::errors::Error;
 use crate::hash::{HashAlgorithm, HashConfig, HashGenerator};
-use std::convert::Infallible;
 use std::fmt;
 use std::fmt::{Display, Formatter};
+use validator::Validate;
+pub use validator::{ValidationError, ValidationErrors, ValidationErrorsKind};
 
+#[derive(Validate)]
 pub struct PasswordConfig<'a> {
+  #[validate(length(min = 1))]
   pub domain: &'a str,
+  #[validate(length(min = 1))]
   pub password: &'a str,
+  #[validate(length(min = 1))]
   pub username: &'a str,
+  #[validate(length(min = 1), custom = "validate_charset")]
   pub charset: &'a str,
   pub revision: i64,
+  #[validate(range(min = 1, max = 64))]
   pub target_len: usize,
 }
 
@@ -101,37 +108,4 @@ pub fn generate_password(
     alg: generator.name().into(),
     pass,
   })
-}
-
-impl<'a> PasswordConfig<'a> {
-  #[inline]
-  fn validate(&self) -> Result<(), Error> {
-    let mut errors: Vec<ValidationError> = vec![];
-
-    if self.target_len < 1 || self.target_len > 64 {
-      errors.push(ValidationError::InvalidTargetLength);
-    }
-
-    if self.domain.trim().is_empty() {
-      errors.push(ValidationError::EmptyDomain);
-    }
-
-    if self.password.trim().is_empty() {
-      errors.push(ValidationError::EmptyPassword);
-    }
-
-    if self.username.trim().is_empty() {
-      errors.push(ValidationError::EmptySalt);
-    }
-
-    if self.charset.is_empty() {
-      errors.push(ValidationError::EmptyCharset);
-    }
-
-    if errors.is_empty() {
-      Ok(())
-    } else {
-      Err(Error::InvalidConfiguration(errors))
-    }
-  }
 }

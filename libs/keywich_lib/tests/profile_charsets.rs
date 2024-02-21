@@ -23,6 +23,24 @@ mod tests {
   }
 
   #[tokio::test]
+  async fn invalid_data() {
+    let profile_db = ProfileDB::connect("sqlite::memory:").await.unwrap();
+    let charset = CharsetItem {
+      charset: "a..A..Z".into(),
+      description: None,
+      name: "".into(),
+    };
+
+    if let Err(keywich_lib::errors::Error::ValidationError(details)) =
+      profile_db.insert_charset(charset).await
+    {
+      assert_eq!(2, details.errors().len())
+    } else {
+      assert!(false)
+    }
+  }
+
+  #[tokio::test]
   async fn delete_charset() {
     let profile_db = ProfileDB::connect("sqlite::memory:").await.unwrap();
 

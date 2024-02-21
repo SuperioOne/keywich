@@ -1,3 +1,5 @@
+use std::borrow::Cow;
+use std::collections::HashMap;
 use crate::charset::parser::parse;
 use crate::errors::Error;
 use std::fmt::{Display, Formatter};
@@ -49,5 +51,16 @@ impl TryFrom<&str> for Charset {
 impl Display for Charset {
   fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
     f.write_str(self.charset.as_ref())
+  }
+}
+
+pub(crate) fn validate_charset(value: &str) -> Result<(), validator::ValidationError> {
+  match Charset::try_from(value) {
+    Ok(_) => Ok(()),
+    Err(_) => Err(validator::ValidationError {
+      params: HashMap::new(),
+      message: Some(Cow::Borrowed("Invalid charset.")),
+      code: Cow::Borrowed("charset"),
+    }),
   }
 }

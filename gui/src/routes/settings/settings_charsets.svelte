@@ -6,6 +6,7 @@
   import {fly} from "svelte/transition";
   import {invalidateAll} from "$app/navigation";
   import {getModalStore} from "@skeletonlabs/skeleton";
+  import {is_error_response} from "@keywich/api/utils";
 
   export let charsets: CharsetItem[];
 
@@ -42,6 +43,10 @@
         toast_store.trigger_error($i18nStore.get_key(
           "i18:/actions/delete-charset/msg/error",
           "Unable to delete charset."));
+
+        if (is_error_response(err)) {
+          toast_store.trigger_error($i18nStore.get_key(`i18:/errors/${err.code}`, err.message));
+        }
       }
     }
   }
@@ -103,12 +108,12 @@
             </dt>
             <dd class="font-light">
               <small>
-                {charset.description}
+                {charset.description ?? ""}
               </small>
             </dd>
           </dl>
           <button
-              class="btn btn-sm variant-filled-error btn-icon-base h-fit"
+              class="btn btn-sm variant-glass-error btn-icon-base h-fit"
               on:click={() => delete_charset(charset)}
           >
             <TrashIcon size={23}/>

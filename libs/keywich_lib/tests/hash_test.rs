@@ -32,10 +32,10 @@ mod test {
       revision: 1,
     };
 
-    if let Err(Error::InvalidConfiguration(validation_errors)) =
+    if let Err(Error::ValidationError(details)) =
       generate_password(config, HashAlgorithm::KwScryptV1)
     {
-      assert_eq!(5, validation_errors.len())
+      assert_eq!(5, details.errors().len())
     } else {
       assert!(false);
     }

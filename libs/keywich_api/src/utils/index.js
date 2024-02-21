@@ -9,6 +9,13 @@ export function is_error_response(error) {
 }
 
 /**
+ * @type {import("./types.js").is_validation_error_response}
+ */
+export function is_validation_error_response(error) {
+  return is_error_response(error) && Reflect.has(error, "fields");
+}
+
+/**
  * @type {import("./types.js").is_null_or_empty}
  */
 export function is_null_or_empty(value) {

@@ -1,4 +1,4 @@
-import type {ErrorResponse} from "../api/types.js";
+import type {ErrorResponse, ValidationErrorResponse} from "../api/types.js";
 
 /**
  * Checks if the given value is an instance of ErrorResponse.
@@ -6,6 +6,13 @@ import type {ErrorResponse} from "../api/types.js";
  * @returns {error is ErrorResponse} True if the value is an instance of ErrorResponse, false otherwise.
  */
 export function is_error_response(error: unknown): error is ErrorResponse;
+
+/**
+ * Checks if the given value is an instance of ValidationErrorResponse.
+ * @param {unknown} error - The value to check.
+ * @returns {error is ValidationErrorResponse} True if the value is an instance of ValidationErrorResponse, false otherwise.
+ */
+export function is_validation_error_response(error: unknown): error is ValidationErrorResponse;
 
 /**
  * Checks if the given value is undefined, null, or an empty array/string.
@@ -148,4 +155,4 @@ export function create_debouncer<T1, T2, T3, TResult = unknown>(
  **/
 export function create_debouncer<TResult = unknown>(
   action: (...args: unknown[]) => TResult | Promise<TResult>,
-  options: DebounceOptions<TResult>): DebouncerController<(...args:unknown[]) => void>;
+  options: DebounceOptions<TResult>): DebouncerController<(...args: unknown[]) => void>;

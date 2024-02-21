@@ -1,7 +1,6 @@
 use crate::errors::AppErrors;
 use crate::AppRpcState;
 use keywich_lib::profile::keys::{KeyData, KeyItem, SearchQuery};
-use keywich_lib::profile::ProfileDB;
 use tauri::{AppHandle, State};
 
 #[tauri::command(rename_all = "snake_case")]
@@ -31,9 +30,16 @@ pub async fn delete_key(
   state: State<'_, AppRpcState>,
   key_id: i64,
 ) -> Result<(), AppErrors> {
-  delete_icon(&handle, &state.profile_db, key_id).await?;
-  state.profile_db.delete_key(key_id).await?;
-  Ok(())
+  if let Some(key_data) = state.profile_db.get_key_by_id(key_id).await? {
+    if let Some(icon_name) = key_data.custom_icon {
+      delete_icon(&handle, &icon_name)?;
+    }
+
+    state.profile_db.delete_key(key_id).await?;
+    Ok(())
+  } else {
+    Err(AppErrors::KeyNotFound)
+  }
 }
 
 #[tauri::command(rename_all = "snake_case")]
@@ -49,9 +55,19 @@ pub async fn update_key(
   key_id: i64,
   data: KeyData,
 ) -> Result<(), AppErrors> {
-  delete_icon(&handle, &state.profile_db, key_id).await?;
-  state.profile_db.update_key(key_id, data).await?;
-  Ok(())
+  if let Some(key_data) = state.profile_db.get_key_by_id(key_id).await? {
+    match &key_data.custom_icon {
+      ic @ Some(icon_name) if ic.ne(&data.custom_icon) => {
+        delete_icon(&handle, &icon_name)?;
+      }
+      _ => {}
+    }
+
+    state.profile_db.update_key(key_id, data).await?;
+    Ok(())
+  } else {
+    Err(AppErrors::KeyNotFound)
+  }
 }
 
 #[tauri::command(rename_all = "snake_case")]
@@ -74,36 +90,22 @@ pub async fn get_key_by_id(
   if let Some(key) = state.profile_db.get_key_by_id(key_id).await? {
     Ok(key)
   } else {
-    Err(AppErrors::GenericError)
+    Err(AppErrors::KeyNotFound)
   }
 }
 
-async fn delete_icon(
-  handle: &AppHandle,
-  profile_db: &ProfileDB,
-  key_id: i64,
-) -> Result<(), AppErrors> {
-  if let Some(key) = profile_db.get_key_by_id(key_id).await? {
-    if let Some(icon_id) = key.custom_icon {
-      let local_data_dir = handle
-        .path_resolver()
-        .app_local_data_dir()
-        .ok_or(AppErrors::GenericError)?;
-      let mut dest_path = std::path::Path::join(&local_data_dir, "contents");
+fn delete_icon(handle: &AppHandle, icon_name: &str) -> Result<(), AppErrors> {
+  let mut dest_path = handle
+    .path_resolver()
+    .app_local_data_dir()
+    .ok_or(AppErrors::LocalDataDirNotFound)?;
 
-      if !dest_path.exists() {
-        std::fs::create_dir(&dest_path).map_err(|_err| AppErrors::GenericError)?;
-      }
+  dest_path.push("contents");
+  dest_path.push(icon_name);
 
-      dest_path.push(icon_id);
-
-      if dest_path.is_file() {
-        let _result = std::fs::remove_file(dest_path);
-      }
-    }
-
-    Ok(())
-  } else {
-    Err(AppErrors::GenericError)
+  if dest_path.is_file() {
+    let _result = std::fs::remove_file(dest_path);
   }
+
+  Ok(())
 }

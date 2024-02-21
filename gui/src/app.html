@@ -5,8 +5,14 @@
   <link rel="icon" href="%sveltekit.assets%/favicon.png"/>
   <meta name="viewport" content="width=device-width"/>
   %sveltekit.head%
+  <style>
+      .bg_gradient {
+          background-image: radial-gradient(at 100% 100%, rgba(var(--color-primary-600) / 0.05) 0px, transparent 35%),
+          radial-gradient(at 0% 0%, rgba(var(--color-secondary-600) / 0.2) 0px, transparent 75%);
+      }
+  </style>
 </head>
-<body data-sveltekit-preload-data="tap" data-theme="crimson">
+<body class="bg_gradient" data-sveltekit-preload-data="tap" data-theme="default">
 <div style="display: contents" class="h-full overflow-hidden">%sveltekit.body%</div>
 </body>
 </html>

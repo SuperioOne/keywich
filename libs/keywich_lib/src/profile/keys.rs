@@ -1,9 +1,11 @@
+use crate::charset::validate_charset;
 use crate::errors::Error;
 use crate::profile::utils::tag_list::TagList;
 use crate::profile::utils::timestamp::get_unix_timestamp;
 use crate::profile::ProfileDB;
 use serde::{Deserialize, Serialize};
 use sqlx::{query, query_as, Connection, FromRow, QueryBuilder, Sqlite};
+use validator::Validate;
 
 /// Inserts token if given flag is true and resets the flags afterward.
 macro_rules! insert_token {
@@ -39,15 +41,20 @@ pub struct KeyItem {
   pub tags: TagList,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Validate)]
 pub struct KeyData {
+  #[validate(range(min = 1, max = 64))]
   pub target_size: i64,
   pub revision: i64,
+  #[validate(length(min = 1), custom = "validate_charset")]
   pub charset: String,
+  #[validate(length(min = 1))]
   pub domain: String,
+  #[validate(length(min = 1))]
   pub username: String,
   pub notes: Option<String>,
   pub custom_icon: Option<String>,
+  #[validate(length(min = 1))]
   pub version: String,
   pub tags: TagList,
 }
@@ -209,6 +216,8 @@ impl ProfileDB {
   }
 
   pub async fn insert_key(&self, item: KeyData) -> Result<i64, Error> {
+    item.validate()?;
+
     let now: i64 = get_unix_timestamp()?;
     let mut conn = self.pool.acquire().await?;
     let mut transaction = conn.begin().await?;
@@ -251,6 +260,8 @@ impl ProfileDB {
   }
 
   pub async fn update_key(&self, key_id: i64, item: KeyData) -> Result<(), Error> {
+    item.validate()?;
+
     let mut conn = self.pool.acquire().await?;
     let mut transaction = conn.begin().await?;
     query!(

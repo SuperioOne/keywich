@@ -37,7 +37,7 @@ pub async fn generate_password_from(
 
   if let Some(key) = state.profile_db.get_key_by_id(profile_id).await? {
     let target_len =
-      usize::try_from(key.target_size).map_err(|_err| keywich_lib::errors::Error::InvalidInput)?;
+      usize::try_from(key.target_size).map_err(|_err| AppErrors::InvalidTargetLength)?;
     let config = keywich_lib::PasswordConfig {
       password: &content,
       revision: key.revision,
@@ -49,7 +49,7 @@ pub async fn generate_password_from(
 
     generate(config, output_type, Some(&key.version))
   } else {
-    Err(AppErrors::GenericError)
+    Err(AppErrors::KeyNotFound)
   }
 }
 
@@ -67,7 +67,7 @@ pub fn generate_password(request: PasswordGenerateRequest) -> Result<String, App
   } = request;
 
   let target_len =
-    usize::try_from(target_len).map_err(|_err| keywich_lib::errors::Error::InvalidInput)?;
+    usize::try_from(target_len).map_err(|_err| AppErrors::InvalidTargetLength)?;
 
   let config = keywich_lib::PasswordConfig {
     charset: &charset,

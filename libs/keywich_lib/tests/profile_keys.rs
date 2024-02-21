@@ -15,7 +15,6 @@ mod tests {
         charset: "a..z0..9".into(),
         revision: 12,
         target_size: 12,
-        pinned: false,
         tags: TagList::from(["tag1", "tag2", "tag3", "tag4", "tag5", "tag6"]),
       }
     };
@@ -30,6 +29,30 @@ mod tests {
     let keys = profile_db.get_keys(false).await.unwrap();
 
     assert_eq!(2, keys.len());
+  }
+
+  #[tokio::test]
+  async fn invalid_data() {
+    let profile_db = ProfileDB::connect("sqlite::memory:").await.unwrap();
+    let key_data = KeyData {
+      notes: Some("notes".into()),
+      domain: "".into(),
+      version: "v1".into(),
+      custom_icon: Some("/tmp/icon.ico".into()),
+      username: "".into(),
+      charset: "a..0..9".into(),
+      revision: 12,
+      target_size: 900,
+      tags: TagList::from(["tag1", "tag2", "tag3", "tag4", "tag5", "tag6"]),
+    };
+
+    if let Err(keywich_lib::errors::Error::ValidationError(errors)) =
+      profile_db.insert_key(key_data).await
+    {
+      assert_eq!(4, errors.errors().len())
+    } else {
+      assert!(false)
+    }
   }
 
   #[tokio::test]
@@ -110,7 +133,6 @@ mod tests {
           charset: "a..z0..9".into(),
           revision: 13,
           target_size: 13,
-          pinned: true,
           tags: TagList::from(["tag4", "tag5", "tag6", "tag7", "tag8"]),
         },
       )

@@ -1,14 +1,15 @@
 <script lang="ts">
   import UploadIcon from "../../icons/upload.svelte";
-  import type {CharsetItem, KeyRequest, PropertyError} from "@keywich/api";
+  import type {CharsetItem, KeyRequest} from "@keywich/api";
   import type {ModalActionResult} from "./types";
+  import type {ValidationError} from "../../utils";
   import {FileDropzone, getModalStore, InputChip, ProgressRadial, RangeSlider} from "@skeletonlabs/skeleton";
   import {Log} from "../../logger";
   import {ModalAction} from "./types";
   import {RPC} from "../../rpc";
   import {getToastStore, i18nStore} from "../../stores";
+  import {is_error_response, is_null_or_empty, is_validation_error_response, or_default} from "@keywich/api/utils";
   import {onDestroy, onMount} from "svelte";
-  import {is_null_or_empty, or_default} from "@keywich/api/utils";
 
   const modal_store = getModalStore();
   const toast_store = getToastStore();
@@ -16,7 +17,7 @@
   const max_pass_len: number = 64;
 
   let charset_list: CharsetItem[] = [];
-  let errors: PropertyError<KeyRequest> = {};
+  let field_errors: ValidationError<KeyRequest> = {};
   let form_element: HTMLFormElement;
   let icon_url: string | undefined;
   let icon: File | null = null;
@@ -30,6 +31,10 @@
     } catch (err) {
       Log.error(err);
       toast_store.trigger_error($i18nStore.get_key("i18:/key-form/errors/charset-error", "Unable to load charset list."));
+
+      if (is_error_response(err)) {
+        toast_store.trigger_error($i18nStore.get_key(`i18:/errors/${err.code}`, err.message));
+      }
     }
   });
 
@@ -92,12 +97,16 @@
   async function on_submit() {
     const modal_inst = $modal_store[0];
     if (!modal_inst) {
-      Log.error(new Error("Submit failed. Modal component is created but unable to access modal itself."));
+      Log.error("Submit failed. Modal component is created but unable to access modal itself.");
       return;
     }
 
     if (!form_element) {
-      Log.error(new Error("Key form ref is empty."));
+      Log.error("Key form ref is empty.");
+      return;
+    }
+
+    if (!form_element.reportValidity()) {
       return;
     }
 
@@ -115,7 +124,16 @@
       modal_store.close();
     } catch (err) {
       Log.error(err);
-      toast_store.trigger_error("failed");
+
+      if (is_error_response(err)) {
+        toast_store.trigger_error($i18nStore.get_key(`i18:/errors/${err.code}`, err.message));
+
+        if (is_validation_error_response(err)) {
+          field_errors = err.fields;
+        }
+      } else {
+        toast_store.trigger_error($i18nStore.get_key("i18:/key-form/unknown-error", "Key create failed."));
+      }
     }
   }
 
@@ -146,7 +164,7 @@
         <label class="label">
           <span class="font-bold">{$i18nStore.get_key("i18:/key-form/labels/domain", "Domain")}</span>
           <input
-              class:input-error={errors.domain}
+              class:input-error={field_errors.domain}
               class="input"
               name="domain"
               type="text"
@@ -154,10 +172,12 @@
               required
           />
         </label>
-        {#if errors.domain}
+        {#if field_errors.domain}
           <ul class="m-1 font-light text-sm text-error-500-400-token list-disc list-inside">
-            {#each errors.domain as error}
-              <li> {error}</li>
+            {#each field_errors.domain as error}
+              <li>
+                {$i18nStore.get_key(`i18:/field-errors/${error.code}?field=charset&$noCache`, error.message ?? "")}
+              </li>
             {/each}
           </ul>
         {/if}
@@ -167,7 +187,7 @@
         <label class="label">
           <span class="font-bold">{$i18nStore.get_key("i18:/key-form/labels/username", "Username")}</span>
           <input
-              class:input-error={errors.username}
+              class:input-error={field_errors.username}
               class="input"
               type="text"
               name="username"
@@ -175,10 +195,12 @@
               required
           />
         </label>
-        {#if errors.username}
+        {#if field_errors.username}
           <ul class="m-1 font-light text-sm text-error-500-400-token list-disc list-inside">
-            {#each errors.username as error}
-              <li>{error}</li>
+            {#each field_errors.username as error}
+              <li>
+                {$i18nStore.get_key(`i18:/field-errors/${error.code}?field=charset&$noCache`, error.message ?? "")}
+              </li>
             {/each}
           </ul>
         {/if}
@@ -188,7 +210,7 @@
         <label class="label" for="charset">
           <span class="font-bold">{$i18nStore.get_key("i18:/key-form/labels/charset", "Charset")}</span>
           <select
-              class:input-error={errors.charset}
+              class:input-error={field_errors.charset}
               class="select"
               name="charset"
               required
@@ -200,10 +222,12 @@
             {/each}
           </select>
         </label>
-        {#if errors.charset}
+        {#if field_errors.charset}
           <ul class="m-1 font-light text-sm text-error-500-400-token list-disc list-inside">
-            {#each errors.charset as error}
-              <li>{error}</li>
+            {#each field_errors.charset as error}
+              <li>
+                {$i18nStore.get_key(`i18:/field-errors/${error.code}?field=charset&$noCache`, error.message ?? "")}
+              </li>
             {/each}
           </ul>
         {/if}
@@ -223,10 +247,12 @@
         <div class="flex justify-end items-center">
           <div class=" text-xs">{slider_value} / {max_pass_len}</div>
         </div>
-        {#if errors.target_size}
+        {#if field_errors.target_size}
           <ul class="m-1 font-light text-sm text-error-500-400-token list-disc list-inside">
-            {#each errors.target_size as error}
-              <li> {error}</li>
+            {#each field_errors.target_size as error}
+              <li>
+                {$i18nStore.get_key(`i18:/field-errors/${error.code}?field=charset&$noCache`, error.message ?? "")}
+              </li>
             {/each}
           </ul>
         {/if}
@@ -241,10 +267,12 @@
               placeholder={$i18nStore.get_key("i18:/key-form/desc/tags", "")}
           />
         </label>
-        {#if errors.tags}
+        {#if field_errors.tags}
           <ul class="m-1 font-light text-sm text-error-500-400-token list-disc list-inside">
-            {#each errors.tags as error}
-              <li>{error}</li>
+            {#each field_errors.tags as error}
+              <li>
+                {$i18nStore.get_key(`i18:/field-errors/${error.code}?field=charset&$noCache`, error.message ?? "")}
+              </li>
             {/each}
           </ul>
         {/if}
@@ -254,7 +282,7 @@
         <label class="label">
           <span class="font-bold">{$i18nStore.get_key("i18:/key-form/labels/note", "Note")}</span>
           <textarea
-              class:input-error={errors.notes}
+              class:input-error={field_errors.notes}
               class="textarea"
               rows="4"
               name="notes"
@@ -266,10 +294,12 @@
         <div class="flex justify-end items-center">
           <div class="text-xs">{note_value?.length ?? 0} / {max_note_len}</div>
         </div>
-        {#if errors.notes}
+        {#if field_errors.notes}
           <ul class="m-1 font-light text-sm text-error-500-400-token list-disc list-inside">
-            {#each errors.notes as error}
-              <li> {error}</li>
+            {#each field_errors.notes as error}
+              <li>
+                {$i18nStore.get_key(`i18:/field-errors/${error.code}?field=charset&$noCache`, error.message ?? "")}
+              </li>
             {/each}
           </ul>
         {/if}
@@ -279,7 +309,7 @@
         <label class="label">
           <span class="font-bold">{$i18nStore.get_key("i18:/key-form/labels/revision", "Revision No")}</span>
           <input
-              class:input-error={errors.revision}
+              class:input-error={field_errors.revision}
               class="input"
               type="number"
               name="revision"
@@ -289,10 +319,12 @@
               value={0}
           />
         </label>
-        {#if errors.revision}
+        {#if field_errors.revision}
           <ul class="m-1 font-light text-sm text-error-500-400-token list-disc list-inside">
-            {#each errors.revision as error}
-              <li>{error}</li>
+            {#each field_errors.revision as error}
+              <li>
+                {$i18nStore.get_key(`i18:/field-errors/${error.code}?field=charset&$noCache`, error.message ?? "")}
+              </li>
             {/each}
           </ul>
         {/if}
@@ -333,9 +365,9 @@
             </span>
           {/if}
         </label>
-        {#if errors.custom_icon}
+        {#if field_errors.custom_icon}
           <ul class="m-1 font-light text-sm text-error-500-400-token list-disc list-inside">
-            {#each errors.custom_icon as error}
+            {#each field_errors.custom_icon as error}
               <li>{error}</li>
             {/each}
           </ul>

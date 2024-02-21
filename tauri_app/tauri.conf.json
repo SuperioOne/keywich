@@ -1,10 +1,10 @@
 {
   "$schema": "./node_modules/@tauri-apps/cli/schema.json",
   "build": {
-    "beforeBuildCommand": "pnpm -C ../../gui run build",
-    "beforeDevCommand": "pnpm -C ../../gui run dev",
+    "beforeBuildCommand": "pnpm -C ../gui run build",
+    "beforeDevCommand": "pnpm -C ../gui run dev",
     "devPath": "http://localhost:5173",
-    "distDir": "../../gui/build"
+    "distDir": "../gui/build"
   },
   "package": {
     "productName": "Keywich",

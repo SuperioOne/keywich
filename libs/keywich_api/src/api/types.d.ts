@@ -1,15 +1,22 @@
-/**
- * Represents the error structure for object property validation.
- * @template T - The type of detailed error information.
- */
-export type PropertyError<T> = Partial<Record<keyof T, string[] | undefined>>
+export interface BaseErrorResponse {
+  message: string;
+  code: string;
+  details?: string;
+}
 
+export interface ValidationErrorResponse extends BaseErrorResponse {
+  fields: Record<string, FieldError[]>;
+}
+
+export type FieldErrorTypes = "charset" | "length" | "range";
+
+export type FieldError = {
+  code: FieldErrorTypes;
+  message: string | null;
+  params: Record<string, unknown>;
+}
 
 /**
  * Represents the structure of an error response.
  */
-export type ErrorResponse = {
-  message: string;
-  code: string;
-  details?: unknown;
-}
+export type ErrorResponse = BaseErrorResponse | ValidationErrorResponse;

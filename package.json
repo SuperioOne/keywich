@@ -8,9 +8,9 @@
   "author": "",
   "license": "ISC",
   "scripts": {
-    "dev:desktop": "pnpm -C ./apps/desktop run dev",
+    "dev:desktop": "pnpm -C ./tauri_app run dev",
     "dev:gui": "pnpm -C ./gui run dev",
-    "build:desktop": "pnpm -C ./apps/desktop run build",
+    "build:desktop": "pnpm -C ./tauri_app run build",
     "build:gui": "pnpm -C ./gui run build"
   }
 }
