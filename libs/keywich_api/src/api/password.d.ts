@@ -2,7 +2,6 @@ export type  PasswordOutputType = "Json" | "Base64" | "Text" | "Qr";
 
 export interface PasswordRequest {
   profile_id: number;
-  content: string;
   output_type: PasswordOutputType
 }
 

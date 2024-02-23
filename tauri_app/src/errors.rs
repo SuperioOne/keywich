@@ -1,7 +1,7 @@
 use keywich_lib::ValidationErrors;
 use serde::ser::SerializeStruct;
 use serde::{Serialize, Serializer};
-use std::fmt::{Debug, Display, Formatter, Write};
+use std::fmt::{Debug, Display, Formatter};
 
 #[derive(Debug)]
 pub enum AppErrors {
@@ -17,8 +17,14 @@ pub enum AppErrors {
   ConfigPathFailed,
   LocalePathFailed,
   ContentPathFailed,
+  DbNotInitialized,
   IconReadFailed(String),
+  RwLockFailed,
   IconResizeFailed(String),
+
+  KeyringFailure(String),
+  NoKeyEntry,
+  DuplicateKeyEntry,
 }
 
 impl AppErrors {
@@ -36,6 +42,11 @@ impl AppErrors {
       AppErrors::KeyNotFound => 202,
       AppErrors::IconReadFailed(_) => 203,
       AppErrors::IconResizeFailed(_) => 204,
+      AppErrors::RwLockFailed => 205,
+      AppErrors::DbNotInitialized => 206,
+      AppErrors::KeyringFailure(_) => 207,
+      AppErrors::NoKeyEntry => 208,
+      AppErrors::DuplicateKeyEntry => 209,
 
       // Potential OS issues (400-599)
       AppErrors::LocalDataDirNotFound => 400,
@@ -71,6 +82,28 @@ impl From<keywich_lib::errors::Error> for AppErrors {
   }
 }
 
+impl From<keyring::Error> for AppErrors {
+  fn from(value: keyring::Error) -> Self {
+    match value {
+      keyring::Error::NoStorageAccess(_) => {
+        AppErrors::KeyringFailure(String::from("Unable to access keyring."))
+      }
+      keyring::Error::NoEntry => AppErrors::NoKeyEntry,
+      keyring::Error::BadEncoding(_) => {
+        AppErrors::KeyringFailure(String::from("Keyring entry bad encoding."))
+      }
+      keyring::Error::TooLong(_, _) => {
+        AppErrors::KeyringFailure(String::from("Keyring entry is too long."))
+      }
+      keyring::Error::Invalid(_, _) => {
+        AppErrors::KeyringFailure(String::from("Invalid keyring entry."))
+      }
+      keyring::Error::Ambiguous(_) => AppErrors::DuplicateKeyEntry,
+      err => AppErrors::KeyringFailure(err.to_string()),
+    }
+  }
+}
+
 impl Display for AppErrors {
   fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
     let message = match self {
@@ -88,6 +121,11 @@ impl Display for AppErrors {
       AppErrors::ContentPathFailed => "ContentPathFailed",
       AppErrors::IconReadFailed(_) => "IconReadFailed",
       AppErrors::IconResizeFailed(_) => "IconResizeFailed",
+      AppErrors::DbNotInitialized => "DbNotInitialized",
+      AppErrors::RwLockFailed => "RwLockFailed",
+      AppErrors::KeyringFailure(_) => "KeyringFailure",
+      AppErrors::NoKeyEntry => "NoKeyEntry",
+      AppErrors::DuplicateKeyEntry => "DuplicateKeyEntry",
     };
 
     f.write_str(message)

@@ -1,25 +1,18 @@
 import type {SearchQuery} from "@keywich/api";
-import type {PageLoad} from './$types';
-import {Log, type TokenType, type TokenTypeName} from "$lib";
+import type {PageLoad} from "./$types";
+import type {TokenType, TokenTypeName} from "$lib";
 import {RPC} from "$lib";
 
 export const load: PageLoad = async ({url}) => {
-  try {
+  const filter = get_filter(url);
+  const keys = filter?.keyFilter
+    ? await RPC.search_keys(filter.keyFilter)
+    : await RPC.get_keys();
 
-
-    const filter = get_filter(url);
-
-    const keys = filter?.keyFilter
-      ? await RPC.search_keys(filter.keyFilter)
-      : await RPC.get_keys();
-
-    return {
-      keys: keys,
-      tokens: filter?.tokens
-    };
-  } catch (err) {
-    Log.error(err);
-  }
+  return {
+    keys: keys,
+    tokens: filter?.tokens
+  };
 };
 
 type FilterObject = {

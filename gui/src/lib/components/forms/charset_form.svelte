@@ -11,6 +11,7 @@
 
   let field_errors: ValidationError<CharsetOptions> = {};
   let form_element: HTMLFormElement;
+  let submitting: boolean = false;
 
   const modal_store = getModalStore();
   const toast_store = getToastStore();
@@ -178,7 +179,10 @@
       <button
           type="button"
           class="btn variant-filled-primary"
-          on:click={on_submit}
+          on:click={()=> {
+            submitting = true;
+            on_submit().finally(()=> { submitting = false;})
+          }}
       >
         <span>{$i18nStore.get_key("i18:/generic/confirm", "Confirm")}</span>
       </button>

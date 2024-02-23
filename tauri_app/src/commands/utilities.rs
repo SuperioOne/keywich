@@ -1,5 +1,5 @@
 use crate::errors::AppErrors;
-use crate::AppRpcState;
+use crate::AppDbState;
 use image::imageops::FilterType;
 use image::ImageFormat;
 use std::collections::HashSet;
@@ -32,7 +32,6 @@ pub async fn get_locale_path(handle: AppHandle, locale: String) -> Result<String
 
 #[tauri::command(rename_all = "snake_case")]
 pub async fn process_icon(handle: AppHandle, file_path: String) -> Result<String, AppErrors> {
-  println!("{}", &file_path);
   let src_path = std::path::Path::new(&file_path);
 
   if src_path.is_file() {
@@ -56,7 +55,6 @@ pub async fn process_icon(handle: AppHandle, file_path: String) -> Result<String
     dest_path.push(&file_name);
 
     let resized = image_file.resize(128, 128, FilterType::Triangle);
-    println!("Image resized");
     resized
       .save_with_format(&dest_path, ImageFormat::Png)
       .map_err(|err| AppErrors::IconResizeFailed(err.to_string()))?;

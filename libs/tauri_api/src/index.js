@@ -208,7 +208,15 @@ const _api = {
     ]);
   },
 
-  upload_icon: upload_icon
+  upload_icon: upload_icon,
+
+  login: function (password) {
+    return invoke("unlock_db", {master_pass: password});
+  },
+
+  logout: function () {
+    return invoke("lock_db");
+  }
 }
 
 export default _api;

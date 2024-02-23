@@ -132,7 +132,7 @@
           field_errors = err.fields;
         }
       } else {
-        toast_store.trigger_error($i18nStore.get_key("i18:/key-form/unknown-error", "Key create failed."));
+        toast_store.trigger_error($i18nStore.get_key("i18:/key-form/errors/unknown-error", "Key create failed."));
       }
     }
   }
@@ -387,10 +387,9 @@
           disabled={submitting}
           type="button"
           class="btn variant-filled-primary"
-          on:click={async () => {
+          on:click={() => {
             submitting = true;
-            await on_submit();
-            submitting = false;
+            on_submit().finally(()=> {submitting = false;});
           }}
       >
         {#if submitting}

@@ -1,14 +1,14 @@
 use crate::errors::AppErrors;
-use crate::{AppRpcState, PasswordOutputType};
+use crate::{AppDbState, DbNotifier, KeyState, PasswordOutputType};
 use keywich_lib::hash::HashAlgorithm;
 use serde::Deserialize;
+use std::ops::Deref;
 use std::str::FromStr;
-use tauri::State;
+use tauri::{AppHandle, State};
 
 #[derive(Deserialize)]
 pub struct PasswordRequest {
   pub profile_id: i64,
-  pub content: String,
   pub output_type: PasswordOutputType,
 }
 
@@ -26,30 +26,49 @@ pub struct PasswordGenerateRequest {
 
 #[tauri::command(rename_all = "snake_case")]
 pub async fn generate_password_from(
-  state: State<'_, AppRpcState>,
+  state: State<'_, AppDbState>,
+  key_state: State<'_, KeyState>,
+  app: AppHandle,
   request: PasswordRequest,
 ) -> Result<String, AppErrors> {
   let PasswordRequest {
-    content,
     profile_id,
     output_type,
   } = request;
 
-  if let Some(key) = state.profile_db.get_key_by_id(profile_id).await? {
-    let target_len =
-      usize::try_from(key.target_size).map_err(|_err| AppErrors::InvalidTargetLength)?;
-    let config = keywich_lib::PasswordConfig {
-      password: &content,
-      revision: key.revision,
-      domain: &key.domain,
-      username: &key.username,
-      charset: &key.charset,
-      target_len,
-    };
+  let password = match key_state.entry.get_password() {
+    Ok(password) => password,
+    Err(err @ keyring::Error::NoEntry) => {
+      let _ = app.notify_db_status();
+      return Err(err.into());
+    }
+    Err(err) => {
+      return Err(err.into());
+    }
+  };
 
-    generate(config, output_type, Some(&key.version))
+  let read_lock = state.profile_db.read().await;
+  
+  if let Some(profile_db) = read_lock.deref() {
+    if let Some(key) = profile_db.get_key_by_id(profile_id).await? {
+      let target_len =
+        usize::try_from(key.target_size).map_err(|_err| AppErrors::InvalidTargetLength)?;
+      let config = keywich_lib::PasswordConfig {
+        password: &password,
+        revision: key.revision,
+        domain: &key.domain,
+        username: &key.username,
+        charset: &key.charset,
+        target_len,
+      };
+
+      generate(config, output_type, Some(&key.version))
+    } else {
+      Err(AppErrors::KeyNotFound)
+    }
   } else {
-    Err(AppErrors::KeyNotFound)
+    let _ = app.notify_db_status();
+    Err(AppErrors::DbNotInitialized)
   }
 }
 
@@ -66,8 +85,7 @@ pub fn generate_password(request: PasswordGenerateRequest) -> Result<String, App
     target_len,
   } = request;
 
-  let target_len =
-    usize::try_from(target_len).map_err(|_err| AppErrors::InvalidTargetLength)?;
+  let target_len = usize::try_from(target_len).map_err(|_err| AppErrors::InvalidTargetLength)?;
 
   let config = keywich_lib::PasswordConfig {
     charset: &charset,

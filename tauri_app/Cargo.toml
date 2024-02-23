@@ -23,6 +23,7 @@ uuid = { version = "1.7.0", features = ["v7"] }
 image = { version = "0.24.8", features = ["jpeg", "png", "webp", "rgb"], default-features = false }
 percent-encoding = "2.3.1"
 const_format = "0.2.32"
+keyring = { features = ["platform-freebsd", "platform-linux", "platform-windows", "platform-macos", "platform-openbsd"] }
 
 [features]
 # by default Tauri runs in production mode

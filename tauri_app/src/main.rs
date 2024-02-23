@@ -10,6 +10,7 @@ mod icon_scheme;
 use crate::commands::password::generate;
 use crate::icon_scheme::{icon_protocol_handler, ICON_PROTOCOL};
 use clap::{Parser, Subcommand, ValueEnum};
+use keyring::Entry;
 use keywich_lib::profile::ProfileDB;
 use keywich_lib::PasswordConfig;
 use serde::Deserialize;
@@ -18,7 +19,9 @@ use std::fmt::Debug;
 use std::io;
 use std::io::{stdin, Write};
 use std::path::Path;
-use tauri::Manager;
+use std::sync::Arc;
+use tauri::async_runtime::RwLock;
+use tauri::{AppHandle, Manager};
 
 #[derive(Debug, Parser)] // requires `derive` feature
 #[command(name = "keywich")]
@@ -73,8 +76,23 @@ pub enum PasswordOutputType {
   Qr,
 }
 
-pub(crate) struct AppRpcState {
-  pub profile_db: ProfileDB,
+pub(crate) struct AppDbState {
+  pub profile_db: Arc<RwLock<Option<ProfileDB>>>,
+}
+
+pub(crate) struct KeyState {
+  entry: Arc<Entry>,
+}
+
+trait DbNotifier {
+  fn notify_db_status(&self) -> Result<(), tauri::Error>;
+}
+
+impl DbNotifier for AppHandle {
+  fn notify_db_status(&self) -> Result<(), tauri::Error> {
+    let _ = self.emit_all("unlock_required", ())?;
+    Ok(())
+  }
 }
 
 fn main() {
@@ -89,12 +107,7 @@ fn start_gui() {
   tauri::Builder::default()
     .setup(|app| {
       let app_data_dir = &app.path_resolver().app_data_dir().unwrap();
-      let db_path = Path::join(&app_data_dir, "app.db");
-      let path_str = db_path.to_str().unwrap();
-      let connection_string = format!("sqlite:{}", path_str);
-      let profile_db =
-        tauri::async_runtime::block_on(ProfileDB::connect(&connection_string)).unwrap();
-
+      let keyring_entry = Entry::new("keywich", "mdb")?;
       let config_file = Path::join(&app_data_dir, "config.json");
 
       if !config_file.exists() {
@@ -103,7 +116,12 @@ fn start_gui() {
         fs.flush().unwrap();
       }
 
-      app.manage(AppRpcState { profile_db });
+      app.manage(AppDbState {
+        profile_db: Arc::from(RwLock::from(None)),
+      });
+      app.manage(KeyState {
+        entry: Arc::from(keyring_entry),
+      });
 
       Ok(())
     })

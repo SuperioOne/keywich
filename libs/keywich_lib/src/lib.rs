@@ -2,6 +2,8 @@ pub mod charset;
 pub mod errors;
 pub mod hash;
 
+pub use scrypt;
+
 #[cfg(feature = "profile")]
 pub mod profile;
 
@@ -48,7 +50,7 @@ impl PasswordResult {
   pub fn to_base64(self) -> String {
     use base64::Engine as _;
 
-    base64::engine::general_purpose::STANDARD_NO_PAD.encode(self.pass)
+    base64::engine::general_purpose::STANDARD.encode(self.pass)
   }
 
   #[cfg(feature = "qr")]

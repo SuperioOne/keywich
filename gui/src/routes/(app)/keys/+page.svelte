@@ -78,7 +78,6 @@
   async function quick_copy(event: CustomEvent<KeyItem>) {
     try {
       const result = await RPC.generate_password_from({
-        content: "test",
         profile_id: event.detail.id,
         output_type: "Text"
       });

@@ -13,8 +13,13 @@ pub struct ProfileDB {
   pool: SqlitePool,
 }
 
+pub enum SqlitePassphrase {
+  Text(String),
+  Hex(String),
+}
+
 pub struct ProfileDBSqliteOptions {
-  pub password: Option<String>,
+  pub password: Option<SqlitePassphrase>,
   pub busy_timeout: Option<Duration>,
   pub disable_migrate: bool,
 }
@@ -52,9 +57,11 @@ impl ProfileDB {
       .busy_timeout(busy_timeout.unwrap_or(Duration::from_secs(30)))
       .read_only(false);
 
-    if let Some(pass) = password {
-      options = options.pragma("key", pass);
-    }
+    options = match password {
+      Some(SqlitePassphrase::Text(raw_text)) => options.pragma("key", raw_text),
+      Some(SqlitePassphrase::Hex(hex_text)) => options.pragma("hexkey", hex_text),
+      None => options,
+    };
 
     let pool = SqlitePool::connect_with(options).await?;
 

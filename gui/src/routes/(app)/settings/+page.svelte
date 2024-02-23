@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type {PageData} from "./$types";
+  import type {PageData} from "../../../../.svelte-kit/types/src/routes";
   import {i18nStore} from "$lib";
   import {ListBox, ListBoxItem} from "@skeletonlabs/skeleton";
   import AppearanceSettings from "./settings_appearance.svelte";

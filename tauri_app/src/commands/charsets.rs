@@ -1,25 +1,55 @@
 use crate::errors::AppErrors;
-use crate::AppRpcState;
+use crate::{AppDbState, DbNotifier};
 use keywich_lib::profile::charsets::CharsetItem;
-use tauri::State;
+use std::ops::Deref;
+use tauri::{AppHandle, State};
 
 #[tauri::command(rename_all = "snake_case")]
-pub async fn get_charsets(state: State<'_, AppRpcState>) -> Result<Vec<CharsetItem>, AppErrors> {
-  let result = state.profile_db.get_charsets().await?;
-  Ok(result)
+pub async fn get_charsets(
+  state: State<'_, AppDbState>,
+  app: AppHandle,
+) -> Result<Vec<CharsetItem>, AppErrors> {
+  let read_lock = state.profile_db.read().await;
+
+  if let Some(profile_db) = read_lock.deref() {
+    let result = profile_db.get_charsets().await?;
+    Ok(result)
+  } else {
+    let _ = app.notify_db_status();
+    Err(AppErrors::DbNotInitialized)
+  }
 }
 
 #[tauri::command(rename_all = "snake_case")]
 pub async fn insert_charset(
-  state: State<'_, AppRpcState>,
+  state: State<'_, AppDbState>,
+  app: AppHandle,
   charset: CharsetItem,
 ) -> Result<String, AppErrors> {
-  let result = state.profile_db.insert_charset(charset).await?;
-  Ok(result)
+  let read_lock = state.profile_db.read().await;
+
+  if let Some(profile_db) = read_lock.deref() {
+    let result = profile_db.insert_charset(charset).await?;
+    Ok(result)
+  } else {
+    let _ = app.notify_db_status();
+    Err(AppErrors::DbNotInitialized)
+  }
 }
 
 #[tauri::command(rename_all = "snake_case")]
-pub async fn delete_charset(state: State<'_, AppRpcState>, name: String) -> Result<(), AppErrors> {
-  state.profile_db.delete_charset(&name).await?;
-  Ok(())
+pub async fn delete_charset(
+  state: State<'_, AppDbState>,
+  app: AppHandle,
+  name: String,
+) -> Result<(), AppErrors> {
+  let read_lock = state.profile_db.read().await;
+
+  if let Some(profile_db) = read_lock.deref() {
+    profile_db.delete_charset(&name).await?;
+    Ok(())
+  } else {
+    let _ = app.notify_db_status();
+    Err(AppErrors::DbNotInitialized)
+  }
 }

@@ -1,4 +1,4 @@
-import type {LogLevelType} from "$lib";
+import {Log, type LogLevelType} from "$lib";
 import {
   ApplicationSink,
   ConsoleSink,
@@ -11,6 +11,7 @@ import {
 } from "$lib";
 import {env} from "$env/dynamic/public";
 import {or_default} from "@keywich/api/utils";
+import {goto} from "$app/navigation";
 
 const LOG_LEVEL: LogLevelType = or_default(try_parse_log_level(env.PUBLIC_KW_LOG_LEVEL), LogLevel.INFO);
 
@@ -26,5 +27,8 @@ RPC.get_configs().then(async (app_config) => {
   i18nStore.init_locale(locale, resources);
 });
 
-
-
+if (sessionStorage.getItem("unlocked") !== "1") {
+  goto("unlock").then(() => {
+    Log.debug("Redirecting to unlock page.");
+  })
+}

@@ -145,7 +145,7 @@
           field_errors = err.fields;
         }
       } else {
-        toast_store.trigger_error($i18nStore.get_key("i18:/key-form/unknown-update-error", "Key update failed."));
+        toast_store.trigger_error($i18nStore.get_key("i18:/key-form/errors/unknown-update-error", "Key update failed."));
       }
     }
   }
@@ -447,10 +447,9 @@
           disabled={submitting}
           type="button"
           class="btn variant-filled-primary"
-          on:click={async () => {
+          on:click={() => {
             submitting = true;
-            await on_submit();
-            submitting = false;
+            on_submit().finally(()=> {submitting = false;});
           }}
       >
         {#if submitting}

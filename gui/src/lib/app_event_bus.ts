@@ -13,6 +13,7 @@ export class AppEvent<T> extends CustomEvent<T> {
 
 class AppEventBus {
   #base: EventTarget;
+
   constructor() {
     this.#base = new EventTarget();
   }

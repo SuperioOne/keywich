@@ -1,96 +1,178 @@
 use crate::errors::AppErrors;
-use crate::AppRpcState;
+use crate::{AppDbState, DbNotifier};
 use keywich_lib::profile::keys::{KeyData, KeyItem, SearchQuery};
+use std::ops::Deref;
 use tauri::{AppHandle, State};
 
 #[tauri::command(rename_all = "snake_case")]
-pub async fn get_keys(state: State<'_, AppRpcState>) -> Result<Vec<KeyItem>, AppErrors> {
-  let keys = state.profile_db.get_keys(false).await?;
-  Ok(keys)
+pub async fn get_keys(
+  state: State<'_, AppDbState>,
+  app: AppHandle,
+) -> Result<Vec<KeyItem>, AppErrors> {
+  let read_lock = state.profile_db.read().await;
+
+  if let Some(profile_db) = read_lock.deref() {
+    let keys = profile_db.get_keys(false).await?;
+    Ok(keys)
+  } else {
+    let _ = app.notify_db_status();
+    Err(AppErrors::DbNotInitialized)
+  }
 }
 
 #[tauri::command(rename_all = "snake_case")]
-pub async fn get_pinned_keys(state: State<'_, AppRpcState>) -> Result<Vec<KeyItem>, AppErrors> {
-  let keys = state.profile_db.get_keys(true).await?;
-  Ok(keys)
+pub async fn get_pinned_keys(
+  state: State<'_, AppDbState>,
+  app: AppHandle,
+) -> Result<Vec<KeyItem>, AppErrors> {
+  let read_lock = state.profile_db.read().await;
+
+  if let Some(profile_db) = read_lock.deref() {
+    let keys = profile_db.get_keys(true).await?;
+    Ok(keys)
+  } else {
+    let _ = app.notify_db_status();
+    Err(AppErrors::DbNotInitialized)
+  }
 }
 
 #[tauri::command(rename_all = "snake_case")]
 pub async fn search_keys(
-  state: State<'_, AppRpcState>,
+  state: State<'_, AppDbState>,
+  app: AppHandle,
   query: SearchQuery,
 ) -> Result<Vec<KeyItem>, AppErrors> {
-  let keys = state.profile_db.search_keys(query).await?;
-  Ok(keys)
+  let read_lock = state.profile_db.read().await;
+
+  if let Some(profile_db) = read_lock.deref() {
+    let keys = profile_db.search_keys(query).await?;
+    Ok(keys)
+  } else {
+    let _ = app.notify_db_status();
+    Err(AppErrors::DbNotInitialized)
+  }
 }
 
 #[tauri::command(rename_all = "snake_case")]
 pub async fn delete_key(
-  handle: AppHandle,
-  state: State<'_, AppRpcState>,
+  state: State<'_, AppDbState>,
+  app: AppHandle,
   key_id: i64,
 ) -> Result<(), AppErrors> {
-  if let Some(key_data) = state.profile_db.get_key_by_id(key_id).await? {
-    if let Some(icon_name) = key_data.custom_icon {
-      delete_icon(&handle, &icon_name)?;
-    }
+  let read_lock = state.profile_db.read().await;
 
-    state.profile_db.delete_key(key_id).await?;
-    Ok(())
+  if let Some(profile_db) = read_lock.deref() {
+    if let Some(key_data) = profile_db.get_key_by_id(key_id).await? {
+      if let Some(icon_name) = key_data.custom_icon {
+        delete_icon(&app, &icon_name)?;
+      }
+      profile_db.delete_key(key_id).await?;
+      Ok(())
+    } else {
+      Err(AppErrors::KeyNotFound)
+    }
   } else {
-    Err(AppErrors::KeyNotFound)
+    let _ = app.notify_db_status();
+    Err(AppErrors::DbNotInitialized)
   }
 }
 
 #[tauri::command(rename_all = "snake_case")]
-pub async fn insert_key(state: State<'_, AppRpcState>, data: KeyData) -> Result<i64, AppErrors> {
-  let result = state.profile_db.insert_key(data).await?;
-  Ok(result)
+pub async fn insert_key(
+  state: State<'_, AppDbState>,
+  app: AppHandle,
+  data: KeyData,
+) -> Result<i64, AppErrors> {
+  let read_lock = state.profile_db.read().await;
+
+  if let Some(profile_db) = read_lock.deref() {
+    let result = profile_db.insert_key(data).await?;
+    Ok(result)
+  } else {
+    let _ = app.notify_db_status();
+    Err(AppErrors::DbNotInitialized)
+  }
 }
 
 #[tauri::command(rename_all = "snake_case")]
 pub async fn update_key(
-  handle: AppHandle,
-  state: State<'_, AppRpcState>,
+  app: AppHandle,
+  state: State<'_, AppDbState>,
   key_id: i64,
   data: KeyData,
 ) -> Result<(), AppErrors> {
-  if let Some(key_data) = state.profile_db.get_key_by_id(key_id).await? {
-    match &key_data.custom_icon {
-      ic @ Some(icon_name) if ic.ne(&data.custom_icon) => {
-        delete_icon(&handle, &icon_name)?;
-      }
-      _ => {}
-    }
+  let read_lock = state.profile_db.read().await;
 
-    state.profile_db.update_key(key_id, data).await?;
-    Ok(())
+  if let Some(profile_db) = read_lock.deref() {
+    if let Some(key_data) = profile_db.get_key_by_id(key_id).await? {
+      match &key_data.custom_icon {
+        ic @ Some(icon_name) if ic.ne(&data.custom_icon) => {
+          delete_icon(&app, &icon_name)?;
+        }
+        _ => {}
+      }
+      profile_db.update_key(key_id, data).await?;
+      Ok(())
+    } else {
+      Err(AppErrors::KeyNotFound)
+    }
   } else {
-    Err(AppErrors::KeyNotFound)
+    let _ = app.notify_db_status();
+    Err(AppErrors::DbNotInitialized)
   }
 }
 
 #[tauri::command(rename_all = "snake_case")]
-pub async fn pin_key(state: State<'_, AppRpcState>, key_id: i64) -> Result<(), AppErrors> {
-  state.profile_db.update_pin_status(key_id, true).await?;
-  Ok(())
+pub async fn pin_key(
+  state: State<'_, AppDbState>,
+  app: AppHandle,
+  key_id: i64,
+) -> Result<(), AppErrors> {
+  let read_lock = state.profile_db.read().await;
+
+  if let Some(profile_db) = read_lock.deref() {
+    profile_db.update_pin_status(key_id, true).await?;
+    Ok(())
+  } else {
+    let _ = app.notify_db_status();
+    Err(AppErrors::DbNotInitialized)
+  }
 }
 
 #[tauri::command(rename_all = "snake_case")]
-pub async fn unpin_key(state: State<'_, AppRpcState>, key_id: i64) -> Result<(), AppErrors> {
-  state.profile_db.update_pin_status(key_id, false).await?;
-  Ok(())
+pub async fn unpin_key(
+  state: State<'_, AppDbState>,
+  app: AppHandle,
+  key_id: i64,
+) -> Result<(), AppErrors> {
+  let read_lock = state.profile_db.read().await;
+
+  if let Some(profile_db) = read_lock.deref() {
+    profile_db.update_pin_status(key_id, false).await?;
+    Ok(())
+  } else {
+    let _ = app.notify_db_status();
+    Err(AppErrors::DbNotInitialized)
+  }
 }
 
 #[tauri::command(rename_all = "snake_case")]
 pub async fn get_key_by_id(
-  state: State<'_, AppRpcState>,
+  state: State<'_, AppDbState>,
+  app: AppHandle,
   key_id: i64,
 ) -> Result<KeyItem, AppErrors> {
-  if let Some(key) = state.profile_db.get_key_by_id(key_id).await? {
-    Ok(key)
+  let read_lock = state.profile_db.read().await;
+
+  if let Some(profile_db) = read_lock.deref() {
+    if let Some(key) = profile_db.get_key_by_id(key_id).await? {
+      Ok(key)
+    } else {
+      Err(AppErrors::KeyNotFound)
+    }
   } else {
-    Err(AppErrors::KeyNotFound)
+    let _ = app.notify_db_status();
+    Err(AppErrors::DbNotInitialized)
   }
 }
 

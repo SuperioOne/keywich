@@ -26,7 +26,6 @@
       display = {state: "loading"};
 
       const result = await RPC.generate_password_from({
-        content: "test",
         output_type: output_type === "UriEncoded" ? "Text" : output_type,
         profile_id: keyId
       });
