@@ -21,3 +21,18 @@ export interface KeywichRpcApi extends KeysRpcApi,
   AccountRpcApi {
 }
 
+export type AppEvent<T, EType> = {
+  payload: T,
+  name: EType
+}
+
+export interface AppEventBus<EType> {
+
+  addListener<T = unknown>(type: EType, callback: (event: AppEvent<T, EType>) => void): Promise<number>;
+
+  emit<T = unknown>(event_name: EType, payload?: T): void;
+
+  removeListener(id: number): void;
+
+  removeAll(): void;
+}

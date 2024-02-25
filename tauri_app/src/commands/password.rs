@@ -39,7 +39,7 @@ pub async fn generate_password_from(
   let password = match key_state.entry.get_password() {
     Ok(password) => password,
     Err(err @ keyring::Error::NoEntry) => {
-      let _ = app.notify_db_status();
+      let _ = app.emit_unlock_required();
       return Err(err.into());
     }
     Err(err) => {
@@ -48,7 +48,7 @@ pub async fn generate_password_from(
   };
 
   let read_lock = state.profile_db.read().await;
-  
+
   if let Some(profile_db) = read_lock.deref() {
     if let Some(key) = profile_db.get_key_by_id(profile_id).await? {
       let target_len =
@@ -67,7 +67,7 @@ pub async fn generate_password_from(
       Err(AppErrors::KeyNotFound)
     }
   } else {
-    let _ = app.notify_db_status();
+    let _ = app.emit_unlock_required();
     Err(AppErrors::DbNotInitialized)
   }
 }

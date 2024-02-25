@@ -19,6 +19,7 @@
   let charset_list: CharsetItem[] = [];
   let field_errors: ValidationError<KeyRequest> = {};
   let form_element: HTMLFormElement;
+  let icon_element: HTMLInputElement;
   let icon_url: string | undefined;
   let icon: File | null = null;
   let slider_value: number = 32;
@@ -51,6 +52,8 @@
   function on_clear_icon() {
     icon_url = undefined;
     icon = null;
+    icon_element.files = null;
+    icon_element.value = "";
   }
 
   function on_popup_close() {
@@ -176,7 +179,7 @@
           <ul class="m-1 font-light text-sm text-error-500-400-token list-disc list-inside">
             {#each field_errors.domain as error}
               <li>
-                {$i18nStore.get_key(`i18:/field-errors/${error.code}?field=charset&$noCache`, error.message ?? "")}
+                {$i18nStore.get_key(`i18:/field-errors/${error.code}`, error.message ?? "")}
               </li>
             {/each}
           </ul>
@@ -199,7 +202,7 @@
           <ul class="m-1 font-light text-sm text-error-500-400-token list-disc list-inside">
             {#each field_errors.username as error}
               <li>
-                {$i18nStore.get_key(`i18:/field-errors/${error.code}?field=charset&$noCache`, error.message ?? "")}
+                {$i18nStore.get_key(`i18:/field-errors/${error.code}`, error.message ?? "")}
               </li>
             {/each}
           </ul>
@@ -226,7 +229,7 @@
           <ul class="m-1 font-light text-sm text-error-500-400-token list-disc list-inside">
             {#each field_errors.charset as error}
               <li>
-                {$i18nStore.get_key(`i18:/field-errors/${error.code}?field=charset&$noCache`, error.message ?? "")}
+                {$i18nStore.get_key(`i18:/field-errors/${error.code}`, error.message ?? "")}
               </li>
             {/each}
           </ul>
@@ -251,7 +254,7 @@
           <ul class="m-1 font-light text-sm text-error-500-400-token list-disc list-inside">
             {#each field_errors.target_size as error}
               <li>
-                {$i18nStore.get_key(`i18:/field-errors/${error.code}?field=charset&$noCache`, error.message ?? "")}
+                {$i18nStore.get_key(`i18:/field-errors/${error.code}`, error.message ?? "")}
               </li>
             {/each}
           </ul>
@@ -271,7 +274,7 @@
           <ul class="m-1 font-light text-sm text-error-500-400-token list-disc list-inside">
             {#each field_errors.tags as error}
               <li>
-                {$i18nStore.get_key(`i18:/field-errors/${error.code}?field=charset&$noCache`, error.message ?? "")}
+                {$i18nStore.get_key(`i18:/field-errors/${error.code}`, error.message ?? "")}
               </li>
             {/each}
           </ul>
@@ -298,7 +301,7 @@
           <ul class="m-1 font-light text-sm text-error-500-400-token list-disc list-inside">
             {#each field_errors.notes as error}
               <li>
-                {$i18nStore.get_key(`i18:/field-errors/${error.code}?field=charset&$noCache`, error.message ?? "")}
+                {$i18nStore.get_key(`i18:/field-errors/${error.code}`, error.message ?? "")}
               </li>
             {/each}
           </ul>
@@ -323,7 +326,7 @@
           <ul class="m-1 font-light text-sm text-error-500-400-token list-disc list-inside">
             {#each field_errors.revision as error}
               <li>
-                {$i18nStore.get_key(`i18:/field-errors/${error.code}?field=charset&$noCache`, error.message ?? "")}
+                {$i18nStore.get_key(`i18:/field-errors/${error.code}`, error.message ?? "")}
               </li>
             {/each}
           </ul>
@@ -332,28 +335,25 @@
 
       <div>
         <label class="label" for="custom_icon">
-          <span class="font-bold">{$i18nStore.get_key("i18:/key-form/labels/icon", "Custom Icon")}</span>
-          <FileDropzone
-              accept="image/png, image/jpeg, image/webp"
-              on:change={on_custom_icon}
+          <span class="font-bold">
+            {$i18nStore.get_key("i18:/key-form/labels/icon", "Custom Icon")}
+          </span>
+          <input
+              bind:this={icon_element}
+              class="input"
+              type="file"
               name="custom_icon"
-          >
-            <svelte:fragment slot="lead">
-              <div class="flex flex-row justify-center items-center">
-                {#if icon_url}
-                  <img width="64px" src={icon_url} alt="icon"/>
-                {:else }
-                  <UploadIcon/>
-                {/if}
-              </div>
-            </svelte:fragment>
-            <svelte:fragment slot="message">
-              <p>
-                {$i18nStore.get_key("i18:/key-form/desc/icon", "Upload a image or drag and drop")}
-              </p>
-            </svelte:fragment>
-          </FileDropzone>
-          {#if icon !== null}
+              accept="image/png, image/jpeg"
+              on:change={on_custom_icon}
+              placeholder={$i18nStore.get_key("i18:/key-form/desc/icon", "Upload a image or drag and drop")}
+          />
+          {#if icon_url}
+            <span class="font-bold inline-block py-2">
+              {$i18nStore.get_key("i18:/generic/preview", "Preview")}
+            </span>
+            <span class="card p-3 flex flex-col justify-center items-center">
+              <img width="128px" src={icon_url} alt="icon"/>
+            </span>
             <span class="flex flex-row justify-end py-2">
               <button
                   type="button"
@@ -368,7 +368,9 @@
         {#if field_errors.custom_icon}
           <ul class="m-1 font-light text-sm text-error-500-400-token list-disc list-inside">
             {#each field_errors.custom_icon as error}
-              <li>{error}</li>
+              <li>
+                {$i18nStore.get_key(`i18:/field-errors/${error.code}`, error.message ?? "")}
+              </li>
             {/each}
           </ul>
         {/if}

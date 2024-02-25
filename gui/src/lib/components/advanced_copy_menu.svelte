@@ -9,17 +9,31 @@
   import {Log} from "../logger";
   import {RPC} from "../rpc";
   import {i18nStore} from "../stores/i18n_store";
+  import {getToastStore} from "../stores/extended_toast_store";
+  import {is_error_response} from "@keywich/api/utils";
+  import {onDestroy} from "svelte";
 
   type OutType = PasswordOutputType | "UriEncoded";
   type DisplayData =
-    { state: "completed", display: string, raw: string, type: OutType } |
+    { state: "completed", display_data: string, type: "Json" | "Base64" | "Text" | "UriEncoded" } |
+    { state: "completed", display_data: string, raw_data: Uint8Array, type: "Qr" } |
     { state: "loading" } |
     { state: "failed", message: string }
 
   export let keyId: number;
 
   const modal_store = getModalStore();
+  const toast_store = getToastStore()
   let display: DisplayData;
+
+  onDestroy(() => try_revoke_qr());
+
+  function try_revoke_qr() {
+    if (display && display.state === "completed" && display.type === "Qr" && display.display_data) {
+      Log.debug("Removed QR URL");
+      URL.revokeObjectURL(display.display_data);
+    }
+  }
 
   async function get_password(output_type: OutType) {
     try {
@@ -30,38 +44,56 @@
         profile_id: keyId
       });
 
-      let display_data: string;
+      try_revoke_qr();
+
       switch (output_type) {
         case "Qr": {
-          display_data = `data:image/svg+xml;base64,${btoa(result)}`;
+          const encoded_svg = new TextEncoder().encode(result);
+          display = {
+            type: output_type,
+            raw_data: encoded_svg,
+            state: "completed",
+            display_data: URL.createObjectURL(new Blob([encoded_svg], {type: 'image/svg+xml'}))
+          };
           break;
         }
         case "UriEncoded": {
-          display_data = encodeURIComponent(result);
+          display = {
+            type: output_type,
+            state: "completed",
+            display_data: encodeURIComponent(result)
+          };
           break;
         }
         case "Text":
         case "Base64":
         default:
-          display_data = result;
+          display = {
+            type: output_type,
+            state: "completed",
+            display_data: result
+          };
           break;
       }
-
-      display = {
-        type: output_type,
-        raw: result,
-        state: "completed",
-        display: display_data
-      };
     } catch (err) {
       Log.error(err);
       display = {state: "failed", message: "Key generation failed."};
     }
   }
 
-  async function save_qr(data: string) {
-    const buffer = new TextEncoder().encode(data);
-    await RPC.save_file(buffer);
+  async function save_qr(data: Uint8Array) {
+    try {
+      await RPC.save_file(data);
+      toast_store.trigger_success($i18nStore.get_key("i18:/actions/advanced-copy/qr-saved", "File saved."));
+    } catch (err) {
+
+      Log.error(err);
+      if (is_error_response(err)) {
+        toast_store.trigger_error($i18nStore.get_key(`i18:/errors/${err.code}`, "Save Failed."));
+      } else {
+        toast_store.trigger_error($i18nStore.get_key("i18:/actions/advanced-copy/unknown-error", "Unexpected error."));
+      }
+    }
   }
 </script>
 
@@ -73,12 +105,14 @@
 
     {:else if display?.state === "completed"}
       {#if display.type === "Qr" }
+        {@const display_url = display.display_data}
+        {@const qr_data = display.raw_data}
         <div class="card w-full overflow-hidden aspect-square">
-          <img width="100%" src={display.display} alt="qr"/>
+          <img width="100%" src={display_url} alt="qr"/>
         </div>
         <button
             class="btn variant-filled-primary cursor-pointer"
-            on:click={() => save_qr(display.raw)}
+            on:click={() => save_qr(qr_data)}
         >
           <span><DownloadIcon/></span>
           <span>{$i18nStore.get_key("i18:/generic/save", "Save")}</span>
@@ -86,7 +120,7 @@
 
       {:else }
         <div class="w-full">
-          <CodeBlock language={display.type} code={display.display}/>
+          <CodeBlock language={display.type} code={display.display_data}/>
         </div>
       {/if}
 

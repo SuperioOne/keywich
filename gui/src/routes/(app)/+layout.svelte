@@ -9,27 +9,32 @@
   import {is_error_response} from "@keywich/api/utils";
   import {goto} from "$app/navigation";
 
-  $: nav_items = [
+  const toast_store = getToastStore();
+  const nav_items = [
     {
-      label: $i18nStore.get_key("i18:/nav/home", "Home"),
+      label_key: "i18:/nav/home",
+      default_label: "Home",
       target: "/",
+      target_id: "/(app)",
       icon: HomeIcon,
     },
     {
-      label: $i18nStore.get_key("i18:/nav/keys", "Keys"),
+      label_key: "i18:/nav/keys",
+      default_label: "Keys",
       target: "/keys",
+      target_id: "/(app)/keys",
       icon: KeyIcon,
     },
     {
-      label: $i18nStore.get_key("i18:/nav/settings", "Settings"),
+      label_key: "i18:/nav/settings",
+      default_label: "Settings",
       target: "/settings",
+      target_id: "/(app)/settings",
       icon: SettingsIcon,
     },
   ];
 
   export let data: LayoutData;
-
-  const toast_store = getToastStore();
 
   function on_log_panel_close() {
     logPanelStore.close();
@@ -52,7 +57,7 @@
       }
     } finally {
       sessionStorage.removeItem("unlocked");
-      await goto("/unlock");
+      await goto("unlock");
     }
   }
 </script>
@@ -65,22 +70,21 @@
       <div class="col-span-6 flex flex-row justify-center">
         {#each nav_items as item, index (index)}
           <a
-              class:bg-initial={true}
-              class:bg-primary-active-token={data.route_id === item.target}
+              class:bg-primary-active-token={data.route_id === item.target_id}
               class="btn bg-initial bg-surface-token hover:bg-primary-hover-token rounded-none sm:w-36 flex flex-col gap-1 align-middle justify-center w-fit"
               data-sveltekit-preload-data="tap"
               href={item.target}
           >
             <svelte:component this={item.icon}/>
             <span class="!p-0 !m-0 hidden sm:inline-block font-bold">
-              {item.label}
+              {$i18nStore.get_key(item.label_key, item.default_label)}
             </span>
           </a>
         {/each}
       </div>
       <div class="col-span-3 flex flex-row items-center justify-end">
         <button
-            class="btn bg-initial bg-surface-token hover:bg-primary-hover-token rounded-none sm:w-36 flex flex-col gap-1 align-middle justify-center w-fit"
+            class="btn bg-initial bg-surface-token hover:bg-warning-hover-token rounded-none sm:w-36 flex flex-col gap-1 align-middle justify-center w-fit"
             data-sveltekit-preload-data="tap"
             on:click={on_lock}
         >

@@ -85,11 +85,11 @@ pub(crate) struct KeyState {
 }
 
 trait DbNotifier {
-  fn notify_db_status(&self) -> Result<(), tauri::Error>;
+  fn emit_unlock_required(&self) -> Result<(), tauri::Error>;
 }
 
 impl DbNotifier for AppHandle {
-  fn notify_db_status(&self) -> Result<(), tauri::Error> {
+  fn emit_unlock_required(&self) -> Result<(), tauri::Error> {
     let _ = self.emit_all("unlock_required", ())?;
     Ok(())
   }

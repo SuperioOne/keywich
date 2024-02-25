@@ -70,7 +70,10 @@
         "locales/*"
       ],
       "shortDescription": "",
-      "targets": "all",
+      "targets": [
+        "deb",
+        "msi"
+      ],
       "windows": {
         "certificateThumbprint": null,
         "digestAlgorithm": "sha256",
@@ -78,7 +81,10 @@
       }
     },
     "security": {
-      "csp": "default-src 'self'; img-src 'self' asset: https://asset.localhost kwicon: https://kwicon.localhost"
+      "csp": "style-src 'unsafe-inline' 'self'; default-src 'self'; img-src 'self' blob: tauri://localhost asset: https://asset.localhost kwicon: https://kwicon.localhost",
+      "dangerousDisableAssetCspModification": [
+        "style-src"
+      ]
     },
     "updater": {
       "active": false

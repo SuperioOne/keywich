@@ -1,4 +1,4 @@
-import {Log, type LogLevelType} from "$lib";
+import {AppEventBus, Log, type LogLevelType} from "$lib";
 import {
   ApplicationSink,
   ConsoleSink,
@@ -23,12 +23,13 @@ LoggerConfigurator([
 RPC.get_configs().then(async (app_config) => {
   const locale = app_config.locale ?? "en";
   configStore.init(app_config);
+
   const resources = await RPC.load_locale(locale);
   i18nStore.init_locale(locale, resources);
-});
 
-if (sessionStorage.getItem("unlocked") !== "1") {
-  goto("unlock").then(() => {
-    Log.debug("Redirecting to unlock page.");
-  })
-}
+  await AppEventBus.addListener("unlock_required", async () => {
+    Log.debug("Event received. Redirecting to unlock page.");
+    sessionStorage.removeItem("unlocked");
+    await goto("unlock");
+  });
+});

@@ -15,7 +15,7 @@ pub async fn get_keys(
     let keys = profile_db.get_keys(false).await?;
     Ok(keys)
   } else {
-    let _ = app.notify_db_status();
+    let _ = app.emit_unlock_required();
     Err(AppErrors::DbNotInitialized)
   }
 }
@@ -31,7 +31,7 @@ pub async fn get_pinned_keys(
     let keys = profile_db.get_keys(true).await?;
     Ok(keys)
   } else {
-    let _ = app.notify_db_status();
+    let _ = app.emit_unlock_required();
     Err(AppErrors::DbNotInitialized)
   }
 }
@@ -48,7 +48,7 @@ pub async fn search_keys(
     let keys = profile_db.search_keys(query).await?;
     Ok(keys)
   } else {
-    let _ = app.notify_db_status();
+    let _ = app.emit_unlock_required();
     Err(AppErrors::DbNotInitialized)
   }
 }
@@ -72,7 +72,7 @@ pub async fn delete_key(
       Err(AppErrors::KeyNotFound)
     }
   } else {
-    let _ = app.notify_db_status();
+    let _ = app.emit_unlock_required();
     Err(AppErrors::DbNotInitialized)
   }
 }
@@ -89,7 +89,7 @@ pub async fn insert_key(
     let result = profile_db.insert_key(data).await?;
     Ok(result)
   } else {
-    let _ = app.notify_db_status();
+    let _ = app.emit_unlock_required();
     Err(AppErrors::DbNotInitialized)
   }
 }
@@ -117,7 +117,7 @@ pub async fn update_key(
       Err(AppErrors::KeyNotFound)
     }
   } else {
-    let _ = app.notify_db_status();
+    let _ = app.emit_unlock_required();
     Err(AppErrors::DbNotInitialized)
   }
 }
@@ -134,7 +134,7 @@ pub async fn pin_key(
     profile_db.update_pin_status(key_id, true).await?;
     Ok(())
   } else {
-    let _ = app.notify_db_status();
+    let _ = app.emit_unlock_required();
     Err(AppErrors::DbNotInitialized)
   }
 }
@@ -151,7 +151,7 @@ pub async fn unpin_key(
     profile_db.update_pin_status(key_id, false).await?;
     Ok(())
   } else {
-    let _ = app.notify_db_status();
+    let _ = app.emit_unlock_required();
     Err(AppErrors::DbNotInitialized)
   }
 }
@@ -171,7 +171,7 @@ pub async fn get_key_by_id(
       Err(AppErrors::KeyNotFound)
     }
   } else {
-    let _ = app.notify_db_status();
+    let _ = app.emit_unlock_required();
     Err(AppErrors::DbNotInitialized)
   }
 }

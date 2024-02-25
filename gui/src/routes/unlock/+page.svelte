@@ -3,6 +3,7 @@
   import {goto} from "$app/navigation";
   import {is_error_response, is_null_or_empty} from "@keywich/api/utils";
   import {ProgressRadial} from "@skeletonlabs/skeleton";
+  import KeywichIcon from "$lib/icons/keywich.svelte"
 
   type PassForm = { password?: string, re_password?: string };
   const toast_store = getToastStore();
@@ -83,7 +84,11 @@
 </script>
 
 <div class="flex justify-center w-full">
-  <div class="p-3 sm:p-34 md:p-48 w-full max-w-screen-lg ">
+  <div class="p-3 sm:py-8 sm:px-34 md:py-16 md:px-48 w-full max-w-screen-lg ">
+    <div class="flex flex-row justify-center mb-4 fill-primary-500 drop-shadow-lg">
+      <KeywichIcon size={300} />
+    </div>
+
     <form class="flex flex-col gap-10"
           on:submit|preventDefault={async (e) => {unlocking = true;on_submit(e).finally(()=> { unlocking = false});}}>
       <label class="label">

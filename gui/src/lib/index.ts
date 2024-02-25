@@ -2,5 +2,5 @@ export * from "./components";
 export * from "./logger";
 export * from "./utils";
 export * from "./stores";
-export * from "./app_event_bus";
 export * from "./rpc";
+export {default as AppEventBus} from "@keywich/tauri_api/event_bus";

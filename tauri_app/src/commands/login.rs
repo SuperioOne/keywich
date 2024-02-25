@@ -46,7 +46,7 @@ pub async fn lock_db(
   let mut db_connection = state.profile_db.write().await;
   *db_connection = None;
 
-  let _ = app.notify_db_status();
+  let _ = app.emit_unlock_required();
   Ok(())
 }
 
@@ -63,13 +63,13 @@ macro_rules! to_hex_char {
 }
 
 const PHRASE_SIZE: usize = 32usize;
-const PHRASE_LOGN: u8 = 10;
+const PHRASE_LOG_N: u8 = 10;
 const PHRASE_R: u32 = 8;
 const PHRASE_P: u32 = 2;
 const PHRASE_S: &[u8] = b"12345";
 
 fn generate_hex_phrase(master_pass: &[u8]) -> Result<String, AppErrors> {
-  let params = Params::new(PHRASE_LOGN, PHRASE_R, PHRASE_P, PHRASE_SIZE).map_err(|e| {
+  let params = Params::new(PHRASE_LOG_N, PHRASE_R, PHRASE_P, PHRASE_SIZE).map_err(|e| {
     AppErrors::LibError(String::from(
       "Passphrase generation parameters are invalid.",
     ))

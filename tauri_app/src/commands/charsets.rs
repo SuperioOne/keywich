@@ -15,7 +15,7 @@ pub async fn get_charsets(
     let result = profile_db.get_charsets().await?;
     Ok(result)
   } else {
-    let _ = app.notify_db_status();
+    let _ = app.emit_unlock_required();
     Err(AppErrors::DbNotInitialized)
   }
 }
@@ -32,7 +32,7 @@ pub async fn insert_charset(
     let result = profile_db.insert_charset(charset).await?;
     Ok(result)
   } else {
-    let _ = app.notify_db_status();
+    let _ = app.emit_unlock_required();
     Err(AppErrors::DbNotInitialized)
   }
 }
@@ -49,7 +49,7 @@ pub async fn delete_charset(
     profile_db.delete_charset(&name).await?;
     Ok(())
   } else {
-    let _ = app.notify_db_status();
+    let _ = app.emit_unlock_required();
     Err(AppErrors::DbNotInitialized)
   }
 }

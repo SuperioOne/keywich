@@ -1,8 +1,4 @@
-import {
-  modeCurrent,
-  setModeUserPrefers,
-  setModeCurrent,
-} from '@skeletonlabs/skeleton';
+import {modeCurrent, setModeUserPrefers, setModeCurrent} from '@skeletonlabs/skeleton';
 import {writable} from "svelte/store";
 import type {AppConfig} from "@keywich/api";
 import {create_debouncer} from "@keywich/api/utils";

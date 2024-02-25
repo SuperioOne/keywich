@@ -1,5 +1,7 @@
 {
   "/actions/advanced-copy/title": "Advanced options",
+  "/actions/advanced-copy/qr-saved": "QR file saved.",
+  "/actions/advanced-copy/unknown-error": "Unexpected error occurred while saving QR. See logs for more details.",
   "/actions/copy-key/msg/error": "Key generation failed. See logs for more details.",
   "/actions/copy-key/msg/success": "Copied key to clipboard.",
   "/actions/create-charset/title": "Create Charset",
