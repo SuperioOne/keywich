@@ -276,7 +276,7 @@
       </div>
 
       <Accordion>
-        <AccordionItem>
+        <AccordionItem open>
           <svelte:fragment slot="lead">
             <span class="text-warning-600">
             <AlertIcon size={18}/>

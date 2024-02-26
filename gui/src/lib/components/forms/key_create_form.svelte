@@ -1,9 +1,8 @@
 <script lang="ts">
-  import UploadIcon from "../../icons/upload.svelte";
   import type {CharsetItem, KeyRequest} from "@keywich/api";
   import type {ModalActionResult} from "./types";
   import type {ValidationError} from "../../utils";
-  import {FileDropzone, getModalStore, InputChip, ProgressRadial, RangeSlider} from "@skeletonlabs/skeleton";
+  import {getModalStore, InputChip, ProgressRadial, RangeSlider} from "@skeletonlabs/skeleton";
   import {Log} from "../../logger";
   import {ModalAction} from "./types";
   import {RPC} from "../../rpc";

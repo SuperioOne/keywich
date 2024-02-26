@@ -25,7 +25,6 @@
           ref: KeyForm,
         },
         title: $i18nStore.get_key("i18:/actions/create-key/title", "Create New Key"),
-        backdropClasses: "backdrop-blur-sm",
         type: "component",
         response: (r: ModalActionResult<void>) => resolve(r),
       });
@@ -47,7 +46,6 @@
           }
         },
         title: $i18nStore.get_key("i18:/actions/update-key/title", "Update Key"),
-        backdropClasses: "backdrop-blur-sm",
         type: "component",
         response: (r: ModalActionResult<void>) => resolve(r),
       });
@@ -105,7 +103,6 @@
             }
           },
           title: $i18nStore.get_key(`i18:/actions/advanced-copy/title`, "Advanced"),
-          backdropClasses: "backdrop-blur-sm",
           type: "component",
           response: (r: ModalActionResult<KeyItem>) => resolve(r),
         });

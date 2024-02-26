@@ -58,7 +58,6 @@
           ref: CharsetForm,
         },
         title: $i18nStore.get_key("i18:/actions/create-charset/title", "New Charset"),
-        backdropClasses: "backdrop-blur-sm",
         type: "component",
         response: (r: ModalActionResult<string>) => resolve(r),
       });

@@ -3,8 +3,6 @@
   import {i18nStore, ThemeOptions, configStore} from "$lib";
   import {SlideToggle} from "@skeletonlabs/skeleton";
 
-  export let locales: string[];
-
   async function theme_color_change(event: Event) {
     const select_element = event.target as HTMLSelectElement;
     configStore.set_theme(select_element.value as ThemeOptionType ?? "crimson");
@@ -77,7 +75,7 @@
       </p>
     </div>
     <select class="select w-full sm:w-[200px]" on:change={locale_change}>
-      {#each locales as option (option)}
+      {#each i18nStore.available_locales as option (option)}
         <option selected={option === $i18nStore.current_locale} value={option}>
           {option}
         </option>

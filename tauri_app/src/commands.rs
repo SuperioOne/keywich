@@ -26,6 +26,7 @@ macro_rules! generate_keywich_handler {
       $crate::commands::utilities::get_locale_path,
       $crate::commands::utilities::process_icon,
       $crate::commands::utilities::alloc_temp_path,
+      $crate::commands::utilities::load_configs,
       $crate::commands::login::unlock_db,
       $crate::commands::login::lock_db,
     ]

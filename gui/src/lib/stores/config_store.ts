@@ -1,11 +1,11 @@
 import {modeCurrent, setModeUserPrefers, setModeCurrent} from '@skeletonlabs/skeleton';
 import {writable} from "svelte/store";
-import type {AppConfig} from "@keywich/api";
+import type {ConfigFile} from "@keywich/api";
 import {create_debouncer} from "@keywich/api/utils";
 import {RPC} from "$lib/rpc";
 import {Log} from "$lib/logger";
 
-const CONFIG_DEFAULTS: AppConfig = {
+const CONFIG_DEFAULTS: ConfigFile = {
   color_theme: "crimson",
   is_light_theme: false,
   locale: "en"
@@ -28,9 +28,9 @@ export const ThemeOptions = [
 export type ThemeOptionType = typeof ThemeOptions[number];
 
 const light_switch = modeCurrent;
-const {set, update, subscribe} = writable<AppConfig>(CONFIG_DEFAULTS);
+const {set, update, subscribe} = writable<ConfigFile>(CONFIG_DEFAULTS);
 const write_scheduler = create_debouncer(
-  (config: AppConfig) => RPC.update_configs(config),
+  (config: ConfigFile) => RPC.update_config_json(config),
   {
     timeout: 750,
     onError: Log.error,
@@ -93,7 +93,7 @@ function flip_mode() {
   })
 }
 
-function set_config(appConfig: AppConfig) {
+function set_config(appConfig: ConfigFile) {
   document?.body?.setAttribute("data-theme", appConfig.color_theme ?? "crimson");
   set(appConfig);
   write_scheduler.update(appConfig);
@@ -104,7 +104,7 @@ function set_config(appConfig: AppConfig) {
  * Overrides store contents but does not try to persist contents.
  * @param appConfig
  */
-function init(appConfig: AppConfig) {
+function init(appConfig: ConfigFile) {
   document?.body?.setAttribute("data-theme", appConfig.color_theme ?? "crimson");
   set(appConfig);
   setMode(appConfig.is_light_theme ?? false);

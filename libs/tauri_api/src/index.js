@@ -187,25 +187,17 @@ const _api = {
     return convertFileSrc(icon_name, "kwicon");
   },
 
-  update_configs: async function (configs) {
+  update_config_json: async function (configs) {
     /** @type {string} **/
     const config_path = await invoke("get_config_path");
     await writeTextFile(config_path, JSON.stringify(configs, null, 4));
   },
 
-  get_configs: async function () {
+  get_config_json: async function () {
     /** @type {string} **/
     const config_path = await invoke("get_config_path");
     const content = await readTextFile(config_path);
     return JSON.parse(content);
-  },
-
-  get_locales: function () {
-    return Promise.resolve([
-      "en",
-      "tr",
-      "jp"
-    ]);
   },
 
   upload_icon: upload_icon,
@@ -216,6 +208,10 @@ const _api = {
 
   logout: function () {
     return invoke("lock_db");
+  },
+
+  load_configs: function () {
+    return invoke("load_configs");
   }
 }
 

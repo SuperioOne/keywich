@@ -87,6 +87,7 @@ class i18Resource {
   }
 }
 
+let locale_list: string[] = [];
 const locale_store = writable<i18Resource>(new i18Resource("en", {}));
 const locale_loader = create_debouncer(
   async (locale: string) => {
@@ -105,12 +106,22 @@ function set_locale(locale: string) {
   locale_loader.update(locale);
 }
 
-function init_locale(locale: string, resources: Record<string, string>) {
-  locale_store.set(new i18Resource(locale, resources));
+export type LocaleOptions = {
+  locale: string;
+  locale_keys: Record<string, string>;
+  available_locales: string[];
+}
+
+function init_locale(options: LocaleOptions) {
+  locale_store.set(new i18Resource(options.locale, options.locale_keys));
+  locale_list = options.available_locales;
 }
 
 export const i18nStore = {
   init_locale,
   set_locale,
+  get available_locales() {
+    return locale_list;
+  },
   subscribe: locale_store.subscribe,
 };

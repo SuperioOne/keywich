@@ -18,7 +18,7 @@ export const getToastStore = () => {
     trigger_error: (message: string) => trigger({
       message: message,
       background: "variant-glass-error",
-      timeout: 3000
+      timeout: 5000
     }),
     trigger_warning: (message: string) => trigger({
       message: message,

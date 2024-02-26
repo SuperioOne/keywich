@@ -20,7 +20,7 @@ opt-level = 3
 tauri-build = { version = "1.2.1", features = [] }
 
 [dependencies]
-tauri = { version = "1.2.4", features = ["fs-remove-file", "protocol-asset", "clipboard-write-text", "fs-write-file", "dialog-save", "dialog-open", "fs-exists", "fs-read-file", "devtools"] }
+tauri = { version = "1.2.4", features = ["fs-remove-file", "protocol-asset", "clipboard-write-text", "fs-write-file", "dialog-save", "dialog-open", "fs-exists", "fs-read-file"] }
 keywich_lib = { version = "0.1.0", path = "../libs/keywich_lib", features = ["profile"] }
 clap = { version = "4.3.23", features = ["derive"] }
 serde = { version = "1.0.196", features = ["derive"] }
@@ -29,6 +29,7 @@ image = { version = "0.24.8", features = ["jpeg", "png", "webp", "rgb"], default
 percent-encoding = "2.3.1"
 const_format = "0.2.32"
 keyring = { features = ["platform-freebsd", "platform-linux", "platform-windows", "platform-macos", "platform-openbsd"] }
+serde_json = { version = "1.0.114" }
 
 [features]
 # by default Tauri runs in production mode

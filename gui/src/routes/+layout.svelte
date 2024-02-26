@@ -8,6 +8,8 @@
   storePopup.set({computePosition, autoUpdate, flip, shift, offset, arrow});
 </script>
 
-<slot></slot>
-<Modal zIndex="z-[998]" buttonNeutral="variant-soft" buttonPositive="variant-filled-primary"/>
+<svelte:window on:contextmenu|preventDefault={() => {}}/>
+<slot/>
+<Modal regionBackdrop="backdrop-blur-sm" zIndex="z-[998]" buttonNeutral="variant-soft"
+       buttonPositive="variant-filled-primary"/>
 <Toast zIndex="z-[999]"/>

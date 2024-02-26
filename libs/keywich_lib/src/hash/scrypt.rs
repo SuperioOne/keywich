@@ -3,38 +3,27 @@ use crate::hash::{HashConfig, HashGenerator};
 use bytes::{BufMut, BytesMut};
 use scrypt::errors::{InvalidOutputLen, InvalidParams};
 use scrypt::{scrypt, Params};
-use std::io::Read;
 
 const SCRYPT_LOG_N: u8 = 10;
 const SCRYPT_R: u32 = 8;
 const SCRYPT_P: u32 = 1;
-const SCRYPT_MIN_LEN: usize = 10;
+const SCRYPT_MAX_LEN: usize = 64;
 
 pub(super) struct KwScryptV1 {}
 
 impl HashGenerator for KwScryptV1 {
   fn generate_hash(&self, options: HashConfig) -> Result<Vec<u8>, Error> {
-    let mut fold = false;
-    let scrypt_target_len = {
-      if options.target_len < SCRYPT_MIN_LEN {
-        fold = true;
-        SCRYPT_MIN_LEN
-      } else {
-        options.target_len
-      }
-    };
-
     let mut byte_buffer = BytesMut::from(options.username);
     byte_buffer.put_u32_le('@'.into());
     byte_buffer.put_slice(&options.domain.to_ascii_lowercase());
     byte_buffer.put_u32_le('r'.into());
     byte_buffer.put_i64_le(options.revision);
 
-    let params: Params = Params::new(SCRYPT_LOG_N, SCRYPT_R, SCRYPT_P, scrypt_target_len)?;
-    let mut output = vec![0u8; scrypt_target_len];
+    let params: Params = Params::new(SCRYPT_LOG_N, SCRYPT_R, SCRYPT_P, SCRYPT_MAX_LEN)?;
+    let mut output = vec![0u8; SCRYPT_MAX_LEN];
     scrypt(options.password, &byte_buffer, &params, &mut output)?;
 
-    if fold {
+    if options.target_len != SCRYPT_MAX_LEN {
       Ok(fold_content(&output, options.target_len))
     } else {
       Ok(output)

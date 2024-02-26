@@ -20,12 +20,22 @@ LoggerConfigurator([
   ApplicationSink(LOG_LEVEL, 1000)
 ]);
 
-RPC.get_configs().then(async (app_config) => {
-  const locale = app_config.locale ?? "en";
-  configStore.init(app_config);
+RPC.load_configs().then(async (app_config) => {
+  try {
+    if (app_config.configs) {
+      configStore.init(app_config.configs);
 
-  const resources = await RPC.load_locale(locale);
-  i18nStore.init_locale(locale, resources);
+      if (app_config.configs?.locale && app_config.locale_keys) {
+        i18nStore.init_locale({
+          locale: app_config.configs.locale,
+          locale_keys: app_config.locale_keys,
+          available_locales: app_config.available_locales
+        });
+      }
+    }
+  } catch (err) {
+    Log.error(err);
+  }
 
   await AppEventBus.addListener("unlock_required", async () => {
     Log.debug("Event received. Redirecting to unlock page.");

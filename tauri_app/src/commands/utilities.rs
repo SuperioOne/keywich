@@ -1,9 +1,26 @@
 use crate::errors::AppErrors;
-use crate::AppDbState;
 use image::imageops::FilterType;
 use image::ImageFormat;
-use std::collections::HashSet;
-use tauri::{AppHandle, State};
+use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
+use std::fs;
+use std::path::Path;
+use tauri::AppHandle;
+
+#[derive(Serialize, Deserialize)]
+pub struct ConfigFile {
+  pub color_theme: Option<String>,
+  pub locale: Option<String>,
+  pub is_light_theme: Option<bool>,
+}
+
+#[derive(Serialize)]
+pub struct AppConfig {
+  pub configs: Option<ConfigFile>,
+  pub is_db_created: bool,
+  pub locale_keys: Option<HashMap<String, String>>,
+  pub available_locales: Vec<String>,
+}
 
 #[tauri::command(rename_all = "snake_case")]
 pub async fn get_config_path(handle: AppHandle) -> Result<String, AppErrors> {
@@ -12,7 +29,7 @@ pub async fn get_config_path(handle: AppHandle) -> Result<String, AppErrors> {
     .app_local_data_dir()
     .ok_or(AppErrors::LocalDataDirNotFound)?;
 
-  let config_file = std::path::Path::join(&local_data_dir, "config.json");
+  let config_file = Path::join(&local_data_dir, "config.json");
   let path = config_file.to_str().ok_or(AppErrors::ConfigPathFailed)?;
 
   Ok(String::from(path))
@@ -32,12 +49,10 @@ pub async fn get_locale_path(handle: AppHandle, locale: String) -> Result<String
 
 #[tauri::command(rename_all = "snake_case")]
 pub async fn process_icon(handle: AppHandle, file_path: String) -> Result<String, AppErrors> {
-  let src_path = std::path::Path::new(&file_path);
+  let src_path = Path::new(&file_path);
 
   if src_path.is_file() {
-    let src_file =
-      std::fs::read(src_path).map_err(|err| AppErrors::IconReadFailed(err.to_string()))?;
-
+    let src_file = fs::read(src_path).map_err(|err| AppErrors::IconReadFailed(err.to_string()))?;
     let image_file = image::load_from_memory(&src_file)
       .map_err(|err| AppErrors::IconReadFailed(err.to_string()))?;
 
@@ -46,10 +61,11 @@ pub async fn process_icon(handle: AppHandle, file_path: String) -> Result<String
       .path_resolver()
       .app_local_data_dir()
       .ok_or(AppErrors::LocalDataDirNotFound)?;
-    let mut dest_path = std::path::Path::join(&local_data_dir, "contents");
+
+    let mut dest_path = Path::join(&local_data_dir, "contents");
 
     if !dest_path.exists() {
-      std::fs::create_dir(&dest_path).map_err(|_err| AppErrors::ContentPathFailed)?;
+      fs::create_dir(&dest_path).map_err(|_err| AppErrors::ContentPathFailed)?;
     }
 
     dest_path.push(&file_name);
@@ -74,10 +90,11 @@ pub async fn alloc_temp_path(handle: AppHandle) -> Result<String, AppErrors> {
     .path_resolver()
     .app_local_data_dir()
     .ok_or(AppErrors::LocalDataDirNotFound)?;
-  let mut temp_path = std::path::Path::join(&local_data_dir, "temp");
+
+  let mut temp_path = Path::join(&local_data_dir, "temp");
 
   if !temp_path.exists() {
-    std::fs::create_dir(&temp_path).map_err(|_err| AppErrors::TempFolderFailed)?;
+    fs::create_dir(&temp_path).map_err(|_err| AppErrors::TempFolderFailed)?;
   }
 
   let file_name = uuid::Uuid::now_v7().to_string();
@@ -85,4 +102,68 @@ pub async fn alloc_temp_path(handle: AppHandle) -> Result<String, AppErrors> {
   let path = temp_path.to_str().ok_or(AppErrors::TempFolderFailed)?;
 
   Ok(String::from(path))
+}
+
+#[tauri::command(rename_all = "snake_case")]
+pub async fn load_configs(app: AppHandle) -> Result<AppConfig, AppErrors> {
+  let app_data_dir = app
+    .path_resolver()
+    .app_data_dir()
+    .ok_or(AppErrors::LocalDataDirNotFound)?;
+
+  let db_path = Path::join(&app_data_dir, crate::commands::login::APP_DB_NAME);
+  let config_file = Path::join(&app_data_dir, "config.json");
+  let mut app_details = AppConfig {
+    is_db_created: db_path.is_file() && db_path.exists(),
+    configs: None,
+    locale_keys: None,
+    // TODO: Convert this to proc macro and generate from locales folder automatically when there are more than 5 locale. For now it's unnecessary.
+    available_locales: vec![String::from("en"), String::from("tr")],
+  };
+
+  match read_json_file::<ConfigFile, _>(config_file) {
+    Ok(config) => {
+      app_details.configs = Some(config);
+    }
+    Err(e) => {
+      eprintln!("Unable to read config");
+    }
+  }
+
+  if let Some(cfg) = &app_details.configs {
+    if let Some(locale) = &cfg.locale {
+      if let Some(locale_path) = app
+        .path_resolver()
+        .resolve_resource(format!("locales/{}.json", locale))
+      {
+        match read_json_file::<HashMap<String, String>, _>(locale_path) {
+          Ok(locale_map) => {
+            app_details.locale_keys = Some(locale_map);
+          }
+          Err(e) => {
+            eprintln!("Unable to read locales");
+          }
+        }
+      }
+    }
+  }
+
+  Ok(app_details)
+}
+
+enum FileErrors {
+  UnableToOpenFile(String),
+  DeserializerError(String),
+}
+
+fn read_json_file<T, P>(path: P) -> Result<T, FileErrors>
+where
+  P: AsRef<Path>,
+  T: serde::de::DeserializeOwned,
+{
+  let file = fs::File::open(path).map_err(|e| FileErrors::UnableToOpenFile(e.to_string()))?;
+  let parsed = serde_json::from_reader::<_, T>(&file)
+    .map_err(|e| FileErrors::DeserializerError(e.to_string()))?;
+
+  Ok(parsed)
 }

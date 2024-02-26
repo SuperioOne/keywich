@@ -8,7 +8,7 @@ export interface ValidationErrorResponse extends BaseErrorResponse {
   fields: Record<string, FieldError[]>;
 }
 
-export type FieldErrorTypes = "charset" | "length" | "range" | "must_match";
+export type FieldErrorTypes = "charset" | "length" | "range" | "must_match" | "password_must_match";
 
 export type FieldError = {
   code: FieldErrorTypes;

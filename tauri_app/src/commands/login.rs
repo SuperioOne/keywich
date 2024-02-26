@@ -5,6 +5,8 @@ use keywich_lib::scrypt::{scrypt, Params};
 use std::path::Path;
 use tauri::{AppHandle, State};
 
+pub(super) const APP_DB_NAME: &str = "app.db";
+
 #[tauri::command(rename_all = "snake_case")]
 pub async fn unlock_db(
   state: State<'_, AppDbState>,
@@ -19,8 +21,8 @@ pub async fn unlock_db(
     .app_data_dir()
     .ok_or(AppErrors::LocalDataDirNotFound)?;
 
-  let db_path = Path::join(&app_data_dir, "app.db");
-  let path_str = db_path.to_str().unwrap();
+  let db_path = Path::join(&app_data_dir, APP_DB_NAME);
+  let path_str = db_path.to_str().ok_or(AppErrors::DbNotInitialized)?;
   let connection_string = format!("sqlite:{}", path_str);
   let passphrase = generate_hex_phrase(master_pass.as_bytes())?;
   let options = ProfileDBSqliteOptions {
