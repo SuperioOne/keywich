@@ -3,14 +3,14 @@
   import PlusCircleIcon from "$lib/icons/plus-circle.svelte";
   import type {KeyItem} from "@keywich/api";
   import type {PageData} from "./$types";
-  import type {ModalActionResult, TokenType} from "$lib";
+  import type {ModalActionResult} from "$lib";
   import {
     KeyRow, KeyFilterInput, i18nStore, getToastStore, KeyForm, KeyUpdateForm, AdvancedCopyMenu, Log, ModalAction, RPC
   } from "$lib";
   import {fly} from "svelte/transition";
   import {goto, invalidateAll} from "$app/navigation";
   import {getModalStore} from "@skeletonlabs/skeleton";
-  import {is_error_response} from "@keywich/api/utils";
+  import {is_error_response, is_null_or_empty} from "@keywich/api/utils";
 
   export let data: PageData;
 
@@ -147,45 +147,27 @@
     }
   }
 
-  async function _search(tokens: TokenType[]) {
+  function _search(query: string | null) {
     const target = new URL("/keys", document.location.origin);
 
-    if (tokens && tokens.length > 0) {
-      let name: string;
-
-      for (const searchQuery of tokens) {
-        switch (searchQuery.type) {
-          case "username":
-            name = "u";
-            break;
-          case "domain":
-            name = "d";
-            break;
-          case "tag":
-            name = "t";
-            break;
-          case "term":
-            name = "s";
-            break;
-        }
-
-        target.searchParams.append(name, searchQuery.value);
-      }
+    if (!is_null_or_empty(query)) {
+      target.searchParams.append("s", query);
     }
 
-    await goto(target, {
+    return goto(target, {
       invalidateAll: true,
       keepFocus: true,
     });
   }
 
-  async function search_keys(event: CustomEvent<TokenType[]>) {
-    await _search(event.detail ?? []);
+  function search_keys(event: CustomEvent<string | null>) {
+    return _search(event.detail);
   }
 
-  async function on_tag(event: CustomEvent<string>) {
-    const searchTokens: TokenType[] = [{type: "tag", value: event.detail}];
-    await _search(searchTokens);
+  function on_tag(event: CustomEvent<string | null>) {
+    if (!is_null_or_empty(event.detail)) {
+      return _search(`tag:${event.detail}`);
+    }
   }
 </script>
 
@@ -205,7 +187,7 @@
       <div class="w-full sm:w-fit">
         <KeyFilterInput
             on:search={search_keys}
-            tokens={data.tokens ?? []}
+            query={data.search_query}
         >
           <FilterIcon size={18}/>
           <span>

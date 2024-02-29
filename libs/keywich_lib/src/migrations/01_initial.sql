@@ -45,3 +45,14 @@ INSERT INTO charsets (name, charset, description)
 VALUES ('Alpha Numeric', 'a..zA..Z0..9', NULL),
        ('Numeric', '0..9', NULL),
        ('Alpha', 'a..zA..Z', NULL);
+
+CREATE
+VIRTUAL TABLE search_index USING fts5
+(
+    domain,
+    username,
+    notes,
+    tags
+);
+INSERT INTO search_index(search_index, rank)
+VALUES ('rank', 'bm25(5.0, 7.0, 1.0, 10.0)');

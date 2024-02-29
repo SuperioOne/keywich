@@ -40,12 +40,12 @@ pub async fn get_pinned_keys(
 pub async fn search_keys(
   state: State<'_, AppDbState>,
   app: AppHandle,
-  query: SearchQuery,
+  query: String,
 ) -> Result<Vec<KeyItem>, AppErrors> {
   let read_lock = state.profile_db.read().await;
 
   if let Some(profile_db) = read_lock.deref() {
-    let keys = profile_db.search_keys(query).await?;
+    let keys = profile_db.search_keys(query.into()).await?;
     Ok(keys)
   } else {
     let _ = app.emit_unlock_required();

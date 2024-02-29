@@ -17,7 +17,7 @@ mod test {
 
     let result = generate_password(config, HashAlgorithm::KwScryptV1).unwrap();
 
-    assert_eq!("crofpiqowbnl", &result.pass);
+    assert_eq!("rkyosiykoybz", &result.pass);
     assert_eq!(12, result.pass.len());
   }
 
@@ -64,8 +64,8 @@ mod test {
     let result_a = generate_password(config_a, HashAlgorithm::KwScryptV1).unwrap();
     let result_b = generate_password(config_b, HashAlgorithm::KwScryptV1).unwrap();
 
-    assert_eq!("crofpiqowbnl", &result_a.pass);
-    assert_eq!("cuudxgkeiihw", &result_b.pass);
+    assert_eq!("rkyosiykoybz", &result_a.pass);
+    assert_eq!("qwykmndyhsll", &result_b.pass);
   }
 
   #[test]
@@ -82,7 +82,7 @@ mod test {
     let result = generate_password(config, HashAlgorithm::KwScryptV1).unwrap();
 
     assert_eq!(4, result.pass.len());
-    assert_eq!("decx", &result.pass);
+    assert_eq!("vabv", &result.pass);
   }
 
   #[cfg(feature = "base64")]
@@ -100,7 +100,7 @@ mod test {
     let pass = generate_password(config, HashAlgorithm::KwScryptV1).unwrap();
     let base64_string = pass.to_base64();
 
-    assert_eq!("Y3JvZnBpcW93Ym5s", &base64_string);
+    assert_eq!("cmt5b3NpeWtveWJ6", &base64_string);
   }
 
   #[cfg(feature = "json")]
@@ -153,6 +153,6 @@ mod test {
     let pass = generate_password(config, HashAlgorithm::KwScryptV1).unwrap();
     let phc_text = pass.to_phc();
 
-    assert_eq!("$kw_scrypt$v=v1$crofpiqowbnl", &phc_text);
+    assert_eq!("$kw_scrypt$v=v1$rkyosiykoybz", &phc_text);
   }
 }

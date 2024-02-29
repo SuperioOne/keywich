@@ -7,22 +7,27 @@
   import {fly} from "svelte/transition";
   import {filterHistoryStore, i18nStore} from "../stores";
   import {tokenize_filter_query} from "../utils";
+  import {is_null_or_empty} from "@keywich/api/utils";
+  import {Log} from "$lib/logger";
 
-  export let tokens: TokenType[] = [];
+  export let query: string | null;
 
-  const dispatcher = createEventDispatcher<{ search: TokenType[]; }>();
-  $: search_options = [
+  const dispatcher = createEventDispatcher<{ search: string | null; }>();
+  const search_options = [
     {
       value: "username:",
-      desc: $i18nStore.get_key("i18:/filter/by-username-desc", "Filter by username")
+      desc_key: "i18:/filter/by-username-desc",
+      desc_default: "Filter by username"
     },
     {
       value: "domain:",
-      desc: $i18nStore.get_key("i18:/filter/by-domain-desc", "Filter by domain")
+      desc_key: "i18:/filter/by-domain-desc",
+      desc_default: "Filter by domain"
     },
     {
       value: "tag:",
-      desc: $i18nStore.get_key("i18:/filter/by-tag-desc", "Filter by tag")
+      desc_key: "i18:/filter/by-tag-desc",
+      desc_default: "Filter by tag"
     }];
 
   let input_element: HTMLElement;
@@ -30,12 +35,13 @@
   let menu_element: HTMLElement;
   let is_focused: boolean = false;
 
-  $:{
-    if (input_element && tokens.length > 0) {
-      input_element.innerHTML = tokens_to_html(tokens);
-
-      if (document.activeElement === input_element) {
-        set_caret_to_end(input_element);
+  $: {
+    if (input_element) {
+      if (is_null_or_empty(query)) {
+        input_element.innerHTML = "";
+      } else {
+        const tokens = tokenize_filter_query(query);
+        input_element.innerHTML = tokens_to_html(tokens);
       }
     }
   }
@@ -63,19 +69,22 @@
     }
   }
 
-  function on_input(event: InputEvent) {
-    if (event.data === " ")
+  function on_input(event: Event) {
+    if ((event as InputEvent).data === " ")
       return;
 
-    tokens = tokenize_filter_query(input_element.textContent ?? "");
+    query = input_element.textContent;
   }
 
   function on_keyboard_event(event: KeyboardEvent) {
+    Log.debug(event.key)
     switch (event.key) {
       case "Enter": {
         event.preventDefault();
-        dispatcher("search", tokens);
-        filterHistoryStore.push_from_tokens(tokens);
+        dispatcher("search", query);
+        if (!is_null_or_empty(query)) {
+          filterHistoryStore.push(query);
+        }
         break;
       }
       case "Escape": {
@@ -87,20 +96,17 @@
   }
 
   function on_clear() {
-    tokens = [];
-    dispatcher("search", tokens);
+    query = null;
+    dispatcher("search", query);
     is_focused = false;
   }
 
   function on_option_select(value: string, override: boolean = false) {
     if (input_element) {
-      const parsed_tokens = tokenize_filter_query(value);
-
       if (override) {
-        tokens = parsed_tokens;
+        query = value;
       } else {
-        tokens.push(...parsed_tokens);
-        tokens = tokens;
+        query = `${query ?? ""} ${value}`;
       }
 
       input_element.focus();
@@ -126,24 +132,26 @@
         if (e.type === "term") {
           return `${e.value}`
         } else {
-          return `<span class="p-1.5 text-sm font-bold rounded-md bg-surface-active-token ml-1">
-                    ${e.type}
-                  <span class="font-normal">:${e.value}</span></span>`;
+          return `<span class="p-1.5 text-sm font-bold rounded-md bg-surface-active-token ml-1">${e.type}<span class="font-normal">:${e.value}</span></span>`;
         }
       })
       .join(" ");
   }
 
-  function set_caret_to_end(target: Node) {
-    const selection = window.getSelection();
+  function hydrate_nodes(tokens: TokenType[]) {
+    const node_iter = input_element.childNodes[Symbol.iterator]();
+    node_iter.next();
 
-    if (selection && target.lastChild && selection.rangeCount > 0) {
-      const range = selection?.getRangeAt(0);
-
-      if (range) {
-        range.setStartAfter(target.lastChild);
-        selection.removeAllRanges();
-        selection?.addRange(range);
+    for (const token of tokens) {
+      switch (token.type) {
+        case "username":
+          break;
+        case "domain":
+          break;
+        case "tag":
+          break;
+        case "term":
+          break;
       }
     }
   }
@@ -151,7 +159,7 @@
 
 <svelte:window on:click={on_window_click}/>
 <div class="flex flex-row w-full input overflow-hidden">
-  {#if is_focused || tokens.length > 0}
+  {#if is_focused || !is_null_or_empty(query)}
     <div
         class="flex flex-row justify-between"
         bind:this={input_container}
@@ -203,8 +211,8 @@
                  {option.value}
                 </span>
               <span class="font-light italic">
-                  {option.desc}
-                </span>
+                {$i18nStore.get_key(option.desc_key, option.desc_default)}
+              </span>
             </button>
           </li>
         {/each}

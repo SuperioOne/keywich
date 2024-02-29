@@ -59,6 +59,20 @@ impl TagList {
   pub fn has(&mut self, value: &str) -> bool {
     self.internal.contains(value)
   }
+
+  pub fn join(&self, separator: char) -> String {
+    let mut text = String::new();
+
+    for (idx, tag) in self.internal.iter().enumerate() {
+      text.push_str(tag);
+
+      if idx != self.internal.len() - 1 {
+        text.push(separator)
+      }
+    }
+
+    return text;
+  }
 }
 
 impl Debug for TagList {

@@ -52,4 +52,10 @@ mod test {
 
     assert_eq!(1, diff_list.len());
   }
+
+  #[test]
+  fn join() {
+    let tag_list_a = TagList::new();
+    assert_eq!("", &tag_list_a.join(' '));
+  }
 }

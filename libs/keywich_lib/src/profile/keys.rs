@@ -4,21 +4,28 @@ use crate::profile::utils::tag_list::TagList;
 use crate::profile::utils::timestamp::get_unix_timestamp;
 use crate::profile::ProfileDB;
 use serde::{Deserialize, Serialize};
-use sqlx::{query, query_as, Connection, FromRow, QueryBuilder, Sqlite};
+use sqlx::{query, query_as, Connection, FromRow, QueryBuilder, Sqlite, SqliteConnection};
 use validator::Validate;
 
-/// Inserts token if given flag is true and resets the flags afterward.
-macro_rules! insert_token {
-  ($query:expr, $flag:expr, $token:expr) => {
-    let builder: &mut QueryBuilder<Sqlite> = $query;
-    let token: &str = $token;
-    let flag: &mut bool = $flag;
+struct SearchIndex {
+  domain: String,
+  id: i64,
+  notes: Option<String>,
+  tags: String,
+  username: String,
+}
 
-    if *flag {
-      builder.push(token);
-      *flag = false;
-    }
-  };
+enum SearchIndexOp {
+  DeleteIndex(i64),
+  UpdateIndex(SearchIndex),
+  CreateIndex(SearchIndex),
+}
+
+pub struct SearchQuery {
+  pub username_tokens: Vec<Box<str>>,
+  pub domain_tokens: Vec<Box<str>>,
+  pub tag_tokens: Vec<Box<str>>,
+  pub fts_tokens: Vec<Box<str>>,
 }
 
 #[derive(Debug, FromRow, Serialize)]
@@ -57,13 +64,6 @@ pub struct KeyData {
   #[validate(length(min = 1))]
   pub version: String,
   pub tags: TagList,
-}
-
-#[derive(Serialize, Deserialize)]
-pub struct SearchQuery {
-  pub username: Option<Vec<String>>,
-  pub domain: Option<Vec<String>>,
-  pub tag: Option<TagList>,
 }
 
 impl ProfileDB {
@@ -132,7 +132,7 @@ impl ProfileDB {
 
   pub async fn search_keys(&self, search_query: SearchQuery) -> Result<Vec<KeyItem>, Error> {
     let mut query_builder: QueryBuilder<Sqlite> = QueryBuilder::new(
-      "SELECT DISTINCT
+      "SELECT
         keys.id,
         keys.pinned,
         keys.target_size,
@@ -146,49 +146,17 @@ impl ProfileDB {
         keys.version,
         ifnull(vw_tag_list.tags, json_array()) as tags
       FROM keys
-      LEFT JOIN vw_tag_list ON vw_tag_list.key_id = keys.id
-      JOIN tags t on keys.id = t.key_id",
+      LEFT JOIN vw_tag_list on keys.id = vw_tag_list.key_id ",
     );
 
-    // TODO: When further requirements are clear, refactor query builder with a proc macro or extract it as a proper function.
-    let mut prepend_token = false;
-    let mut insert_where = true;
-
-    if let Some(usernames) = search_query.username {
-      if !usernames.is_empty() {
-        insert_token!(&mut query_builder, &mut insert_where, " WHERE ");
-        query_builder
-          .push(" keys.username IN ")
-          .push_tuples(usernames, |mut b, username| {
-            b.push_bind(username);
-          });
-        prepend_token = true;
-      }
-    }
-
-    if let Some(domains) = search_query.domain {
-      if !domains.is_empty() {
-        insert_token!(&mut query_builder, &mut prepend_token, " AND ");
-        insert_token!(&mut query_builder, &mut insert_where, " WHERE ");
-        query_builder
-          .push(" keys.domain IN ")
-          .push_tuples(domains, |mut b, domain| {
-            b.push_bind(domain);
-          });
-        prepend_token = true;
-      }
-    }
-
-    if let Some(tags) = search_query.tag {
-      if !tags.is_empty() {
-        insert_token!(&mut query_builder, &mut prepend_token, " AND ");
-        insert_token!(&mut query_builder, &mut insert_where, " WHERE ");
-        query_builder
-          .push(" t.name IN ")
-          .push_tuples(tags.iter(), |mut b, tag| {
-            b.push_bind(tag.clone());
-          });
-      }
+    if let Some(query) = search_query.to_fts_query() {
+      query_builder.push(
+        "JOIN (SELECT DISTINCT ROWID as s_key, rank
+           FROM search_index
+           WHERE search_index MATCH ",
+      );
+      query_builder.push_bind(query);
+      query_builder.push(" ) ON s_key = keys.id ORDER BY rank;");
     }
 
     let mut conn = self.pool.acquire().await?;
@@ -209,6 +177,8 @@ impl ProfileDB {
     let key_result = query!("DELETE FROM keys WHERE keys.id = ?", key_id)
       .execute(&mut *transaction)
       .await?;
+
+    Self::sync_search_index(&mut *transaction, SearchIndexOp::DeleteIndex(key_id)).await?;
 
     transaction.commit().await?;
 
@@ -254,6 +224,18 @@ impl ProfileDB {
       query.execute(&mut *transaction).await?;
     }
 
+    Self::sync_search_index(
+      &mut *transaction,
+      SearchIndexOp::CreateIndex(SearchIndex {
+        id: key_id,
+        notes: item.notes,
+        username: item.username,
+        domain: item.domain,
+        tags: item.tags.join(' '),
+      }),
+    )
+    .await?;
+
     transaction.commit().await?;
 
     Ok(key_id)
@@ -287,14 +269,14 @@ impl ProfileDB {
       .await?;
 
     let existing_tags = TagList::from(existing_tags.into_iter().flat_map(|e| e.name));
-    let to_add = item.tags.difference(&existing_tags);
-    let to_delete = existing_tags.difference(&item.tags);
+    let new_tags = item.tags.difference(&existing_tags);
+    let orphan_tags = existing_tags.difference(&item.tags);
 
-    if to_delete.len() > 0 {
+    if orphan_tags.len() > 0 {
       let mut query_builder: QueryBuilder<Sqlite> =
         QueryBuilder::new("DELETE FROM tags WHERE (key_id, name) IN ");
 
-      query_builder.push_tuples(to_delete.iter(), |mut b, tag| {
+      query_builder.push_tuples(orphan_tags.iter(), |mut b, tag| {
         b.push_bind(key_id);
         b.push_bind(tag.as_ref());
       });
@@ -303,11 +285,11 @@ impl ProfileDB {
       query.execute(&mut *transaction).await?;
     }
 
-    if to_add.len() > 0 {
+    if new_tags.len() > 0 {
       let mut query_builder: QueryBuilder<Sqlite> =
         QueryBuilder::new("INSERT INTO tags (key_id, name) ");
 
-      query_builder.push_values(to_add.iter(), |mut b, tag| {
+      query_builder.push_values(new_tags.iter(), |mut b, tag| {
         b.push_bind(key_id);
         b.push_bind(tag.as_ref());
       });
@@ -316,6 +298,17 @@ impl ProfileDB {
       query.execute(&mut *transaction).await?;
     }
 
+    Self::sync_search_index(
+      &mut *transaction,
+      SearchIndexOp::UpdateIndex(SearchIndex {
+        id: key_id,
+        notes: item.notes,
+        username: item.username,
+        domain: item.domain,
+        tags: item.tags.join(' '),
+      }),
+    )
+    .await?;
     transaction.commit().await?;
 
     Ok(())
@@ -332,5 +325,134 @@ impl ProfileDB {
     .await?;
 
     Ok(())
+  }
+
+  async fn sync_search_index(conn: &mut SqliteConnection, op: SearchIndexOp) -> Result<(), Error> {
+    match op {
+      SearchIndexOp::DeleteIndex(id) => {
+        query!("DELETE FROM search_index WHERE ROWID = ?", id)
+          .execute(conn)
+          .await?;
+      }
+      SearchIndexOp::UpdateIndex(update_values) => {
+        query!(
+          "UPDATE search_index SET (domain, username, tags, notes) = (?,?,?,?) WHERE ROWID = ?",
+          update_values.domain,
+          update_values.username,
+          update_values.tags,
+          update_values.notes,
+          update_values.id
+        )
+        .execute(conn)
+        .await?;
+      }
+      SearchIndexOp::CreateIndex(create_values) => {
+        query!(
+          "INSERT INTO search_index (ROWID, domain, username, tags, notes) VALUES (?,?,?,?,?);",
+          create_values.id,
+          create_values.domain,
+          create_values.username,
+          create_values.tags,
+          create_values.notes,
+        )
+        .execute(conn)
+        .await?;
+      }
+    }
+
+    Ok(())
+  }
+}
+
+impl SearchQuery {
+  pub fn new(query: &str) -> Self {
+    let mut username_tokens: Vec<Box<str>> = Vec::new();
+    let mut domain_tokens: Vec<Box<str>> = Vec::new();
+    let mut tag_tokens: Vec<Box<str>> = Vec::new();
+    let mut fts_tokens: Vec<Box<str>> = Vec::new();
+
+    for token in query.split_ascii_whitespace() {
+      if let Some(tag_token) = token.strip_prefix("tag:") {
+        tag_tokens.push(Box::from(tag_token));
+      } else if let Some(domain_token) = token.strip_prefix("domain:") {
+        domain_tokens.push(Box::from(domain_token));
+      } else if let Some(usr_token) = token.strip_prefix("username:") {
+        username_tokens.push(Box::from(usr_token));
+      } else {
+        fts_tokens.push(Box::from(token));
+      }
+    }
+
+    Self {
+      fts_tokens,
+      username_tokens,
+      domain_tokens,
+      tag_tokens,
+    }
+  }
+
+  pub fn to_fts_query(&self) -> Option<String> {
+    let mut queries: Vec<String> = Vec::new();
+
+    if !self.fts_tokens.is_empty() {
+      queries.push(format!(
+        "({{domain username tags notes}}: {})",
+        Self::join_tokens(&self.fts_tokens, " OR ")
+      ));
+    }
+
+    if !self.username_tokens.is_empty() {
+      queries.push(format!(
+        "({{username}}: {})",
+        Self::join_tokens(&self.username_tokens, " OR ")
+      ));
+    }
+
+    if !self.domain_tokens.is_empty() {
+      queries.push(format!(
+        "({{domain}}: {})",
+        Self::join_tokens(&self.domain_tokens, " OR ")
+      ));
+    }
+
+    if !self.tag_tokens.is_empty() {
+      queries.push(format!(
+        "({{tags}}: {})",
+        Self::join_tokens(&self.tag_tokens, " OR ")
+      ));
+    }
+
+    if queries.is_empty() {
+      None
+    } else {
+      Some(queries.join(" AND "))
+    }
+  }
+
+  fn join_tokens<T>(tokens: &[T], separator: &str) -> String
+  where
+    T: AsRef<str>,
+  {
+    let mut result = String::new();
+
+    for (index, token) in tokens.iter().enumerate() {
+      let normalized = format!("\"{}\"", token.as_ref().replace("\"", "\"\""));
+      result.push_str(&normalized);
+
+      if index != tokens.len() - 1 {
+        result.push_str(separator);
+      }
+    }
+
+    result
+  }
+}
+
+impl<T> From<T> for SearchQuery
+where
+  T: AsRef<str>,
+{
+  fn from(value: T) -> Self {
+    Self::new(value.as_ref())
   }
 }

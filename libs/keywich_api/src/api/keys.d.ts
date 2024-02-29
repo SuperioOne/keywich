@@ -50,12 +50,6 @@ export interface KeyItem {
   custom_icon?: string;
 }
 
-export interface SearchQuery {
-  username?: string[];
-  domain?: string[];
-  tag?: string[];
-}
-
 export interface KeysRpcApi {
   delete_key(id: number): Promise<void>;
 
@@ -71,7 +65,7 @@ export interface KeysRpcApi {
 
   pin_key(id: number): Promise<void>;
 
-  search_keys(query: SearchQuery): Promise<KeyItem[]>;
+  search_keys(query: string): Promise<KeyItem[]>;
 
   unpin_key(id: number): Promise<void>;
 

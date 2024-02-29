@@ -56,16 +56,24 @@ mod tests {
   }
 
   #[tokio::test]
+  async fn empty_search() {
+    let profile_db = ProfileDB::connect("sqlite::memory:").await.unwrap();
+    profile_db.insert_key(generate_key!()).await.unwrap();
+    profile_db.insert_key(generate_key!()).await.unwrap();
+    profile_db.insert_key(generate_key!()).await.unwrap();
+
+    let keys = profile_db.search_keys("".into()).await.unwrap();
+
+    assert_eq!(3, keys.len());
+  }
+
+  #[tokio::test]
   async fn search_by_single_param() {
     let profile_db = ProfileDB::connect("sqlite::memory:").await.unwrap();
     profile_db.insert_key(generate_key!()).await.unwrap();
 
     let keys = profile_db
-      .search_keys(SearchQuery {
-        tag: Some(["tag1", "tag2"].into()),
-        domain: None,
-        username: None,
-      })
+      .search_keys("tag:tag1 tag:tag2".into())
       .await
       .unwrap();
 
@@ -78,11 +86,7 @@ mod tests {
     profile_db.insert_key(generate_key!()).await.unwrap();
 
     let keys = profile_db
-      .search_keys(SearchQuery {
-        tag: Some(["tag1", "tag2"].into()),
-        domain: Some(vec![String::from("domain")]),
-        username: None,
-      })
+      .search_keys("tag:tag1 tag:tag2 domain:domain".into())
       .await
       .unwrap();
 
@@ -95,11 +99,7 @@ mod tests {
     profile_db.insert_key(generate_key!()).await.unwrap();
 
     let keys = profile_db
-      .search_keys(SearchQuery {
-        tag: Some(["tag1", "tag2"].into()),
-        domain: Some(vec![String::from("domain")]),
-        username: Some(vec![String::from("username")]),
-      })
+      .search_keys("tag:tag1 tag:tag2 domain:domain username:username".into())
       .await
       .unwrap();
 
@@ -159,5 +159,16 @@ mod tests {
     let result = profile_db.get_key_by_id(999).await.unwrap();
 
     assert_eq!(true, result.is_none())
+  }
+
+  #[tokio::test]
+  async fn fts_query() {
+    let query =
+      SearchQuery::new("tag:tag1 tag:tag2 domain:test username:user\" test query like a tag");
+    if let Some(qtext) = query.to_fts_query() {
+      assert_eq!("({domain username tags notes}: \"test\" OR \"query\" OR \"like\" OR \"a\" OR \"tag\") AND ({username}: \"user\\\"\") AND ({domain}: \"test\") AND ({tags}: \"tag1\" OR \"tag2\")", &qtext)
+    } else {
+      assert!(false);
+    }
   }
 }

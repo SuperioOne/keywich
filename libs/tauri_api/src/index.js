@@ -3,7 +3,6 @@
  * @typedef {import("@keywich/api").CharsetItem} CharsetItem
  * @typedef {import("@keywich/api").CharsetOptions} CharsetOptions
  * @typedef {import("@keywich/api").KeyRequest} KeyRequest
- * @typedef {import("@keywich/api").SearchQuery} SearchQuery
  * @typedef {import("@keywich/api").PasswordGenerateRequest} PasswordGenerateRequest
  * @typedef {{
  *   target_size: number;
