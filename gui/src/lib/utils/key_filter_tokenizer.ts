@@ -1,8 +1,12 @@
+import {Log} from "$lib/logger";
+
+const WHITE_SPACE = /^\s$/;
+
 /**
  * Represents a type of token.
  */
 export type TokenType = {
-  type: "username" | "domain" | "tag" | "term"
+  type: "username" | "domain" | "tag" | "term" | "space",
   value: string
 }
 
@@ -13,17 +17,8 @@ export type TokenType = {
  * @return - Array of token types.
  */
 export function tokenize_filter_query(text: string): TokenType[] {
-  const tokens: TokenType[] = [];
-  const words = text.split(/\s/gi);
-  const iterator = words[Symbol.iterator]();
-  let current: IteratorResult<string, string> = iterator.next();
-
-  while (!current.done) {
-    tokens.push(resolve_token(current.value));
-    current = iterator.next();
-  }
-
-  return tokens;
+  const tokens = tokenize(text);
+  return tokens.map(e => resolve_token_type(e));
 }
 
 /**
@@ -32,27 +27,51 @@ export function tokenize_filter_query(text: string): TokenType[] {
  * @param input - The input string to be resolved.
  * @return - The resolved TokenType object.
  */
-function resolve_token(input: string): TokenType {
-  const first_semicolon = input.indexOf(":");
+function resolve_token_type(input: string): TokenType {
+  const first_colon = input.indexOf(":");
 
-  if (first_semicolon > -1) {
-    const tagName = input.slice(0, first_semicolon).toLowerCase();
+  if (first_colon > -1) {
+    const tagName = input.slice(0, first_colon).toLowerCase();
 
     switch (tagName) {
       case "tag":
       case "username":
       case "domain":
-        return {
-          type: tagName,
-          value: input.slice(first_semicolon + 1)
-        };
+        return {type: tagName, value: input.slice(first_colon + 1)};
       default:
         break;
     }
   }
 
-  return {
-    type: "term",
-    value: input
+  if (WHITE_SPACE.test(input)) {
+    return {type: "space", value: '\xa0'};
+  } else {
+    return {type: "term", value: input};
   }
+}
+
+function tokenize(text: string): string[] {
+  const tokens: string[] = [];
+  let select_start = -1;
+
+  for (let i = 0; i < text.length; i++) {
+    const char = text[i];
+
+    if (WHITE_SPACE.test(char)) {
+      if (select_start > -1) {
+        tokens.push(text.slice(select_start, i));
+      }
+
+      tokens.push(char);
+      select_start = -1;
+    } else if (select_start < 0) {
+      select_start = i;
+    }
+  }
+
+  if (select_start > -1) {
+    tokens.push(text.slice(select_start));
+  }
+
+  return tokens;
 }

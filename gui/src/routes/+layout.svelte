@@ -12,15 +12,19 @@
   storePopup.set({computePosition, autoUpdate, flip, shift, offset, arrow});
 </script>
 
-<svelte:window on:contextmenu|preventDefault={() => {}} on:keydown={(event) => {
-  if(event.code === "KeyR" && event.ctrlKey) {
-    Log.debug("Resetting app location.");
-    goto("/").catch(Log.error);
-  } else if(event.code === "F5" && data.path) {
-      Log.debug("reloading page");
-    goto(data.path).catch(Log.error);
-  }
-}}/>
+<!--on:contextmenu|preventDefault={() => {}}-->
+<svelte:window
+
+    on:keydown={(event) => {
+      if(event.code === "KeyR" && event.ctrlKey) {
+        Log.debug("Resetting app location.");
+        goto("/").catch(Log.error);
+      } else if(event.code === "F5" && data.path) {
+        Log.debug("reloading page");
+        goto(data.path).catch(Log.error);
+      }
+    }}
+/>
 <slot/>
 <Modal regionBackdrop="backdrop-blur-sm" zIndex="z-[998]" buttonNeutral="variant-soft"
        buttonPositive="variant-filled-primary"/>

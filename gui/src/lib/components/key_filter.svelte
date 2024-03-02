@@ -30,20 +30,14 @@
       desc_default: "Filter by tag"
     }];
 
-  let input_element: HTMLElement;
+  let input_element: HTMLDivElement;
   let input_container: HTMLElement;
   let menu_element: HTMLElement;
   let is_focused: boolean = false;
 
-  $: {
-    if (input_element) {
-      if (is_null_or_empty(query)) {
-        input_element.innerHTML = "";
-      } else {
-        const tokens = tokenize_filter_query(query);
-        input_element.innerHTML = tokens_to_html(tokens);
-      }
-    }
+  $:if (input_element && !is_null_or_empty(query)) {
+    const tokens = tokenize_filter_query(query);
+    render_text(input_element, tokens);
   }
 
   async function focus_input() {
@@ -69,21 +63,24 @@
     }
   }
 
-  function on_input(event: Event) {
-    if ((event as InputEvent).data === " ")
-      return;
+  function on_input() {
+    const query_text = input_element.textContent ?? "";
+    const caret_pos = get_caret_position(input_element);
+    const tokens = tokenize_filter_query(query_text);
 
-    query = input_element.textContent;
+    render_text(input_element, tokens);
+    set_caret_position(input_element, caret_pos);
   }
 
   function on_keyboard_event(event: KeyboardEvent) {
-    Log.debug(event.key)
     switch (event.key) {
       case "Enter": {
         event.preventDefault();
-        dispatcher("search", query);
-        if (!is_null_or_empty(query)) {
-          filterHistoryStore.push(query);
+        const query_text = input_element.textContent ?? "";
+
+        dispatcher("search", query_text);
+        if (!is_null_or_empty(query_text)) {
+          filterHistoryStore.push(query_text);
         }
         break;
       }
@@ -96,19 +93,24 @@
   }
 
   function on_clear() {
-    query = null;
-    dispatcher("search", query);
+    input_element.innerText = "";
+    dispatcher("search", null);
     is_focused = false;
   }
 
-  function on_option_select(value: string, override: boolean = false) {
+  async function on_option_select(value: string, override: boolean = false) {
     if (input_element) {
-      if (override) {
-        query = value;
+      let query_text: string = input_element.textContent ?? "";
+
+      if (override || is_null_or_empty(query_text)) {
+        query_text = value;
       } else {
-        query = `${query ?? ""} ${value}`;
+        query_text = `${query_text} ${value}`;
       }
 
+      const tokens = tokenize_filter_query(query_text);
+      render_text(input_element, tokens);
+      set_caret_position(input_element, query_text.length);
       input_element.focus();
     }
   }
@@ -126,32 +128,101 @@
     }
   }
 
-  function tokens_to_html(filter_tokens: TokenType[]) {
-    return filter_tokens
-      .map(e => {
-        if (e.type === "term") {
-          return `${e.value}`
-        } else {
-          return `<span class="p-1.5 text-sm font-bold rounded-md bg-surface-active-token ml-1">${e.type}<span class="font-normal">:${e.value}</span></span>`;
-        }
-      })
-      .join(" ");
+  function render_text(target: HTMLDivElement, tokens: TokenType[]) {
+    target.replaceChildren(...tokens.map(t => create_token_node(t)));
   }
 
-  function hydrate_nodes(tokens: TokenType[]) {
-    const node_iter = input_element.childNodes[Symbol.iterator]();
-    node_iter.next();
+  function create_token_node(token: TokenType): HTMLSpanElement {
+    const node = document.createElement("span");
+    node.setAttribute("token-type", token.type);
 
-    for (const token of tokens) {
-      switch (token.type) {
-        case "username":
-          break;
-        case "domain":
-          break;
-        case "tag":
-          break;
-        case "term":
-          break;
+    switch (token.type) {
+      case "username":
+      case "domain":
+      case "tag": {
+        const content_span = create_content_token(token.value);
+        const label_span = document.createElement("span");
+        label_span.setAttribute("token-label", "");
+        label_span.setAttribute("token-text", "");
+        label_span.innerText = `${token.type}:`;
+        label_span.className = "font-bold";
+        node.className = "p-1.5 text-sm rounded-md bg-surface-active-token ml-1";
+        node.append(label_span, content_span);
+        break;
+      }
+      default: {
+        const content_span = create_content_token(token.value);
+        node.append(content_span);
+        break;
+      }
+    }
+
+    return node;
+  }
+
+  function create_content_token(value: string): Node {
+    const content_span = document.createElement("span");
+    content_span.setAttribute("token-value", "");
+    content_span.setAttribute("token-text", "");
+    content_span.innerText = value;
+
+    return content_span;
+  }
+
+  function get_caret_position(target: HTMLElement) {
+    const selection = window.getSelection();
+
+    if (!selection || !selection.focusNode) {
+      return 0;
+    }
+
+    const focus_node = selection.focusNode;
+
+    if (target.hasChildNodes()) {
+      if (target.firstChild?.nodeType === Node.TEXT_NODE) {
+        return selection.focusOffset;
+      }
+    }
+
+    const child_nodes = target.querySelectorAll(`[token-text=""]`);
+
+    let pos = 0;
+    for (const child of child_nodes) {
+      if (child === focus_node || child.contains(focus_node)) {
+        pos += selection.focusOffset;
+        break;
+      } else {
+        pos += child.textContent?.length ?? 0;
+      }
+    }
+
+    return pos;
+  }
+
+  function set_caret_position(target: HTMLElement, target_pos: number) {
+    const child_nodes = target.querySelectorAll(`[token-text=""]`);
+    let current_pos = 0;
+
+    for (const child of child_nodes) {
+      const child_len = (child.textContent?.length ?? 0);
+      const next_pos = current_pos + child_len;
+
+      if (next_pos >= target_pos) {
+        const selection = window.getSelection();
+        const offset = target_pos - current_pos;
+
+        for (const node of child.childNodes) {
+          if (node.nodeType === Node.TEXT_NODE) {
+            selection?.setPosition(node, offset);
+            return;
+          }
+        }
+
+        Log.warn("Child doesn't have any text node.");
+        selection?.setPosition(child);
+        return;
+      } else {
+        current_pos = next_pos;
       }
     }
   }
@@ -168,13 +239,16 @@
         <FilterIcon size={18}/>
       </span>
       <div
+          id="wtf"
           role="search"
           bind:this={input_element}
           class="self-center inline whitespace-nowrap py-1 px-2 w-max-[300px] w-[300px] leading-normal overflow-hidden focus-visible:outline-none"
           contenteditable="true"
+          spellcheck="false"
           on:input={on_input}
           on:keydown={on_keyboard_event}
-      />
+      >
+      </div>
       <button class="variant-soft-surface px-3" on:click={on_clear}>
         <XIcon size={18}/>
       </button>

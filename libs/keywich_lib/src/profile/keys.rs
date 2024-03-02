@@ -21,6 +21,7 @@ enum SearchIndexOp {
   CreateIndex(SearchIndex),
 }
 
+#[derive(Debug)]
 pub struct SearchQuery {
   pub username_tokens: Vec<Box<str>>,
   pub domain_tokens: Vec<Box<str>>,
@@ -371,7 +372,7 @@ impl SearchQuery {
     let mut tag_tokens: Vec<Box<str>> = Vec::new();
     let mut fts_tokens: Vec<Box<str>> = Vec::new();
 
-    for token in query.split_ascii_whitespace() {
+    for token in query.split_whitespace() {
       if let Some(tag_token) = token.strip_prefix("tag:") {
         tag_tokens.push(Box::from(tag_token));
       } else if let Some(domain_token) = token.strip_prefix("domain:") {

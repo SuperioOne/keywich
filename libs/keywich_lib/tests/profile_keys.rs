@@ -166,7 +166,7 @@ mod tests {
     let query =
       SearchQuery::new("tag:tag1 tag:tag2 domain:test username:user\" test query like a tag");
     if let Some(qtext) = query.to_fts_query() {
-      assert_eq!("({domain username tags notes}: \"test\" OR \"query\" OR \"like\" OR \"a\" OR \"tag\") AND ({username}: \"user\\\"\") AND ({domain}: \"test\") AND ({tags}: \"tag1\" OR \"tag2\")", &qtext)
+      assert_eq!("({domain username tags notes}: \"test\" OR \"query\" OR \"like\" OR \"a\" OR \"tag\") AND ({username}: \"user\"\"\") AND ({domain}: \"test\") AND ({tags}: \"tag1\" OR \"tag2\")", &qtext)
     } else {
       assert!(false);
     }
