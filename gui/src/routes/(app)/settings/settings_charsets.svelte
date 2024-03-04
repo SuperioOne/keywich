@@ -101,7 +101,7 @@
               </p>
               <p class="text-tertiary-400-500-token">
                 <small>
-                  [{charset.charset}]
+                  {charset.charset}
                 </small>
               </p>
             </dt>

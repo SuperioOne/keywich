@@ -7,7 +7,6 @@
   import {
     KeyRow, KeyFilterInput, i18nStore, getToastStore, KeyForm, KeyUpdateForm, AdvancedCopyMenu, Log, ModalAction, RPC
   } from "$lib";
-  import {fly} from "svelte/transition";
   import {goto, invalidateAll} from "$app/navigation";
   import {getModalStore} from "@skeletonlabs/skeleton";
   import {is_error_response, is_null_or_empty} from "@keywich/api/utils";
@@ -15,6 +14,7 @@
   export let data: PageData;
 
   let selected: number | undefined = undefined;
+  let search_focused: boolean;
   const modal_store = getModalStore();
   const toast_store = getToastStore();
 
@@ -169,8 +169,24 @@
       return _search(`tag:${event.detail}`);
     }
   }
+
+  async function key_map(event: KeyboardEvent) {
+    if (event.ctrlKey) {
+      switch (event.code) {
+        case "KeyN": {
+          await create_key();
+          break;
+        }
+        case "KeyS": {
+          search_focused = !search_focused;
+          break;
+        }
+      }
+    }
+  }
 </script>
 
+<svelte:window on:keydown={key_map}/>
 <div class="flex gap-6 flex-col">
   <div class="grid grid-cols-2 gap-6">
     <div class="col-span-full sm:col-span-1 flex flex-row flex-wrap gap-2">
@@ -188,6 +204,7 @@
         <KeyFilterInput
             on:search={search_keys}
             query={data.search_query}
+            bind:is_focused={search_focused}
         >
           <FilterIcon size={18}/>
           <span>
@@ -205,7 +222,7 @@
   {:else }
     <div class="flex flex-col gap-1">
       {#each data.keys as row,index (row.id)}
-        <div class="w-full" transition:fly={{duration:200, y:20}}>
+        <div class="w-full">
           <KeyRow
               item={row}
               active={index === selected}

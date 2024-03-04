@@ -2,15 +2,13 @@
   import FilterIcon from "../icons/filter.svelte";
   import XIcon from "../icons/x.svelte";
   import type {TokenType} from "../utils";
+  import {Log} from "$lib/logger";
   import {computePosition, offset} from "@floating-ui/dom";
   import {createEventDispatcher, tick} from "svelte";
-  import {fly} from "svelte/transition";
   import {filterHistoryStore, i18nStore} from "../stores";
-  import {tokenize_filter_query} from "../utils";
+  import {fly} from "svelte/transition";
   import {is_null_or_empty} from "@keywich/api/utils";
-  import {Log} from "$lib/logger";
-
-  export let query: string | null;
+  import {tokenize_filter_query} from "../utils";
 
   const dispatcher = createEventDispatcher<{ search: string | null; }>();
   const search_options = [
@@ -30,37 +28,38 @@
       desc_default: "Filter by tag"
     }];
 
+  export let query: string | null;
+  export let is_focused: boolean = false;
+
   let input_element: HTMLDivElement;
   let input_container: HTMLElement;
   let menu_element: HTMLElement;
-  let is_focused: boolean = false;
 
   $:if (input_element && !is_null_or_empty(query)) {
     const tokens = tokenize_filter_query(query);
     render_text(input_element, tokens);
   }
 
-  async function focus_input() {
-    is_focused = true;
-    await tick();
+  $: if (is_focused) {
+    tick().then(async () => {
+      if (input_element) {
+        input_element.focus();
 
-    if (input_element) {
-      input_element.focus();
+        if (menu_element && input_container) {
+          const container_width = getComputedStyle(input_container).width;
+          const {x, y} = await computePosition(input_container, menu_element, {
+            placement: "bottom-start",
+            middleware: [offset({mainAxis: 5})]
+          })
 
-      if (menu_element && input_container) {
-        const container_width = getComputedStyle(input_container).width;
-        const {x, y} = await computePosition(input_container, menu_element, {
-          placement: "bottom-start",
-          middleware: [offset({mainAxis: 5})]
-        })
-
-        Object.assign(menu_element.style, {
-          left: `${x}px`,
-          top: `${y}px`,
-          width: container_width
-        });
+          Object.assign(menu_element.style, {
+            left: `${x}px`,
+            top: `${y}px`,
+            width: container_width
+          });
+        }
       }
-    }
+    });
   }
 
   function on_input() {
@@ -98,7 +97,7 @@
     is_focused = false;
   }
 
-  async function on_option_select(value: string, override: boolean = false) {
+  function on_option_select(value: string, override: boolean = false) {
     if (input_element) {
       let query_text: string = input_element.textContent ?? "";
 
@@ -239,7 +238,6 @@
         <FilterIcon size={18}/>
       </span>
       <div
-          id="wtf"
           role="search"
           bind:this={input_element}
           class="self-center inline whitespace-nowrap py-1 px-2 w-max-[300px] w-[300px] leading-normal overflow-hidden focus-visible:outline-none"
@@ -256,7 +254,7 @@
   {:else }
     <button
         class="btn variant-soft-surface btn-md"
-        on:click|stopPropagation|preventDefault={focus_input}
+        on:click|stopPropagation|preventDefault={() => { is_focused = true; }}
     >
       <slot>
         <FilterIcon size={18}/>

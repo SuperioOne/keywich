@@ -60,9 +60,35 @@
       await goto("unlock");
     }
   }
+
+  async function key_map(event: KeyboardEvent) {
+    if (event.ctrlKey) {
+      switch (event.code) {
+        case "Digit1": {
+          await goto(nav_items[0].target);
+          break;
+        }
+        case "Digit2": {
+          await goto(nav_items[1].target);
+          break;
+        }
+        case "Digit3": {
+          await goto(nav_items[2].target);
+          break;
+        }
+        case "KeyL": {
+          await on_lock();
+          break;
+        }
+      }
+    }
+  }
 </script>
 
-<svelte:window on:keyup|preventDefault={on_log_panel_flip}/>
+<svelte:window
+    on:keyup|preventDefault={on_log_panel_flip}
+    on:keydown={key_map}
+/>
 <AppShell class="h-full">
   <svelte:fragment slot="header">
     <div class="grid grid-flow-col grid-cols-12 bg-surface-200-700-token px-3 shadow">

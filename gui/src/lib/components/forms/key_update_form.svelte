@@ -29,6 +29,7 @@
   let field_errors: ValidationError<KeyRequest> = {};
   let form_element: HTMLFormElement;
   let icon_element: HTMLInputElement;
+  let selected_charset: string = data.charset;
   let icon_file: File | string | null = data.custom_icon ?? null;
   let icon_url: string | undefined = data.custom_icon ? RPC.convert_icon_src(data.custom_icon) : undefined;
   let note_value: string | null = data.notes ?? null;
@@ -39,6 +40,13 @@
   onMount(async () => {
     try {
       charset_list = await RPC.get_charsets();
+      if (charset_list.findIndex((e) => e.charset === data.charset) < 0) {
+        charset_list.push({
+          charset: data.charset,
+          name: "Unknown"
+        });
+      }
+
     } catch (err) {
       Log.error(err);
       toast_store.trigger_error($i18nStore.get_key("i18:/key-form/errors/charset-error", "Unable to load charset list."));
@@ -275,163 +283,156 @@
         {/if}
       </div>
 
-      <Accordion>
-        <AccordionItem open>
-          <svelte:fragment slot="lead">
-            <span class="text-warning-600">
-            <AlertIcon size={18}/>
-              </span>
-          </svelte:fragment>
-          <svelte:fragment slot="summary">
-            {$i18nStore.get_key("i18:/key-form/advanced", "Advanced Options")}
-          </svelte:fragment>
-          <svelte:fragment slot="content">
+      <h2 class="font-bold text-xl">
+        {$i18nStore.get_key("i18:/key-form/advanced", "Advanced Options")}
+      </h2>
 
-            <aside class="alert variant-ghost-warning">
-              <div>
-                <AlertIcon size={22}/>
-              </div>
-              <div class="alert-message">
-                <p>
-                  {$i18nStore.get_key(
-                    "i18:/key-form/advanced/warning-desc",
-                    "Changing advanced options will change the calculated password.")}
-                </p>
-              </div>
-            </aside>
+      <aside class="alert variant-ghost-warning">
+        <div>
+          <AlertIcon size={22}/>
+        </div>
+        <div class="alert-message">
+          <p>
+            {$i18nStore.get_key(
+              "i18:/key-form/advanced/warning-desc",
+              "Changing advanced options will change the calculated password.")}
+          </p>
+        </div>
+      </aside>
 
-            <div>
-              <label class="label">
-                <span class="font-bold">{$i18nStore.get_key("i18:/key-form/labels/domain", "Domain")}</span>
-                <input
-                    class:input-error={field_errors.domain}
-                    class="input"
-                    name="domain"
-                    type="text"
-                    placeholder={$i18nStore.get_key("i18:/key-form/desc/domain", "")}
-                    required
-                    value={data?.domain ?? null}
-                />
-              </label>
-              {#if field_errors.domain}
-                <ul class="m-1 font-light text-sm text-error-500-400-token list-disc list-inside">
-                  {#each field_errors.domain as error}
-                    <li>
-                      {$i18nStore.get_key(`i18:/field-errors/${error.code}`, error.message ?? "")}
-                    </li>
-                  {/each}
-                </ul>
-              {/if}
-            </div>
+      <div>
+        <label class="label">
+          <span class="font-bold">{$i18nStore.get_key("i18:/key-form/labels/domain", "Domain")}</span>
+          <input
+              class:input-error={field_errors.domain}
+              class="input"
+              name="domain"
+              type="text"
+              placeholder={$i18nStore.get_key("i18:/key-form/desc/domain", "")}
+              required
+              value={data?.domain ?? null}
+          />
+        </label>
+        {#if field_errors.domain}
+          <ul class="m-1 font-light text-sm text-error-500-400-token list-disc list-inside">
+            {#each field_errors.domain as error}
+              <li>
+                {$i18nStore.get_key(`i18:/field-errors/${error.code}`, error.message ?? "")}
+              </li>
+            {/each}
+          </ul>
+        {/if}
+      </div>
 
-            <div>
-              <label class="label">
-                <span class="font-bold">{$i18nStore.get_key("i18:/key-form/labels/username", "Username")}</span>
-                <input
-                    class:input-error={field_errors.username}
-                    class="input"
-                    type="text"
-                    name="username"
-                    placeholder={$i18nStore.get_key("i18:/key-form/desc/username", "")}
-                    required
-                    value={data?.username ?? null}
-                />
-              </label>
-              {#if field_errors.username}
-                <ul class="m-1 font-light text-sm text-error-500-400-token list-disc list-inside">
-                  {#each field_errors.username as error}
-                    <li>
-                      {$i18nStore.get_key(`i18:/field-errors/${error.code}`, error.message ?? "")}
-                    </li>
-                  {/each}
-                </ul>
-              {/if}
-            </div>
+      <div>
+        <label class="label">
+          <span class="font-bold">{$i18nStore.get_key("i18:/key-form/labels/username", "Username")}</span>
+          <input
+              class:input-error={field_errors.username}
+              class="input"
+              type="text"
+              name="username"
+              placeholder={$i18nStore.get_key("i18:/key-form/desc/username", "")}
+              required
+              value={data?.username ?? null}
+          />
+        </label>
+        {#if field_errors.username}
+          <ul class="m-1 font-light text-sm text-error-500-400-token list-disc list-inside">
+            {#each field_errors.username as error}
+              <li>
+                {$i18nStore.get_key(`i18:/field-errors/${error.code}`, error.message ?? "")}
+              </li>
+            {/each}
+          </ul>
+        {/if}
+      </div>
 
-            <div>
-              <label class="label" for="charset">
-                <span class="font-bold">{$i18nStore.get_key("i18:/key-form/labels/charset", "Charset")}</span>
-                <select
-                    class:input-error={field_errors.charset}
-                    class="select"
-                    name="charset"
-                    required
-                >
-                  {#each charset_list as charsetItem (charsetItem.name)}
-                    <option
-                        selected="{data?.charset === charsetItem.charset}"
-                        value={charsetItem.charset}
-                    >
-                      {charsetItem.name}
-                    </option>
-                  {/each}
-                </select>
-              </label>
-              {#if field_errors.charset}
-                <ul class="m-1 font-light text-sm text-error-500-400-token list-disc list-inside">
-                  {#each field_errors.charset as error}
-                    <li>
-                      {$i18nStore.get_key(`i18:/field-errors/${error.code}`, error.message ?? "")}
-                    </li>
-                  {/each}
-                </ul>
-              {/if}
-            </div>
+      <div>
+        <label class="label" for="charset">
+          <span class="font-bold">{$i18nStore.get_key("i18:/key-form/labels/charset", "Charset")}</span>
+          <select
+              bind:value={selected_charset}
+              class:input-error={field_errors.charset}
+              class="select"
+              name="charset"
+              required
+          >
+            {#each charset_list as charsetItem (charsetItem.name)}
+              <option
+                  selected="{data.charset === charsetItem.charset}"
+                  value={charsetItem.charset}
+              >
+                {charsetItem.name}
+              </option>
+            {/each}
+          </select>
+        </label>
+        <div class="flex justify-end items-center mt-2 font-light text-xs">
+          {selected_charset}
+        </div>
+        {#if field_errors.charset}
+          <ul class="m-1 font-light text-sm text-error-500-400-token list-disc list-inside">
+            {#each field_errors.charset as error}
+              <li>
+                {$i18nStore.get_key(`i18:/field-errors/${error.code}`, error.message ?? "")}
+              </li>
+            {/each}
+          </ul>
+        {/if}
+      </div>
 
-            <div>
-              <label class="label" for="target_size">
-                <span class="font-bold">
-                  {$i18nStore.get_key("i18:/key-form/labels/pass-length", "Password Length")}
-                </span>
-                <RangeSlider
-                    name="target_size"
-                    bind:value={slider_value}
-                    max={max_pass_len}
-                    step={1}
-                    min={1}
-                />
-              </label>
-              <div class="flex justify-end items-center">
-                <div class=" text-xs">{slider_value} / {max_pass_len}</div>
-              </div>
-              {#if field_errors.target_size}
-                <ul class="m-1 font-light text-sm text-error-500-400-token list-disc list-inside">
-                  {#each field_errors.target_size as error}
-                    <li>
-                      {$i18nStore.get_key(`i18:/field-errors/${error.code}`, error.message ?? "")}
-                    </li>
-                  {/each}
-                </ul>
-              {/if}
-            </div>
+      <div>
+        <label class="label" for="target_size">
+          <span class="font-bold">
+            {$i18nStore.get_key("i18:/key-form/labels/pass-length", "Password Length")}
+          </span>
+          <RangeSlider
+              name="target_size"
+              bind:value={slider_value}
+              max={max_pass_len}
+              step={1}
+              min={1}
+          />
+        </label>
+        <div class="flex justify-end items-center">
+          <div class=" text-xs">{slider_value} / {max_pass_len}</div>
+        </div>
+        {#if field_errors.target_size}
+          <ul class="m-1 font-light text-sm text-error-500-400-token list-disc list-inside">
+            {#each field_errors.target_size as error}
+              <li>
+                {$i18nStore.get_key(`i18:/field-errors/${error.code}`, error.message ?? "")}
+              </li>
+            {/each}
+          </ul>
+        {/if}
+      </div>
 
-            <div>
-              <label class="label">
-                <span class="font-bold">{$i18nStore.get_key("i18:/key-form/labels/revision", "Revision No")}</span>
-                <input
-                    class:input-error={field_errors.revision}
-                    class="input"
-                    type="number"
-                    name="revision"
-                    min="0"
-                    step="1"
-                    placeholder={$i18nStore.get_key("i18:/key-form/desc/revision", "")}
-                    value={data?.revision ?? 0}
-                />
-              </label>
-              {#if field_errors.revision}
-                <ul class="m-1 font-light text-sm text-error-500-400-token list-disc list-inside">
-                  {#each field_errors.revision as error}
-                    <li>
-                      {$i18nStore.get_key(`i18:/field-errors/${error.code}`, error.message ?? "")}
-                    </li>
-                  {/each}
-                </ul>
-              {/if}
-            </div>
-          </svelte:fragment>
-        </AccordionItem>
-      </Accordion>
+      <div>
+        <label class="label">
+          <span class="font-bold">{$i18nStore.get_key("i18:/key-form/labels/revision", "Revision No")}</span>
+          <input
+              class:input-error={field_errors.revision}
+              class="input"
+              type="number"
+              name="revision"
+              min="0"
+              step="1"
+              placeholder={$i18nStore.get_key("i18:/key-form/desc/revision", "")}
+              value={data?.revision ?? 0}
+          />
+        </label>
+        {#if field_errors.revision}
+          <ul class="m-1 font-light text-sm text-error-500-400-token list-disc list-inside">
+            {#each field_errors.revision as error}
+              <li>
+                {$i18nStore.get_key(`i18:/field-errors/${error.code}`, error.message ?? "")}
+              </li>
+            {/each}
+          </ul>
+        {/if}
+      </div>
     </form>
     <div class="flex flex-row justify-between">
       <button

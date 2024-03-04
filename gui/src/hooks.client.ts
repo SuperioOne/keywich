@@ -1,19 +1,12 @@
-import {AppEventBus, Log, type LogLevelType} from "$lib";
+import type {LogLevelType} from "$lib";
 import {
-  ApplicationSink,
-  ConsoleSink,
-  LoggerConfigurator,
-  LogLevel,
-  try_parse_log_level,
-  configStore,
-  i18nStore,
-  RPC
+  ApplicationSink, ConsoleSink, LoggerConfigurator, try_parse_log_level,
+  LogLevel, configStore, i18nStore, RPC, AppEventBus, Log
 } from "$lib";
 import {env} from "$env/dynamic/public";
-import {or_default} from "@keywich/api/utils";
 import {goto} from "$app/navigation";
 
-const LOG_LEVEL: LogLevelType = or_default(try_parse_log_level(env.PUBLIC_KW_LOG_LEVEL), LogLevel.INFO);
+const LOG_LEVEL: LogLevelType = try_parse_log_level(env.PUBLIC_KW_LOG_LEVEL) ?? LogLevel.INFO;
 
 LoggerConfigurator([
   ConsoleSink(LOG_LEVEL),

@@ -8,18 +8,15 @@
   import type {LayoutData} from "./$types";
 
   export let data: LayoutData;
+
   initializeStores();
   storePopup.set({computePosition, autoUpdate, flip, shift, offset, arrow});
 </script>
 
-<!--on:contextmenu|preventDefault={() => {}}-->
 <svelte:window
-
+    on:contextmenu|preventDefault={() => {}}
     on:keydown={(event) => {
-      if(event.code === "KeyR" && event.ctrlKey) {
-        Log.debug("Resetting app location.");
-        goto("/").catch(Log.error);
-      } else if(event.code === "F5" && data.path) {
+      if(event.code === "F5" && data.path) {
         Log.debug("reloading page");
         goto(data.path).catch(Log.error);
       }

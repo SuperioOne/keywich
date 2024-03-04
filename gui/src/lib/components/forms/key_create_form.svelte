@@ -16,6 +16,7 @@
   const max_pass_len: number = 64;
 
   let charset_list: CharsetItem[] = [];
+  let selected_charset: string | null = null;
   let field_errors: ValidationError<KeyRequest> = {};
   let form_element: HTMLFormElement;
   let icon_element: HTMLInputElement;
@@ -28,6 +29,7 @@
   onMount(async () => {
     try {
       charset_list = await RPC.get_charsets();
+      selected_charset = charset_list[0]?.charset ?? "";
     } catch (err) {
       Log.error(err);
       toast_store.trigger_error($i18nStore.get_key("i18:/key-form/errors/charset-error", "Unable to load charset list."));
@@ -212,6 +214,7 @@
         <label class="label" for="charset">
           <span class="font-bold">{$i18nStore.get_key("i18:/key-form/labels/charset", "Charset")}</span>
           <select
+              bind:value={selected_charset}
               class:input-error={field_errors.charset}
               class="select"
               name="charset"
@@ -224,6 +227,9 @@
             {/each}
           </select>
         </label>
+        <div class="flex justify-end items-center mt-2 font-light text-xs">
+          {selected_charset}
+        </div>
         {#if field_errors.charset}
           <ul class="m-1 font-light text-sm text-error-500-400-token list-disc list-inside">
             {#each field_errors.charset as error}

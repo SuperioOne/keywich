@@ -1,5 +1,3 @@
-import {Log} from "$lib/logger";
-
 const WHITE_SPACE = /^\s$/;
 
 /**
@@ -21,12 +19,6 @@ export function tokenize_filter_query(text: string): TokenType[] {
   return tokens.map(e => resolve_token_type(e));
 }
 
-/**
- * Resolves type of input and returns the corresponding TokenType.
- *
- * @param input - The input string to be resolved.
- * @return - The resolved TokenType object.
- */
 function resolve_token_type(input: string): TokenType {
   const first_colon = input.indexOf(":");
 
