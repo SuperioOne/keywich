@@ -16,12 +16,12 @@ pub async fn unlock_db(
 ) -> Result<(), AppErrors> {
   key_state.entry.set_password(&master_pass)?;
 
-  let app_data_dir = &app
+  let local_data_dir = &app
     .path_resolver()
-    .app_data_dir()
+    .app_local_data_dir()
     .ok_or(AppErrors::LocalDataDirNotFound)?;
 
-  let db_path = Path::join(&app_data_dir, APP_DB_NAME);
+  let db_path = Path::join(&local_data_dir, APP_DB_NAME);
   let path_str = db_path.to_str().ok_or(AppErrors::DbNotInitialized)?;
   let connection_string = format!("sqlite:{}", path_str);
   let passphrase = generate_hex_phrase(master_pass.as_bytes())?;

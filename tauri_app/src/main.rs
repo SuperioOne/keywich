@@ -106,11 +106,11 @@ fn main() {
 fn start_gui() {
   tauri::Builder::default()
     .setup(|app| {
-      let app_data_dir = &app.path_resolver().app_data_dir().unwrap();
+      let local_data_dir = &app.path_resolver().app_local_data_dir().unwrap();
       let keyring_entry = Entry::new("keywich", "mdb")?;
-      let config_file = Path::join(&app_data_dir, "config.json");
+      let config_file = Path::join(&local_data_dir, "config.json");
 
-      if !config_file.exists() {
+      if let Ok(false) = config_file.try_exists() {
         let mut fs = std::fs::File::create(config_file).unwrap();
         fs.write_all(DEFAULT_CONFIG).unwrap();
         fs.flush().unwrap();

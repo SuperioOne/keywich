@@ -30,7 +30,7 @@ where
   icon_path.push(&path);
 
   let response = ResponseBuilder::new();
-  if icon_path.is_file() && icon_path.exists() {
+  if icon_path.is_file() {
     match fs::read(icon_path) {
       Ok(data) => response.status(200).body(data),
       Err(err) => response.status(400).body(err.to_string().into_bytes()),

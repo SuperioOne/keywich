@@ -64,9 +64,9 @@ pub async fn process_icon(handle: AppHandle, file_path: String) -> Result<String
 
     let mut dest_path = Path::join(&local_data_dir, "contents");
 
-    if !dest_path.exists() {
+    if let Ok(false) = dest_path.try_exists() {
       fs::create_dir(&dest_path).map_err(|_err| AppErrors::ContentPathFailed)?;
-    }
+    };
 
     dest_path.push(&file_name);
 
@@ -93,7 +93,7 @@ pub async fn alloc_temp_path(handle: AppHandle) -> Result<String, AppErrors> {
 
   let mut temp_path = Path::join(&local_data_dir, "temp");
 
-  if !temp_path.exists() {
+  if let Ok(false) = temp_path.try_exists() {
     fs::create_dir(&temp_path).map_err(|_err| AppErrors::TempFolderFailed)?;
   }
 
@@ -106,15 +106,15 @@ pub async fn alloc_temp_path(handle: AppHandle) -> Result<String, AppErrors> {
 
 #[tauri::command(rename_all = "snake_case")]
 pub async fn load_configs(app: AppHandle) -> Result<AppConfig, AppErrors> {
-  let app_data_dir = app
+  let local_data_dir = app
     .path_resolver()
-    .app_data_dir()
+    .app_local_data_dir()
     .ok_or(AppErrors::LocalDataDirNotFound)?;
 
-  let db_path = Path::join(&app_data_dir, crate::commands::login::APP_DB_NAME);
-  let config_file = Path::join(&app_data_dir, "config.json");
+  let db_path = Path::join(&local_data_dir, crate::commands::login::APP_DB_NAME);
+  let config_file = Path::join(&local_data_dir, "config.json");
   let mut app_details = AppConfig {
-    is_db_created: db_path.is_file() && db_path.exists(),
+    is_db_created: db_path.is_file(),
     configs: None,
     locale_keys: None,
     // TODO: Convert this to proc macro and generate from locales folder automatically when there are more than 5 locale. For now it's unnecessary.
