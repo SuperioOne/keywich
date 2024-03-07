@@ -25,7 +25,7 @@ export const LoggerConfigurator = (sinks: LoggerSink[]) => {
 export const Log = new GlobalLogger(emitter);
 
 export function try_parse_log_level(value: string): LogLevelType | undefined {
-  switch (value.toUpperCase()) {
+  switch (value?.toUpperCase()) {
     case "ERROR":
       return LogLevel.ERROR;
     case "WARN":
