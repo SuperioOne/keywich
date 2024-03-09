@@ -1,0 +1,9 @@
+[book]
+authors = ["Timur Olur"]
+language = "en"
+multilingual = false
+src = "src"
+title = "Keywich Docs"
+[output.html]
+preferred-dark-theme = "ayu"
+default-theme = "dark"
