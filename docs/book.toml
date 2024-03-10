@@ -7,3 +7,6 @@ title = "Keywich Docs"
 [output.html]
 preferred-dark-theme = "ayu"
 default-theme = "dark"
+git-repository-url = "https://github.com/SuperioOne/keywich"
+git-repository-icon = "fa-github"
+cname = "keywich.smdd.dev"

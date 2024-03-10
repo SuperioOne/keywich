@@ -1,6 +1,6 @@
 # Charsets
 
-The Actual generated password is a fixed-size binary blob based on target length [^charset], which is then converted to
+The actual generated password is a fixed-size binary blob based on target length [^charset], which is then converted to
 text within a given character range by charset. This is useful when a site or application does not allow certain
 characters.
 

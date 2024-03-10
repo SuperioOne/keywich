@@ -1,8 +1,7 @@
 # Summary
 
 - [Introduction](./introduction.md)
-- [Installation (Linux)](./installation_linux.md)
-- [Installation (Windows)](./installation_windows.md)
+- [Installation](./installation.md)
 - [How to Use](./how_to_use.md)
     - [Setup Profile](./setup_profile.md)
     - [Charsets](./charsets.md)

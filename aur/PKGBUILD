@@ -1,0 +1,23 @@
+# Maintainer: Timur Olur <pm@smdd.dev>
+
+pkgname=keywich
+pkgver=0.1.0
+pkgrel=1
+pkgdesc='Password generator CLI/GUI application.'
+url='https://github.com/SuperioOne/keywich/'
+arch=('x86_64')
+license=('Apache-2.0')
+depends=('gtk3' 'webkit2gtk')
+source=("${pkgname}-${pkgver}.tar.gz"::"https://github.com/SuperioOne/keywich/releases/download/v${pkgver}/${pkgname}_${pkgver}_amd64.tar.gz")
+
+package() {
+  install -m755 -D "./usr/bin/keywich" "${pkgdir}/usr/bin/keywich"
+  install -m644 -D "./usr/lib/keywich/locales/en.json" "${pkgdir}/usr/lib/keywich/locales/en.json"
+  install -m644 -D "./usr/lib/keywich/locales/tr.json" "${pkgdir}/usr/lib/keywich/locales/tr.json"
+  install -m644 -D "./usr/share/applications/keywich.desktop" "${pkgdir}/usr/share/applications/keywich.desktop"
+  install -m644 -D "./usr/share/icons/hicolor/128x128/apps/keywich.png" "${pkgdir}/usr/share/icons/hicolor/128x128/apps/keywich.png"
+  install -m644 -D "./usr/share/icons/hicolor/256x256@2/apps/keywich.png" "${pkgdir}/usr/share/icons/hicolor/256x256@2/apps/keywich.png"
+  install -m644 -D "./usr/share/icons/hicolor/32x32/apps/keywich.png" "${pkgdir}/usr/share/icons/hicolor/32x32/apps/keywich.png"
+}
+
+sha256sums=('4afca53642411ebe3ee27e66f5ca3eea6fcf5dc67f0e715c3594cb2dea5020d5')

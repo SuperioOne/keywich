@@ -2,7 +2,7 @@
 
 ## Domain
 
-The Service name. The domain is used for generating password and is **case-insensitive**.
+The service name. The domain is used for generating password and is **case-insensitive**.
 
 ## Username
 

@@ -10,7 +10,7 @@
 
 **Keys page:**
 
-- `Ctrl` + `F` : Open/Close key filter.
+- `Ctrl` + `S` : Open/Close key filter.
 - `Ctrl` + `N` : Create new key.
 
 > Current version does not have configurable shortcuts.

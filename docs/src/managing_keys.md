@@ -21,7 +21,7 @@ Generate and copy your password to the clipboard via left-clicking the copy butt
 the copy button to open `Advanced Copy` menu for additional options like base64 encoding, URI encoded, QR Code and clear
 text.
 
-![Advanced copy menu view](./images/advanced_copy.png)
+![Advanced copy menu view](./images/advanced_copy.webp)
 
 ## Pinning a key
 

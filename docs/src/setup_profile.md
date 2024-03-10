@@ -9,6 +9,6 @@ password for unlocking the database.
 > It is important to ensure that your master password is long, random and unique to enhance the security of your
 > generated passwords and profile database
 
-![Initialization screen view](./images/initialization.png)
+![Initialization screen view](./images/initialization.webp)
 
 
