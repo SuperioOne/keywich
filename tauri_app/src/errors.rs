@@ -19,9 +19,7 @@ pub enum AppErrors {
   ContentPathFailed,
   DbNotInitialized,
   IconReadFailed(String),
-  RwLockFailed,
   IconResizeFailed(String),
-
   KeyringFailure(String),
   NoKeyEntry,
   DuplicateKeyEntry,
@@ -42,7 +40,6 @@ impl AppErrors {
       AppErrors::KeyNotFound => 202,
       AppErrors::IconReadFailed(_) => 203,
       AppErrors::IconResizeFailed(_) => 204,
-      AppErrors::RwLockFailed => 205,
       AppErrors::DbNotInitialized => 206,
       AppErrors::KeyringFailure(_) => 207,
       AppErrors::NoKeyEntry => 208,
@@ -106,29 +103,26 @@ impl From<keyring::Error> for AppErrors {
 
 impl Display for AppErrors {
   fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-    let message = match self {
-      AppErrors::OutputError(_) => "OutputError",
-      AppErrors::InvalidTargetLength => "InvalidTargetLength",
-      AppErrors::InvalidCharset => "InvalidCharset",
-      AppErrors::LibError(_) => "LibError",
-      AppErrors::UnsupportedHashFunc => "UnsupportedHashFunc",
-      AppErrors::ValidationError(_) => "ValidationError",
-      AppErrors::KeyNotFound => "KeyNotFound",
-      AppErrors::LocalDataDirNotFound => "LocalDataDirNotFound",
-      AppErrors::TempFolderFailed => "TempFolderFailed",
-      AppErrors::ConfigPathFailed => "ConfigPathFailed",
-      AppErrors::LocalePathFailed => "LocalePathFailed",
-      AppErrors::ContentPathFailed => "ContentPathFailed",
-      AppErrors::IconReadFailed(_) => "IconReadFailed",
-      AppErrors::IconResizeFailed(_) => "IconResizeFailed",
-      AppErrors::DbNotInitialized => "DbNotInitialized",
-      AppErrors::RwLockFailed => "RwLockFailed",
-      AppErrors::KeyringFailure(_) => "KeyringFailure",
-      AppErrors::NoKeyEntry => "NoKeyEntry",
-      AppErrors::DuplicateKeyEntry => "DuplicateKeyEntry",
-    };
-
-    f.write_str(message)
+    match self {
+      AppErrors::OutputError(err) => write!(f, "Password output generation failed. {}", err),
+      AppErrors::InvalidTargetLength => write!(f, "Password target length is not valid."),
+      AppErrors::InvalidCharset => write!(f, "Provided charset syntax is not valid."),
+      AppErrors::LibError(err) => write!(f, "Unexpected error, {}", err),
+      AppErrors::UnsupportedHashFunc => write!(f, "Unsupported hash function received."),
+      AppErrors::ValidationError(err) => write!(f, "Input validation failed {}", err),
+      AppErrors::KeyNotFound => write!(f, "Requested key does not exists."),
+      AppErrors::LocalDataDirNotFound => write!(f, "Local data directory not found."),
+      AppErrors::TempFolderFailed => write!(f, "Unable to access app temp directory."),
+      AppErrors::ConfigPathFailed => write!(f, "Unable to access app config file."),
+      AppErrors::LocalePathFailed => write!(f, "Unable to access app locale directory."),
+      AppErrors::ContentPathFailed => write!(f, "Unable to access app content directory."),
+      AppErrors::IconReadFailed(err) => write!(f, "Cannot read key icon content, {}", err),
+      AppErrors::IconResizeFailed(err) => write!(f, "Icon resize operation failed, {}", err),
+      AppErrors::DbNotInitialized => write!(f, "Database is not initialized."),
+      AppErrors::KeyringFailure(err) => write!(f, "OS keyring failed, {}", err),
+      AppErrors::NoKeyEntry => write!(f, "No master key entry found."),
+      AppErrors::DuplicateKeyEntry => write!(f, "Duplicate master key entry detected."),
+    }
   }
 }
 

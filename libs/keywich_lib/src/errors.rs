@@ -1,4 +1,4 @@
-use std::fmt::Debug;
+use std::fmt::{Debug, Display, Formatter};
 use std::path::PathBuf;
 
 #[derive(Debug)]
@@ -14,6 +14,26 @@ pub enum Error {
   InvalidJsonError(String),
   InvalidQrError(String),
   ValidationError(validator::ValidationErrors),
+}
+
+impl Display for Error {
+  fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+    match self {
+      Error::InvalidHashOutput => write!(f, "Generated input output length is not valid."),
+      Error::ParserInvalidRange => write!(f, "Charset range is not valid."),
+      Error::InvalidInput => write!(f, "Hash input options are not valid."),
+      Error::DatabaseError(err) => write!(f, "Database action failed. Reason: {}", err),
+      Error::DatabaseMigrateError(err) => write!(f, "Database migration failed. Reason: {}", err),
+      Error::InvalidDatabasePath(path) => write!(f, "Database path {:?} is not accessible.", path),
+      Error::InvalidTime(err) => write!(f, "Unix timestamp input cannot be parsed. {}", err),
+      Error::InvalidHashFuncVersion => write!(f, "Unsupported hash function version received"),
+      Error::InvalidJsonError(err) => {
+        write!(f, "Password json serialization failed. Reason: {}", err)
+      }
+      Error::InvalidQrError(err) => write!(f, "Password qr generation failed. Reason: {}", err),
+      Error::ValidationError(err) => write!(f, "Input validation failed, {}", err),
+    }
+  }
 }
 
 impl From<validator::ValidationErrors> for Error {

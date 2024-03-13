@@ -13,9 +13,11 @@ const emitter = new LogEmitter();
  *
  * @param sinks - The sinks to register with the logger.
  */
-export const LoggerConfigurator = (sinks: LoggerSink[]) => {
-  for (const sink of sinks) {
-    emitter.register(sink);
+export const LoggerConfigurator = {
+  setup: (sinks: LoggerSink[]) => {
+    for (const sink of sinks) {
+      emitter.register(sink);
+    }
   }
 };
 

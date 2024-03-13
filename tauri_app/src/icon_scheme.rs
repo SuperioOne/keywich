@@ -5,9 +5,9 @@ use std::path::Path;
 use tauri::http::{Request, Response, ResponseBuilder};
 use tauri::AppHandle;
 
-pub(crate) const ICON_PROTOCOL: &'static str = "kwicon";
+pub(crate) const ICON_PROTOCOL: &str = "kwicon";
 
-const PREFIX: &'static str = concatcp!("", ICON_PROTOCOL, "://localhost/");
+const PREFIX: &str = concatcp!("", ICON_PROTOCOL, "://localhost/");
 
 pub(crate) fn icon_protocol_handler<R>(
   app: &AppHandle<R>,

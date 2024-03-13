@@ -13,6 +13,7 @@
   storePopup.set({computePosition, autoUpdate, flip, shift, offset, arrow});
 </script>
 
+
 <svelte:window
     on:contextmenu|preventDefault={() => {}}
     on:keydown={(event) => {

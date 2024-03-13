@@ -15,11 +15,13 @@ pub struct ProfileDB {
 
 pub enum SqlitePassphrase {
   Text(String),
+  #[deprecated]
   Hex(String),
 }
 
 pub struct ProfileDBSqliteOptions {
   pub password: Option<SqlitePassphrase>,
+  pub new_password: Option<SqlitePassphrase>,
   pub busy_timeout: Option<Duration>,
   pub disable_migrate: bool,
 }
@@ -30,6 +32,7 @@ impl Default for ProfileDBSqliteOptions {
       disable_migrate: false,
       busy_timeout: Some(Duration::from_secs(30)),
       password: None,
+      new_password: None,
     }
   }
 }
@@ -47,21 +50,28 @@ impl ProfileDB {
     let ProfileDBSqliteOptions {
       busy_timeout,
       password,
+      new_password,
       disable_migrate,
     } = sqlite_options;
 
     let mut options = SqliteConnectOptions::from_str(connection_str)?;
-    options = options
-      .create_if_missing(true)
-      .foreign_keys(true)
-      .busy_timeout(busy_timeout.unwrap_or(Duration::from_secs(30)))
-      .read_only(false);
 
     options = match password {
       Some(SqlitePassphrase::Text(raw_text)) => options.pragma("key", raw_text),
       Some(SqlitePassphrase::Hex(hex_text)) => options.pragma("hexkey", hex_text),
       None => options,
     };
+
+    options = match new_password {
+      Some(SqlitePassphrase::Text(raw_text)) => options.pragma("rekey", raw_text),
+      _ => options,
+    };
+
+    options = options
+      .create_if_missing(true)
+      .foreign_keys(true)
+      .busy_timeout(busy_timeout.unwrap_or(Duration::from_secs(30)))
+      .read_only(false);
 
     let pool = SqlitePool::connect_with(options).await?;
 

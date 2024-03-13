@@ -9,6 +9,7 @@ export interface AppConfig {
   is_db_created: boolean;
   locale_keys?: Record<string, string>;
   available_locales: string[];
+  log_level: "ERROR" | "WARN" | "INFO" | "DEBUG" | "TRACE";
 }
 
 export interface ConfigRPCApi {

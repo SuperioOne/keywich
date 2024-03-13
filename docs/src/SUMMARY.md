@@ -10,3 +10,5 @@
     - [Settings](./settings.md)
     - [Shortcuts](./shortcuts.md)
     - [CLI](./cli.md)
+- [Changelog](./changelog.md)
+    - [v0.2.0](./changelogs/v0_2_0.md)

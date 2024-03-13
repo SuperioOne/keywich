@@ -6,6 +6,7 @@
 mod commands;
 mod errors;
 mod icon_scheme;
+mod result_log;
 
 use crate::commands::password::generate;
 use crate::icon_scheme::{icon_protocol_handler, ICON_PROTOCOL};
@@ -13,6 +14,12 @@ use clap::{Parser, Subcommand, ValueEnum};
 use keyring::Entry;
 use keywich_lib::profile::ProfileDB;
 use keywich_lib::PasswordConfig;
+use log::{info, LevelFilter};
+use log4rs::append::console::ConsoleAppender;
+use log4rs::append::file::FileAppender;
+use log4rs::config::{Appender, Root};
+use log4rs::encode::pattern::PatternEncoder;
+use log4rs::Config;
 use serde::Deserialize;
 use std::env::args;
 use std::fmt::Debug;
@@ -58,10 +65,14 @@ enum KeywichCommand {
     revision: i64,
   },
   /// Start GUI application
-  GUI,
+  Gui {
+    /// App log level
+    #[arg(long)]
+    log_level: Option<LevelFilter>,
+  },
 }
 
-const DEFAULT_CONFIG: &'static [u8] = br#"{
+const DEFAULT_CONFIG: &[u8] = br#"{
     "is_light_theme": false,
     "color_theme": "crimson",
     "locale": "en"
@@ -84,33 +95,59 @@ pub(crate) struct KeyState {
   entry: Arc<Entry>,
 }
 
+pub(crate) struct LogLevel {
+  level: Arc<LevelFilter>,
+}
+
 trait DbNotifier {
   fn emit_unlock_required(&self) -> Result<(), tauri::Error>;
 }
 
 impl DbNotifier for AppHandle {
   fn emit_unlock_required(&self) -> Result<(), tauri::Error> {
-    let _ = self.emit_all("unlock_required", ())?;
+    self.emit_all("unlock_required", ())?;
     Ok(())
   }
 }
 
 fn main() {
   if args().len() == 1 {
-    start_gui()
+    start_gui(LevelFilter::Warn)
   } else {
     start_cli()
   }
 }
 
-fn start_gui() {
+fn start_gui(log_level: LevelFilter) {
   tauri::Builder::default()
-    .setup(|app| {
+    .setup(move |app| {
+      let log_dir = &app.path_resolver().app_log_dir().unwrap();
+      let log_file_path = log_dir.join("app_log.log");
+      let console_logger = ConsoleAppender::builder().build();
+      let file_logger = FileAppender::builder()
+        .encoder(Box::new(PatternEncoder::new("{d} {l} {m}{n}")))
+        .build(log_file_path)
+        .unwrap();
+
+      let config = Config::builder()
+        .appender(Appender::builder().build("stdout", Box::new(console_logger)))
+        .appender(Appender::builder().build("logfile", Box::new(file_logger)))
+        .build(
+          Root::builder()
+            .appender("stdout")
+            .appender("logfile")
+            .build(log_level),
+        )
+        .unwrap();
+
+      log4rs::init_config(config).unwrap();
+
       let local_data_dir = &app.path_resolver().app_local_data_dir().unwrap();
       let keyring_entry = Entry::new("keywich", "mdb")?;
-      let config_file = Path::join(&local_data_dir, "config.json");
+      let config_file = Path::join(local_data_dir, "config.json");
 
       if let Ok(false) = config_file.try_exists() {
+        info!("Creating default config file at {:?}", &config_file);
         let mut fs = std::fs::File::create(config_file).unwrap();
         fs.write_all(DEFAULT_CONFIG).unwrap();
         fs.flush().unwrap();
@@ -121,6 +158,9 @@ fn start_gui() {
       });
       app.manage(KeyState {
         entry: Arc::from(keyring_entry),
+      });
+      app.manage(LogLevel {
+        level: Arc::from(log_level),
       });
 
       Ok(())
@@ -171,6 +211,6 @@ fn start_cli() {
         }
       }
     }
-    KeywichCommand::GUI => start_gui(),
+    KeywichCommand::Gui { log_level } => start_gui(log_level.unwrap_or(LevelFilter::Warn)),
   };
 }

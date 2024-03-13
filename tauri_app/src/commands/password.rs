@@ -1,4 +1,5 @@
 use crate::errors::AppErrors;
+use crate::result_log::ResultLog;
 use crate::{AppDbState, DbNotifier, KeyState, PasswordOutputType};
 use keywich_lib::hash::HashAlgorithm;
 use serde::Deserialize;
@@ -50,9 +51,10 @@ pub async fn generate_password_from(
   let read_lock = state.profile_db.read().await;
 
   if let Some(profile_db) = read_lock.deref() {
-    if let Some(key) = profile_db.get_key_by_id(profile_id).await? {
-      let target_len =
-        usize::try_from(key.target_size).map_err(|_err| AppErrors::InvalidTargetLength)?;
+    if let Some(key) = profile_db.get_key_by_id(profile_id).await.log_err()? {
+      let target_len = usize::try_from(key.target_size)
+        .map_err(|_err| AppErrors::InvalidTargetLength)
+        .log_err()?;
       let config = keywich_lib::PasswordConfig {
         password: &password,
         revision: key.revision,
@@ -85,7 +87,9 @@ pub fn generate_password(request: PasswordGenerateRequest) -> Result<String, App
     target_len,
   } = request;
 
-  let target_len = usize::try_from(target_len).map_err(|_err| AppErrors::InvalidTargetLength)?;
+  let target_len = usize::try_from(target_len)
+    .map_err(|_err| AppErrors::InvalidTargetLength)
+    .log_err()?;
 
   let config = keywich_lib::PasswordConfig {
     charset: &charset,
@@ -106,15 +110,15 @@ pub(crate) fn generate(
 ) -> Result<String, AppErrors> {
   let hash_algo = match algo {
     None => HashAlgorithm::default(),
-    Some(algo_name) => HashAlgorithm::from_str(algo_name)?,
+    Some(algo_name) => HashAlgorithm::from_str(algo_name).log_err()?,
   };
-  let pass_result = keywich_lib::generate_password(config, hash_algo)?;
+  let pass_result = keywich_lib::generate_password(config, hash_algo).log_err()?;
   let string_response = match output_type {
     PasswordOutputType::PHC => pass_result.to_phc(),
     PasswordOutputType::Text => pass_result.pass,
     PasswordOutputType::Base64 => pass_result.to_base64(),
-    PasswordOutputType::Json => pass_result.to_json()?,
-    PasswordOutputType::Qr => pass_result.to_qr()?,
+    PasswordOutputType::Json => pass_result.to_json().log_err()?,
+    PasswordOutputType::Qr => pass_result.to_qr().log_err()?,
   };
 
   Ok(string_response)

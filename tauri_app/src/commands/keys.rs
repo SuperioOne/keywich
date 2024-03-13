@@ -1,6 +1,7 @@
 use crate::errors::AppErrors;
+use crate::result_log::ResultLog;
 use crate::{AppDbState, DbNotifier};
-use keywich_lib::profile::keys::{KeyData, KeyItem, SearchQuery};
+use keywich_lib::profile::keys::{KeyData, KeyItem};
 use std::ops::Deref;
 use tauri::{AppHandle, State};
 
@@ -12,7 +13,7 @@ pub async fn get_keys(
   let read_lock = state.profile_db.read().await;
 
   if let Some(profile_db) = read_lock.deref() {
-    let keys = profile_db.get_keys(false).await?;
+    let keys = profile_db.get_keys(false).await.log_err()?;
     Ok(keys)
   } else {
     let _ = app.emit_unlock_required();
@@ -28,7 +29,7 @@ pub async fn get_pinned_keys(
   let read_lock = state.profile_db.read().await;
 
   if let Some(profile_db) = read_lock.deref() {
-    let keys = profile_db.get_keys(true).await?;
+    let keys = profile_db.get_keys(true).await.log_err()?;
     Ok(keys)
   } else {
     let _ = app.emit_unlock_required();
@@ -45,7 +46,7 @@ pub async fn search_keys(
   let read_lock = state.profile_db.read().await;
 
   if let Some(profile_db) = read_lock.deref() {
-    let keys = profile_db.search_keys(query.into()).await?;
+    let keys = profile_db.search_keys(query.into()).await.log_err()?;
     Ok(keys)
   } else {
     let _ = app.emit_unlock_required();
@@ -62,11 +63,11 @@ pub async fn delete_key(
   let read_lock = state.profile_db.read().await;
 
   if let Some(profile_db) = read_lock.deref() {
-    if let Some(key_data) = profile_db.get_key_by_id(key_id).await? {
+    if let Some(key_data) = profile_db.get_key_by_id(key_id).await.log_err()? {
       if let Some(icon_name) = key_data.custom_icon {
-        delete_icon(&app, &icon_name)?;
+        delete_icon(&app, &icon_name).log_err()?;
       }
-      profile_db.delete_key(key_id).await?;
+      profile_db.delete_key(key_id).await.log_err()?;
       Ok(())
     } else {
       Err(AppErrors::KeyNotFound)
@@ -86,7 +87,7 @@ pub async fn insert_key(
   let read_lock = state.profile_db.read().await;
 
   if let Some(profile_db) = read_lock.deref() {
-    let result = profile_db.insert_key(data).await?;
+    let result = profile_db.insert_key(data).await.log_err()?;
     Ok(result)
   } else {
     let _ = app.emit_unlock_required();
@@ -104,14 +105,14 @@ pub async fn update_key(
   let read_lock = state.profile_db.read().await;
 
   if let Some(profile_db) = read_lock.deref() {
-    if let Some(key_data) = profile_db.get_key_by_id(key_id).await? {
+    if let Some(key_data) = profile_db.get_key_by_id(key_id).await.log_err()? {
       match &key_data.custom_icon {
         ic @ Some(icon_name) if ic.ne(&data.custom_icon) => {
-          delete_icon(&app, &icon_name)?;
+          delete_icon(&app, icon_name).log_err()?;
         }
         _ => {}
       }
-      profile_db.update_key(key_id, data).await?;
+      profile_db.update_key(key_id, data).await.log_err()?;
       Ok(())
     } else {
       Err(AppErrors::KeyNotFound)
@@ -131,7 +132,7 @@ pub async fn pin_key(
   let read_lock = state.profile_db.read().await;
 
   if let Some(profile_db) = read_lock.deref() {
-    profile_db.update_pin_status(key_id, true).await?;
+    profile_db.update_pin_status(key_id, true).await.log_err()?;
     Ok(())
   } else {
     let _ = app.emit_unlock_required();
@@ -148,7 +149,10 @@ pub async fn unpin_key(
   let read_lock = state.profile_db.read().await;
 
   if let Some(profile_db) = read_lock.deref() {
-    profile_db.update_pin_status(key_id, false).await?;
+    profile_db
+      .update_pin_status(key_id, false)
+      .await
+      .log_err()?;
     Ok(())
   } else {
     let _ = app.emit_unlock_required();
@@ -165,7 +169,7 @@ pub async fn get_key_by_id(
   let read_lock = state.profile_db.read().await;
 
   if let Some(profile_db) = read_lock.deref() {
-    if let Some(key) = profile_db.get_key_by_id(key_id).await? {
+    if let Some(key) = profile_db.get_key_by_id(key_id).await.log_err()? {
       Ok(key)
     } else {
       Err(AppErrors::KeyNotFound)
@@ -180,7 +184,8 @@ fn delete_icon(handle: &AppHandle, icon_name: &str) -> Result<(), AppErrors> {
   let mut dest_path = handle
     .path_resolver()
     .app_local_data_dir()
-    .ok_or(AppErrors::LocalDataDirNotFound)?;
+    .ok_or(AppErrors::LocalDataDirNotFound)
+    .log_err()?;
 
   dest_path.push("contents");
   dest_path.push(icon_name);
