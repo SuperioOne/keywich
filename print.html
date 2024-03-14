@@ -89,7 +89,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded "><a href="introduction.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li class="chapter-item expanded "><a href="installation.html"><strong aria-hidden="true">2.</strong> Installation</a></li><li class="chapter-item expanded "><a href="how_to_use.html"><strong aria-hidden="true">3.</strong> How to Use</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="setup_profile.html"><strong aria-hidden="true">3.1.</strong> Setup Profile</a></li><li class="chapter-item expanded "><a href="charsets.html"><strong aria-hidden="true">3.2.</strong> Charsets</a></li><li class="chapter-item expanded "><a href="managing_keys.html"><strong aria-hidden="true">3.3.</strong> Managing Keys</a></li><li class="chapter-item expanded "><a href="key_parameters.html"><strong aria-hidden="true">3.4.</strong> Key Parameters</a></li><li class="chapter-item expanded "><a href="settings.html"><strong aria-hidden="true">3.5.</strong> Settings</a></li><li class="chapter-item expanded "><a href="shortcuts.html"><strong aria-hidden="true">3.6.</strong> Shortcuts</a></li><li class="chapter-item expanded "><a href="cli.html"><strong aria-hidden="true">3.7.</strong> CLI</a></li></ol></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded "><a href="introduction.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li class="chapter-item expanded "><a href="installation.html"><strong aria-hidden="true">2.</strong> Installation</a></li><li class="chapter-item expanded "><a href="how_to_use.html"><strong aria-hidden="true">3.</strong> How to Use</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="setup_profile.html"><strong aria-hidden="true">3.1.</strong> Setup Profile</a></li><li class="chapter-item expanded "><a href="charsets.html"><strong aria-hidden="true">3.2.</strong> Charsets</a></li><li class="chapter-item expanded "><a href="managing_keys.html"><strong aria-hidden="true">3.3.</strong> Managing Keys</a></li><li class="chapter-item expanded "><a href="key_parameters.html"><strong aria-hidden="true">3.4.</strong> Key Parameters</a></li><li class="chapter-item expanded "><a href="settings.html"><strong aria-hidden="true">3.5.</strong> Settings</a></li><li class="chapter-item expanded "><a href="shortcuts.html"><strong aria-hidden="true">3.6.</strong> Shortcuts</a></li><li class="chapter-item expanded "><a href="cli.html"><strong aria-hidden="true">3.7.</strong> CLI</a></li></ol></li><li class="chapter-item expanded "><a href="changelog.html"><strong aria-hidden="true">4.</strong> Changelog</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="changelogs/v0_2_0.html"><strong aria-hidden="true">4.1.</strong> v0.2.0</a></li></ol></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle">
                 <div class="sidebar-resize-indicator"></div>
@@ -222,11 +222,11 @@ algorithm to create reproducible passwords with the specified length and charact
                              └────────────────────┘                                 
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="installation"><a class="header" href="#installation">Installation</a></h1>
-<p>See <a href="https://github.com/SuperioOne/keywich/releases/tag/v0.1.0">GitHub release page</a> for the all available binaries.</p>
+<p>See <a href="https://github.com/SuperioOne/keywich/releases/tag/v0.2.0">GitHub release page</a> for the all available binaries.</p>
 <h2 id="linux-x86_64-deb"><a class="header" href="#linux-x86_64-deb">Linux x86_64 (.deb)</a></h2>
 <ol>
 <li>
-<p>Download <a href="https://github.com/SuperioOne/keywich/releases/download/v0.1.0/keywich_0.1.0_amd64.deb"><code>.deb</code></a> package
+<p>Download <a href="https://github.com/SuperioOne/keywich/releases/download/v0.2.0/keywich_0.2.0_amd64.deb"><code>.deb</code></a> package
 from GitHub release page.</p>
 </li>
 <li>
@@ -239,7 +239,7 @@ from GitHub release page.</p>
 <p>PKGBUILD is created but not added to AUR yet.</p>
 <ol>
 <li>
-<p>Download <a href="https://github.com/SuperioOne/keywich/releases/download/v0.1.0/PKGBUILD"><code>PKGBUILD</code></a> file
+<p>Download <a href="https://github.com/SuperioOne/keywich/releases/download/v0.2.0/PKGBUILD"><code>PKGBUILD</code></a> file
 from GitHub release page.</p>
 </li>
 <li>
@@ -249,7 +249,7 @@ from GitHub release page.</p>
 <pre><code>makepkg --install
 </code></pre>
 <h2 id="windows-x86_64"><a class="header" href="#windows-x86_64">Windows x86_64</a></h2>
-<p>Download <a href="https://github.com/SuperioOne/keywich/releases/download/v0.1.0/Keywich_0.1.0_x64_en-US.msi"><code>.msi</code></a> installer
+<p>Download <a href="https://github.com/SuperioOne/keywich/releases/download/v0.2.0/Keywich_0.2.0_x64_en-US.msi"><code>.msi</code></a> installer
 package and execute it.</p>
 <h2 id="from-source"><a class="header" href="#from-source">From source</a></h2>
 <p>Requirements:</p>
@@ -458,6 +458,37 @@ keywich generate -d myserver -u admin -t 6 -c A..Za..z0..9 -p pass12345 -o text
 keywich generate -d myserver -u admin -t 6 -c A..Za..z0..9 -p pass12345 -o phc
 # $kw_scrypt$v=v1$kryNia
 </code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="changelogs"><a class="header" href="#changelogs">Changelogs</a></h1>
+<ul>
+<li><a href="./changelogs/v0_2_0.html"><strong>v0.2.0</strong> - <em>March 14, 2024</em></a></li>
+</ul>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="v020"><a class="header" href="#v020">v0.2.0</a></h1>
+<hr />
+<div align="right">
+<p><em>March 14, 2024</em></p>
+</div>
+<h2 id="added"><a class="header" href="#added">Added</a></h2>
+<ul>
+<li>Persisted log files and stdout logging.</li>
+<li>GUI can now be started with different log levels (default is <code>WARN</code>) via <code>keywich gui --log-level &lt;LOG_LEVEL&gt;</code>.</li>
+</ul>
+<h2 id="fixes"><a class="header" href="#fixes">Fixes</a></h2>
+<ul>
+<li><strong><code>BREAKING</code></strong> Some master passwords generate invalid database encryption keys. All app databases will be
+automatically upgraded to the new passphrase generator. Note that downgrade will not possible after the upgrade.</li>
+<li>A zero-byte <code>app.db</code> file no longer breaks profile initialization.</li>
+</ul>
+<h2 id="known-issues"><a class="header" href="#known-issues">Known issues</a></h2>
+<ul>
+<li>On Windows, the console is detached from GUI window, making the CLI unusable.</li>
+<li>On Linux, <code>webkit2gtk &gt;= 2.42.x</code> when used with Nvidia proprietary drivers, may display an empty window
+with the error message <code>KMS: DRM_IOCTL_MODE_CREATE_DUMB failed: Permission denied</code>. Current known solutions are:
+<ul>
+<li>Set <code>WEBKIT_DISABLE_DMABUF_RENDERER=1</code> environment variable.</li>
+<li>Enable <code>nvidia.drm_modeset=1</code> kernel parameters.</li>
+</ul>
+</li>
+</ul>
 
                     </main>
 
