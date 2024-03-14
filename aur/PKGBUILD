@@ -1,7 +1,7 @@
 # Maintainer: Timur Olur <pm@smdd.dev>
 
 pkgname=keywich
-pkgver=0.1.0
+pkgver=0.2.0
 pkgrel=1
 pkgdesc='Password generator CLI/GUI application.'
 url='https://github.com/SuperioOne/keywich/'
@@ -20,4 +20,4 @@ package() {
   install -m644 -D "./usr/share/icons/hicolor/32x32/apps/keywich.png" "${pkgdir}/usr/share/icons/hicolor/32x32/apps/keywich.png"
 }
 
-sha256sums=('4afca53642411ebe3ee27e66f5ca3eea6fcf5dc67f0e715c3594cb2dea5020d5')
+sha256sums=('1f7280f30d92b247f3e43314825337c77edaa4f2541aa843f652c8a16fb8c99e')
