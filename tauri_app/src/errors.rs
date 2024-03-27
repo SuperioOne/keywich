@@ -23,6 +23,7 @@ pub enum AppErrors {
   KeyringFailure(String),
   NoKeyEntry,
   DuplicateKeyEntry,
+  BackupError(String),
 }
 
 impl AppErrors {
@@ -44,6 +45,7 @@ impl AppErrors {
       AppErrors::KeyringFailure(_) => 207,
       AppErrors::NoKeyEntry => 208,
       AppErrors::DuplicateKeyEntry => 209,
+      AppErrors::BackupError(_) => 210,
 
       // Potential OS issues (400-599)
       AppErrors::LocalDataDirNotFound => 400,
@@ -61,20 +63,21 @@ impl From<keywich_lib::errors::Error> for AppErrors {
   fn from(value: keywich_lib::errors::Error) -> Self {
     match value {
       keywich_lib::errors::Error::InvalidHashOutput => {
-        AppErrors::OutputError(String::from("Invalid hash length."))
+        Self::OutputError(String::from("Invalid hash length."))
       }
-      keywich_lib::errors::Error::ParserInvalidRange => AppErrors::InvalidCharset,
-      keywich_lib::errors::Error::InvalidInput => AppErrors::InvalidTargetLength,
-      keywich_lib::errors::Error::ValidationError(details) => AppErrors::ValidationError(details),
-      keywich_lib::errors::Error::DatabaseError(detail) => AppErrors::LibError(detail),
-      keywich_lib::errors::Error::DatabaseMigrateError(detail) => AppErrors::LibError(detail),
+      keywich_lib::errors::Error::ParserInvalidRange => Self::InvalidCharset,
+      keywich_lib::errors::Error::InvalidInput => Self::InvalidTargetLength,
+      keywich_lib::errors::Error::ValidationError(details) => Self::ValidationError(details),
+      keywich_lib::errors::Error::DatabaseError(detail) => Self::LibError(detail),
+      keywich_lib::errors::Error::DatabaseMigrateError(detail) => Self::LibError(detail),
       keywich_lib::errors::Error::InvalidDatabasePath(detail) => {
-        AppErrors::LibError(format!("Database not found at {:?}", detail))
+        Self::LibError(format!("Database not found at {:?}", detail))
       }
-      keywich_lib::errors::Error::InvalidTime(detail) => AppErrors::LibError(detail),
-      keywich_lib::errors::Error::InvalidHashFuncVersion => AppErrors::UnsupportedHashFunc,
-      keywich_lib::errors::Error::InvalidJsonError(detail) => AppErrors::OutputError(detail),
-      keywich_lib::errors::Error::InvalidQrError(detail) => AppErrors::OutputError(detail),
+      keywich_lib::errors::Error::InvalidTime(detail) => Self::LibError(detail),
+      keywich_lib::errors::Error::InvalidHashFuncVersion => Self::UnsupportedHashFunc,
+      keywich_lib::errors::Error::InvalidJsonError(detail) => Self::OutputError(detail),
+      keywich_lib::errors::Error::InvalidQrError(detail) => Self::OutputError(detail),
+      keywich_lib::errors::Error::BackupError(detail) => Self::BackupError(detail),
     }
   }
 }
@@ -83,20 +86,18 @@ impl From<keyring::Error> for AppErrors {
   fn from(value: keyring::Error) -> Self {
     match value {
       keyring::Error::NoStorageAccess(_) => {
-        AppErrors::KeyringFailure(String::from("Unable to access keyring."))
+        Self::KeyringFailure(String::from("Unable to access keyring."))
       }
-      keyring::Error::NoEntry => AppErrors::NoKeyEntry,
+      keyring::Error::NoEntry => Self::NoKeyEntry,
       keyring::Error::BadEncoding(_) => {
-        AppErrors::KeyringFailure(String::from("Keyring entry bad encoding."))
+        Self::KeyringFailure(String::from("Keyring entry bad encoding."))
       }
       keyring::Error::TooLong(_, _) => {
-        AppErrors::KeyringFailure(String::from("Keyring entry is too long."))
+        Self::KeyringFailure(String::from("Keyring entry is too long."))
       }
-      keyring::Error::Invalid(_, _) => {
-        AppErrors::KeyringFailure(String::from("Invalid keyring entry."))
-      }
-      keyring::Error::Ambiguous(_) => AppErrors::DuplicateKeyEntry,
-      err => AppErrors::KeyringFailure(err.to_string()),
+      keyring::Error::Invalid(_, _) => Self::KeyringFailure(String::from("Invalid keyring entry.")),
+      keyring::Error::Ambiguous(_) => Self::DuplicateKeyEntry,
+      err => Self::KeyringFailure(err.to_string()),
     }
   }
 }
@@ -122,6 +123,7 @@ impl Display for AppErrors {
       AppErrors::KeyringFailure(err) => write!(f, "OS keyring failed, {}", err),
       AppErrors::NoKeyEntry => write!(f, "No master key entry found."),
       AppErrors::DuplicateKeyEntry => write!(f, "Duplicate master key entry detected."),
+      AppErrors::BackupError(err) => write!(f, "Backup action failed, {}", err),
     }
   }
 }
@@ -193,6 +195,14 @@ impl Serialize for AppErrors {
         )
       }
       AppErrors::IconReadFailed(details) => {
+        error_obj!(
+          serializer,
+          code = &self.code(),
+          message = &self.to_string(),
+          details = details
+        )
+      }
+      AppErrors::BackupError(details) => {
         error_obj!(
           serializer,
           code = &self.code(),

@@ -1,11 +1,13 @@
 <script lang="ts">
-  import {type ThemeOptionType,} from "$lib";
-  import {i18nStore, ThemeOptions, configStore} from "$lib";
-  import {SlideToggle} from "@skeletonlabs/skeleton";
+  import { type ThemeOptionType } from "$lib";
+  import { i18nStore, ThemeOptions, configStore } from "$lib";
+  import { SlideToggle } from "@skeletonlabs/skeleton";
 
   async function theme_color_change(event: Event) {
     const select_element = event.target as HTMLSelectElement;
-    configStore.set_theme(select_element.value as ThemeOptionType ?? "crimson");
+    configStore.set_theme(
+      (select_element.value as ThemeOptionType) ?? "crimson",
+    );
   }
 
   async function locale_change(event: Event) {
@@ -17,14 +19,22 @@
 </script>
 
 <div class="flex flex-col gap-8">
-  <div class="flex flex-row flex-wrap justify-between gap-2 w-full sm:w-auto">
+  <div
+    class="flex flex-row flex-wrap sm:flex-nowrap justify-between gap-2 w-full sm:w-auto"
+  >
     <div>
       <h2 class="font-bold">
-        {$i18nStore.get_key("i18:/settings/appearance/color-theme/title", "Color Theme")}
+        {$i18nStore.get_key(
+          "i18:/settings/appearance/color-theme/title",
+          "Color Theme",
+        )}
       </h2>
       <p class="font-light">
         <small>
-          {$i18nStore.get_key("i18:/settings/appearance/color-theme/desc", "Choose a color theme")}
+          {$i18nStore.get_key(
+            "i18:/settings/appearance/color-theme/desc",
+            "Choose a color theme",
+          )}
         </small>
       </p>
     </div>
@@ -46,31 +56,42 @@
         <small>
           <span>
             {#if $configStore.is_light_theme}
-              {$i18nStore.get_key("i18:/settings/appearance/theme/light", "Light Theme")}
+              {$i18nStore.get_key(
+                "i18:/settings/appearance/theme/light",
+                "Light Theme",
+              )}
             {:else}
-              {$i18nStore.get_key("i18:/settings/appearance/theme/dark", "Dark Theme")}
+              {$i18nStore.get_key(
+                "i18:/settings/appearance/theme/dark",
+                "Dark Theme",
+              )}
             {/if}
-            </span>
+          </span>
         </small>
       </p>
     </div>
     <SlideToggle
-        size="sm"
-        name="theme-toggle"
-        checked={$configStore.is_light_theme}
-        on:click={configStore.flip_mode}
-    >
-    </SlideToggle>
+      size="sm"
+      name="theme-toggle"
+      checked={$configStore.is_light_theme}
+      on:click={configStore.flip_mode}
+    ></SlideToggle>
   </div>
 
   <div class="flex flex-row flex-wrap justify-between gap-2 w-full sm:w-auto">
     <div>
       <h2 class="font-bold">
-        {$i18nStore.get_key("i18:/settings/appearance/locale/title", "Language")}
+        {$i18nStore.get_key(
+          "i18:/settings/appearance/locale/title",
+          "Language",
+        )}
       </h2>
       <p class="font-light">
         <small>
-          {$i18nStore.get_key("i18:/settings/appearance/locale/desc", "Choose a language")}
+          {$i18nStore.get_key(
+            "i18:/settings/appearance/locale/desc",
+            "Choose a language",
+          )}
         </small>
       </p>
     </div>
@@ -83,3 +104,4 @@
     </select>
   </div>
 </div>
+

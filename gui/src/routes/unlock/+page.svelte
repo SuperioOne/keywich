@@ -1,14 +1,13 @@
 <script lang="ts">
-  import KeywichIcon from "$lib/icons/keywich.svelte"
-  import type {PageData} from "./$types";
-  import type {ValidationError} from "$lib";
-  import {ProgressRadial} from "@skeletonlabs/skeleton";
-  import {getToastStore, i18nStore, Log, RPC} from "$lib";
-  import {goto} from "$app/navigation";
-  import {is_null_or_empty} from "@keywich/api/utils";
+  import KeywichIcon from "$lib/icons/keywich.svelte";
+  import type { PageData } from "./$types";
+  import type { ValidationError } from "$lib";
+  import { ProgressRadial } from "@skeletonlabs/skeleton";
+  import { getToastStore, i18nStore, Log, Api } from "$lib";
+  import { goto } from "$app/navigation";
+  import { is_null_or_empty } from "$lib";
 
-
-  type PassForm = { password?: string, re_password?: string };
+  type PassForm = { password?: string; re_password?: string };
 
   export let data: PageData;
 
@@ -26,9 +25,9 @@
       return false;
     }
 
-    const {errors, is_valid} = validate({
+    const { errors, is_valid } = validate({
       password: pass,
-      re_password: re_pass
+      re_password: re_pass,
     });
 
     if (!is_valid) {
@@ -38,12 +37,14 @@
 
     if (!is_null_or_empty(pass)) {
       try {
-        await RPC.login(pass);
+        await Api.login(pass);
         sessionStorage.setItem("unlocked", "1");
         await goto("/");
       } catch (err) {
         Log.error(err);
-        toast_store.trigger_error($i18nStore.get_key("i18:/unlock/db-error", "Unable to unlock."));
+        toast_store.trigger_error(
+          $i18nStore.get_key("i18:/unlock/db-error", "Unable to unlock."),
+        );
         form_element.reset();
       }
     } else {
@@ -57,21 +58,25 @@
 
     if (is_null_or_empty(form_data.password)) {
       is_valid = false;
-      errors.password = [{
-        code: "length",
-        message: "Password cannot be empty",
-        params: {}
-      }];
+      errors.password = [
+        {
+          code: "length",
+          message: "Password cannot be empty",
+          params: {},
+        },
+      ];
     }
 
     if (!data.is_db_created) {
       if (is_null_or_empty(form_data.re_password)) {
         is_valid = false;
-        errors.re_password = [{
-          code: "length",
-          message: "Password cannot be empty",
-          params: {}
-        }];
+        errors.re_password = [
+          {
+            code: "length",
+            message: "Password cannot be empty",
+            params: {},
+          },
+        ];
       }
 
       if (form_data.re_password !== form_data.password) {
@@ -81,38 +86,57 @@
         errors.re_password.push({
           code: "password_must_match",
           message: "Passwords does not match.",
-          params: {}
+          params: {},
         });
       }
     }
 
-    return {is_valid, errors};
+    return { is_valid, errors };
   }
 </script>
 
 <div class="flex justify-center w-full">
-  <div class="p-3 sm:py-8 sm:px-34 md:py-16 md:px-48 w-full max-w-screen-lg ">
-    <div class="flex flex-row justify-center mb-4 fill-primary-500 drop-shadow-lg">
-      <KeywichIcon size={300}/>
+  <div class="p-3 sm:py-8 sm:px-34 md:py-16 md:px-48 w-full max-w-screen-lg">
+    <div
+      class="flex flex-row justify-center mb-4 fill-primary-500 drop-shadow-lg"
+    >
+      <KeywichIcon size={300} />
     </div>
 
-    <form class="flex flex-col gap-10"
-          on:submit|preventDefault={async (e) => {unlocking = true;on_submit(e).finally(()=> { unlocking = false});}}>
+    <form
+      class="flex flex-col gap-10"
+      on:submit|preventDefault={async (e) => {
+        unlocking = true;
+        on_submit(e).finally(() => {
+          unlocking = false;
+        });
+      }}
+    >
       <label class="label">
-        <span class="font-bold">{$i18nStore.get_key("i18:/unlock/label/password", "Master Password")}</span>
+        <span class="font-bold"
+          >{$i18nStore.get_key(
+            "i18:/unlock/label/password",
+            "Master Password",
+          )}</span
+        >
         <input
-            class:input-error={field_errors.password}
-            class="input"
-            name="password"
-            type="password"
-            placeholder={$i18nStore.get_key("i18:/unlock/desc/password", "")}
-            required
+          class:input-error={field_errors.password}
+          class="input"
+          name="password"
+          type="password"
+          placeholder={$i18nStore.get_key("i18:/unlock/desc/password", "")}
+          required
         />
         {#if field_errors.password}
-          <ul class="m-1 font-light text-sm text-error-500-400-token list-disc list-inside">
+          <ul
+            class="m-1 font-light text-sm text-error-500-400-token list-disc list-inside"
+          >
             {#each field_errors.password as error}
               <li>
-                {$i18nStore.get_key(`i18:/field-errors/${error.code}`, error.message ?? "")}
+                {$i18nStore.get_key(
+                  `i18:/field-errors/${error.code}`,
+                  error.message ?? "",
+                )}
               </li>
             {/each}
           </ul>
@@ -120,22 +144,31 @@
       </label>
 
       <label class="label" class:hidden={data.is_db_created}>
-        <span class="font-bold">{$i18nStore.get_key("i18:/unlock/label/re-password", "Re-Enter Password")}</span>
+        <span class="font-bold"
+          >{$i18nStore.get_key(
+            "i18:/unlock/label/re-password",
+            "Re-Enter Password",
+          )}</span
+        >
         <input
-            class:input-error={field_errors.re_password}
-
-            disabled={data.is_db_created}
-            class="input"
-            name="re_password"
-            type="password"
-            placeholder={$i18nStore.get_key("i18:/unlock/desc/re-password", "")}
-            required
+          class:input-error={field_errors.re_password}
+          disabled={data.is_db_created}
+          class="input"
+          name="re_password"
+          type="password"
+          placeholder={$i18nStore.get_key("i18:/unlock/desc/re-password", "")}
+          required
         />
         {#if field_errors.re_password}
-          <ul class="m-1 font-light text-sm text-error-500-400-token list-disc list-inside">
+          <ul
+            class="m-1 font-light text-sm text-error-500-400-token list-disc list-inside"
+          >
             {#each field_errors.re_password as error}
               <li>
-                {$i18nStore.get_key(`i18:/field-errors/${error.code}`, error.message ?? "")}
+                {$i18nStore.get_key(
+                  `i18:/field-errors/${error.code}`,
+                  error.message ?? "",
+                )}
               </li>
             {/each}
           </ul>
@@ -143,20 +176,19 @@
       </label>
 
       <button
-          disabled={unlocking}
-          type="submit"
-          class="btn variant-filled-primary"
+        disabled={unlocking}
+        type="submit"
+        class="btn variant-filled-primary"
       >
         {#if unlocking}
-          <ProgressRadial width="w-6"/>
+          <ProgressRadial width="w-6" />
+        {:else if data.is_db_created}
+          <span>{$i18nStore.get_key("i18:/unlock/open", "Unlock")}</span>
         {:else}
-          {#if data.is_db_created}
-            <span>{$i18nStore.get_key("i18:/unlock/open", "Unlock")}</span>
-          {:else }
-            <span>{$i18nStore.get_key("i18:/unlock/create", "Create")}</span>
-          {/if}
+          <span>{$i18nStore.get_key("i18:/unlock/create", "Create")}</span>
         {/if}
       </button>
     </form>
   </div>
 </div>
+

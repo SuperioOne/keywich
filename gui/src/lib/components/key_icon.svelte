@@ -1,5 +1,5 @@
 <script lang="ts">
-  import {RPC} from "../rpc";
+  import { Api } from "../api";
   import KeyIcon from "$lib/icons/key.svelte";
 
   export let icon: string | undefined = undefined;
@@ -7,7 +7,8 @@
 </script>
 
 {#if icon}
-  <img width={size} src={RPC.convert_icon_src(icon)} alt="Missing Icon"/>
+  <img width={size} src={Api.convert_icon_src(icon)} alt="Missing Icon" />
 {:else}
-  <KeyIcon size={size}/>
+  <KeyIcon {size} />
 {/if}
+

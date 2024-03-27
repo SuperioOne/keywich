@@ -1,17 +1,17 @@
 {
   "private": true,
   "name": "keywich",
-  "version": "0.1.0",
+  "version": "0.3.0",
   "description": "",
   "main": "index.js",
   "keywords": [],
   "author": "",
   "license": "ISC",
   "scripts": {
-    "dev:desktop": "pnpm -C ./tauri_app run dev",
-    "dev:gui": "pnpm -C ./gui run dev",
+    "dev": "pnpm -C ./tauri_app run dev -- -- --verbose debug",
     "dev:docs": "mdbook serve ./docs",
     "build:desktop": "pnpm -C ./tauri_app run build",
+    "build": "pnpm -C ./tauri_app run build",
     "build:gui": "pnpm -C ./gui run build",
     "build:docs": "mdbook build ./docs"
   }

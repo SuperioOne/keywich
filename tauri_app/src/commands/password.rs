@@ -1,11 +1,20 @@
 use crate::errors::AppErrors;
 use crate::result_log::ResultLog;
-use crate::{AppDbState, DbNotifier, KeyState, PasswordOutputType};
+use crate::{AppDbState, DbNotifier, KeyState};
 use keywich_lib::hash::HashAlgorithm;
 use serde::Deserialize;
 use std::ops::Deref;
 use std::str::FromStr;
 use tauri::{AppHandle, State};
+
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Deserialize)]
+pub enum PasswordOutputType {
+  PHC,
+  Text,
+  Base64,
+  Json,
+  Qr,
+}
 
 #[derive(Deserialize)]
 pub struct PasswordRequest {

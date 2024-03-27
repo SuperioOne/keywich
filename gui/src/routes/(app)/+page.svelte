@@ -1,6 +1,6 @@
 <script lang="ts">
-  import {PinItem, i18nStore} from "$lib";
-  import type {PageData} from "./$types";
+  import { PinItem, i18nStore } from "$lib";
+  import type { PageData } from "./$types";
 
   export let data: PageData;
 </script>
@@ -16,10 +16,10 @@
       </p>
     {:else}
       <div
-          class="grid place-items-stretch grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-6 gap-2"
+        class="grid place-items-stretch grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-6 gap-2"
       >
         {#each data.pinned_items as row (row.id)}
-          <PinItem item={row}/>
+          <PinItem item={row} />
         {/each}
       </div>
     {/if}

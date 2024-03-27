@@ -8,10 +8,13 @@
   },
   "package": {
     "productName": "Keywich",
-    "version": "0.2.0"
+    "version": "0.3.0"
   },
   "tauri": {
     "allowlist": {
+      "shell": {
+        "open": true
+      },
       "fs": {
         "readFile": true,
         "writeFile": true,

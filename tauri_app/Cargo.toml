@@ -1,6 +1,6 @@
 [package]
 name = "app"
-version = "0.2.0"
+version = "0.3.0"
 description = "A Tauri App"
 authors = ["Timur Olur"]
 license = ""
@@ -20,18 +20,19 @@ opt-level = 3
 tauri-build = { version = "1.5.1", features = [] }
 
 [dependencies]
-tauri = { version = "1.6.1", features = ["fs-remove-file", "protocol-asset", "clipboard-write-text", "fs-write-file", "dialog-save", "dialog-open", "fs-exists", "fs-read-file"] }
-keywich_lib = { version = "0.1.0", path = "../libs/keywich_lib", features = ["profile"] }
-clap = { version = "4.3.23", features = ["derive"] }
-serde = { version = "1.0.196", features = ["derive"] }
-uuid = { version = "1.7.0", features = ["v7"] }
-image = { version = "0.25.0", features = ["jpeg", "png", "webp"], default-features = false }
+tauri = { version = "1.6.1", features = [ "shell-open", "fs-remove-file", "protocol-asset", "clipboard-write-text", "fs-write-file", "dialog-save", "dialog-open", "fs-exists", "fs-read-file"] }
+keywich_lib = { version = "0.2.0", path = "../lib", features = ["profile"] }
+clap = { version = "4.5.4", features = ["derive"] }
+serde = { version = "1.0.197", features = ["derive"] }
+uuid = { version = "1.8.0", features = ["v7"] }
+image = { version = "0.25.1", features = ["jpeg", "png", "webp"], default-features = false }
 percent-encoding = "2.3.1"
 const_format = "0.2.32"
-keyring = { features = ["platform-freebsd", "platform-linux", "platform-windows", "platform-macos", "platform-openbsd"] }
-serde_json = { version = "1.0.114" }
+keyring = { version = "2.3.2", features = ["platform-freebsd", "platform-linux", "platform-windows", "platform-macos", "platform-openbsd"] }
+serde_json = { version = "1.0.115" }
 log = { version = "0.4.21" }
-log4rs = { version = "1.3.0", features = ["console_appender", "file_appender"], default-features = false }
+log4rs = { version = "1.3.0", features = ["console_appender", "file_appender", "json_encoder"], default-features = false }
+anyhow = { version = "1.0.81" }
 
 [features]
 # by default Tauri runs in production mode

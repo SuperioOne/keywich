@@ -1,12 +1,19 @@
 <script lang="ts">
   import PlusCircleIcon from "$lib/icons/plus-circle.svelte";
   import TrashIcon from "$lib/icons/trash-2.svelte";
-  import type {CharsetItem} from "@keywich/api";
-  import {CharsetForm, getToastStore, i18nStore, Log, ModalAction, type ModalActionResult, RPC} from "$lib";
-  import {fly} from "svelte/transition";
-  import {invalidateAll} from "$app/navigation";
-  import {getModalStore} from "@skeletonlabs/skeleton";
-  import {is_error_response} from "@keywich/api/utils";
+  import type { CharsetItem, ModalActionResult } from "$lib";
+  import {
+    CharsetForm,
+    getToastStore,
+    i18nStore,
+    Log,
+    ModalAction,
+    Api,
+  } from "$lib";
+  import { fly } from "svelte/transition";
+  import { invalidateAll } from "$app/navigation";
+  import { getModalStore } from "@skeletonlabs/skeleton";
+  import { is_error_response } from "$lib";
 
   export let charsets: CharsetItem[];
 
@@ -17,10 +24,13 @@
     const confirmation = await new Promise<boolean>((resolve) => {
       modal_store.trigger({
         type: "confirm",
-        title: $i18nStore.get_key("i18:/actions/delete-charset/title", "Confirm Action"),
+        title: $i18nStore.get_key(
+          "i18:/actions/delete-charset/title",
+          "Confirm Action",
+        ),
         body: $i18nStore.get_key(
           `i18:/actions/delete-charset/message?$noCache&name=${charset.name}`,
-          "Are you sure to delete charset?"
+          "Are you sure to delete charset?",
         ),
         buttonTextConfirm: $i18nStore.get_key("i18:/generic/delete", "Delete"),
         buttonTextCancel: $i18nStore.get_key("i18:/generic/cancel", "Cancel"),
@@ -30,22 +40,30 @@
 
     if (confirmation) {
       try {
-        await RPC.delete_charset(charset.name);
+        await Api.delete_charset(charset.name);
 
-        toast_store.trigger_warning($i18nStore.get_key(
-          "i18:/actions/delete-charset/msg/success",
-          "Charset deleted."));
+        toast_store.trigger_warning(
+          $i18nStore.get_key(
+            "i18:/actions/delete-charset/msg/success",
+            "Charset deleted.",
+          ),
+        );
 
         await invalidateAll();
       } catch (err) {
         Log.warn(err);
 
-        toast_store.trigger_error($i18nStore.get_key(
-          "i18:/actions/delete-charset/msg/error",
-          "Unable to delete charset."));
+        toast_store.trigger_error(
+          $i18nStore.get_key(
+            "i18:/actions/delete-charset/msg/error",
+            "Unable to delete charset.",
+          ),
+        );
 
         if (is_error_response(err)) {
-          toast_store.trigger_error($i18nStore.get_key(`i18:/errors/${err.code}`, err.message));
+          toast_store.trigger_error(
+            $i18nStore.get_key(`i18:/errors/${err.code}`, err.message),
+          );
         }
       }
     }
@@ -57,16 +75,22 @@
         component: {
           ref: CharsetForm,
         },
-        title: $i18nStore.get_key("i18:/actions/create-charset/title", "New Charset"),
+        title: $i18nStore.get_key(
+          "i18:/actions/create-charset/title",
+          "New Charset",
+        ),
         type: "component",
         response: (r: ModalActionResult<string>) => resolve(r),
       });
     });
 
     if (response?.type === ModalAction.submitted) {
-      toast_store.trigger_success($i18nStore.get_key(
-        `i18:/actions/create-charset/msg/success?$noCache&name=${response}`,
-        "New charset created."));
+      toast_store.trigger_success(
+        $i18nStore.get_key(
+          "i18:/actions/create-charset/msg/success",
+          "New charset created.",
+        ),
+      );
 
       await invalidateAll();
     }
@@ -76,22 +100,30 @@
 <div class="flex flex-col gap-2">
   <div>
     <button
-        on:click={create_charset}
-        type="button"
-        class="btn variant-filled-primary w-full sm:w-auto"
+      on:click={create_charset}
+      type="button"
+      class="btn variant-filled-primary w-full sm:w-auto"
     >
-      <PlusCircleIcon/>
-      <span class="font-bold"> {$i18nStore.get_key("i18:/settings/charsets/create", "Create")} </span>
+      <PlusCircleIcon />
+      <span class="font-bold">
+        {$i18nStore.get_key("i18:/settings/charsets/create", "Create")}
+      </span>
     </button>
   </div>
   <ul>
-    {#if charsets.length < 1 }
+    {#if charsets.length < 1}
       <li class="text-center w-full text-xl font-light">
-        {$i18nStore.get_key("i18:/settings/charsets/empty-list", "Empty charset list")}
+        {$i18nStore.get_key(
+          "i18:/settings/charsets/empty-list",
+          "Empty charset list",
+        )}
       </li>
     {:else}
       {#each charsets as charset (charset.name)}
-        <li class="py-4 flex flex-row justify-between items-center" transition:fly={{duration:200, y:20}}>
+        <li
+          class="py-4 flex flex-row justify-between items-center"
+          transition:fly={{ duration: 200, y: 20 }}
+        >
           <dl>
             <dt>
               <p class="text-secondary-400-500-token">
@@ -112,15 +144,14 @@
             </dd>
           </dl>
           <button
-              class="btn btn-sm variant-glass-error btn-icon-base h-fit"
-              on:click={() => delete_charset(charset)}
+            class="btn btn-sm variant-glass-error btn-icon-base h-fit"
+            on:click={() => delete_charset(charset)}
           >
-            <TrashIcon size={23}/>
+            <TrashIcon size={23} />
           </button>
         </li>
-        <hr>
+        <hr />
       {/each}
     {/if}
   </ul>
-
 </div>

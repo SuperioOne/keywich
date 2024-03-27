@@ -1,10 +1,10 @@
-import type {CustomThemeConfig} from '@skeletonlabs/tw-plugin';
+import type { CustomThemeConfig } from "@skeletonlabs/tw-plugin";
 
 export const keywich_theme: CustomThemeConfig = {
-  name: 'default',
+  name: "default",
   properties: {
     // =~= Theme Properties =~=
-    "--theme-font-family-base": `ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace`,
+    "--theme-font-family-base": `system-ui`,
     "--theme-font-family-heading": `system-ui`,
     "--theme-font-color-base": "0 0 0",
     "--theme-font-color-dark": "255 255 255",
@@ -97,6 +97,6 @@ export const keywich_theme: CustomThemeConfig = {
     "--color-surface-700": "29 32 38", // #1d2026
     "--color-surface-800": "23 26 31", // #171a1f
     "--color-surface-900": "19 21 25", // #131519
+  },
+};
 
-  }
-}

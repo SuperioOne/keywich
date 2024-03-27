@@ -1,25 +1,25 @@
 import format_string from "@superior-one/format_string";
-import {Log} from "../logger";
-import {writable} from "svelte/store";
-import {create_debouncer} from "@keywich/api/utils";
-import {RPC} from "../rpc";
+import { Log } from "../logger";
+import { writable } from "svelte/store";
+import { create_debouncer } from "../utils";
+import { Api } from "../api";
 
-const CaseFlag = {None: 0, UpperCase: 1, LowerCase: -1} as const;
-type CaseFlagType = 0 | 1 | -1
+const CaseFlag = { None: 0, UpperCase: 1, LowerCase: -1 } as const;
+type CaseFlagType = 0 | 1 | -1;
 
 function apply_operators(text: string, localizationURI: URL, locale: string) {
   const currentLocale = locale ?? undefined;
-  const replaceArgs: Record<string, unknown> = {}
+  const replaceArgs: Record<string, unknown> = {};
   let caseFlag: CaseFlagType = CaseFlag.None;
 
   for (const [key, param] of localizationURI.searchParams) {
     switch (key) {
       case "$noCache":
         break;
-      case "$toUpper" :
+      case "$toUpper":
         caseFlag = CaseFlag.UpperCase;
         break;
-      case "$toLower" :
+      case "$toLower":
         caseFlag = CaseFlag.LowerCase;
         break;
       default:
@@ -52,7 +52,7 @@ class i18Resource {
   constructor(locale: string, resources: Record<string, string>) {
     this.#resources = resources;
     this.#cache = {};
-    this.#locale = locale
+    this.#locale = locale;
   }
 
   get_key(keyURI: string | URL, fallback?: string) {
@@ -91,16 +91,17 @@ let locale_list: string[] = [];
 const locale_store = writable<i18Resource>(new i18Resource("en", {}));
 const locale_loader = create_debouncer(
   async (locale: string) => {
-    const resources = await RPC.load_locale(locale);
-    return {resources, locale};
+    const resources = await Api.load_locale(locale);
+    return { resources, locale };
   },
   {
     timeout: 500,
     onError: Log.error,
     onSuccess: (data) => {
       locale_store.set(new i18Resource(data.locale, data.resources));
-    }
-  });
+    },
+  },
+);
 
 function set_locale(locale: string) {
   locale_loader.update(locale);
@@ -110,7 +111,7 @@ export type LocaleOptions = {
   locale: string;
   locale_keys: Record<string, string>;
   available_locales: string[];
-}
+};
 
 function init_locale(options: LocaleOptions) {
   locale_store.set(new i18Resource(options.locale, options.locale_keys));

@@ -1,16 +1,26 @@
 import {
-  ApplicationSink, ConsoleSink, LoggerConfigurator, try_parse_log_level,
-  LogLevel, configStore, i18nStore, RPC, AppEventBus, Log
+  ApplicationSink,
+  ConsoleSink,
+  LoggerConfigurator,
+  try_parse_log_level,
+  LogLevel,
+  configStore,
+  i18nStore,
+  Api,
+  AppEventBus,
+  Log,
+  type TauriLogEvent,
 } from "$lib";
-import {goto} from "$app/navigation";
+import { goto } from "$app/navigation";
 
-RPC.load_configs().then(async (app_config) => {
+Api.load_configs().then(async (app_config) => {
   try {
     if (app_config.configs) {
-      const LOG_LEVEL = try_parse_log_level(app_config.log_level) ?? LogLevel.INFO;
+      const LOG_LEVEL =
+        try_parse_log_level(app_config.log_level) ?? LogLevel.INFO;
       LoggerConfigurator.setup([
         ConsoleSink(LOG_LEVEL),
-        ApplicationSink(LOG_LEVEL, 1000)
+        ApplicationSink(LOG_LEVEL, 1000),
       ]);
 
       configStore.init(app_config.configs);
@@ -19,7 +29,7 @@ RPC.load_configs().then(async (app_config) => {
         i18nStore.init_locale({
           locale: app_config.configs.locale,
           locale_keys: app_config.locale_keys,
-          available_locales: app_config.available_locales
+          available_locales: app_config.available_locales,
         });
       }
     } else {
@@ -29,9 +39,37 @@ RPC.load_configs().then(async (app_config) => {
     console.error(err);
   }
 
-  await AppEventBus.addListener("unlock_required", async () => {
+  await AppEventBus.addListener("unlock_required", () => {
     Log.debug("Event received. Redirecting to unlock page.");
     sessionStorage.removeItem("unlocked");
-    await goto("unlock");
+    goto("unlock")
+      .then(() => Log.debug("App redirected to the unlock page."))
+      .catch(Log.error);
+  });
+
+  await AppEventBus.addListener("app_log", (e) => {
+    const event: TauriLogEvent = JSON.parse(e.payload as string);
+
+    if (event) {
+      switch (event.level) {
+        case "INFO":
+          Log.info(event.message);
+          break;
+        case "WARN":
+          Log.warn(event.message);
+          break;
+        case "ERROR":
+          Log.error(event.message);
+          break;
+        case "TRACE":
+          Log.trace(event.message);
+          break;
+        case "DEBUG":
+          Log.debug(event.message);
+          break;
+        default:
+          break;
+      }
+    }
   });
 });

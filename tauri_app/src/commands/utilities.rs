@@ -66,7 +66,7 @@ pub async fn process_icon(handle: AppHandle, file_path: String) -> Result<String
     let src_file = fs::read(src_path)
       .map_err(|err| AppErrors::IconReadFailed(err.to_string()))
       .log_err()?;
-    
+
     let image_file = image::load_from_memory(&src_file)
       .map_err(|err| AppErrors::IconReadFailed(err.to_string()))
       .log_err()?;

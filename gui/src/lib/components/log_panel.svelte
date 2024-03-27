@@ -1,14 +1,18 @@
 <script lang="ts">
-  import {ApplicationLogReader, LogLevel, type LogLevelType} from "$lib/logger";
-  import {onMount, tick, createEventDispatcher} from "svelte";
+  import {
+    ApplicationLogReader,
+    LogLevel,
+    type LogLevelType,
+  } from "$lib/logger";
+  import { onMount, tick, createEventDispatcher } from "svelte";
   import CloseIcon from "$lib/icons/x.svelte";
   import TrashIcon from "$lib/icons/trash-2.svelte";
   import TerminalIcon from "$lib/icons/terminal.svelte";
-  import {fly} from "svelte/transition";
-  import {i18nStore} from "$lib/stores/i18n_store";
+  import { fly } from "svelte/transition";
+  import { i18nStore } from "$lib/stores/i18n_store";
 
   const dispatch = createEventDispatcher();
-  export let maxHeight = 500
+  export let maxHeight = 500;
   export let minHeight = 200;
   $: title = $i18nStore.get_key("i18:/log-panel/title", "Logs");
 
@@ -26,7 +30,7 @@
         if (is_auto_scroll) {
           container_element.scroll({
             top: container_element.scrollHeight,
-          })
+          });
         }
       });
     });
@@ -38,7 +42,11 @@
 
   function on_resize(event: MouseEvent) {
     if (drag_enabled) {
-      const nextHeight = height + container_element.offsetTop - event.clientY - top_bar_element.clientHeight;
+      const nextHeight =
+        height +
+        container_element.offsetTop -
+        event.clientY -
+        top_bar_element.clientHeight;
 
       if (nextHeight > maxHeight) {
         height = maxHeight;
@@ -51,17 +59,20 @@
   }
 
   function on_key_controls(event: KeyboardEvent) {
-    if (document.activeElement === container_element || container_element.contains(document.activeElement as Node)) {
+    if (
+      document.activeElement === container_element ||
+      container_element.contains(document.activeElement as Node)
+    ) {
       switch (event.code) {
-        case "End" :
+        case "End":
           is_auto_scroll = true;
-          container_element.scroll({top: container_element.scrollHeight});
+          container_element.scroll({ top: container_element.scrollHeight });
           break;
-        case "Home" :
-        case "PageDown" :
-        case "PageUp" :
-        case "ArrowUp" :
-        case "ArrowDown" :
+        case "Home":
+        case "PageDown":
+        case "PageUp":
+        case "ArrowUp":
+        case "ArrowDown":
           is_auto_scroll = false;
           break;
         default:
@@ -98,7 +109,7 @@
       case LogLevel.DEBUG:
         return "DEBUG";
       case LogLevel.INFO:
-        return "INFO"
+        return "INFO";
       case LogLevel.ERROR:
         return "ERROR";
       case LogLevel.WARN:
@@ -110,51 +121,57 @@
 </script>
 
 <svelte:window
-    on:mouseup={() => {drag_enabled = false}}
-    on:mousemove={on_resize}
-    on:keyup={on_key_controls}
+  on:mouseup={() => {
+    drag_enabled = false;
+  }}
+  on:mousemove={on_resize}
+  on:keyup={on_key_controls}
 />
-<div class="z-[999]" transition:fly={{duration:100, y:500 }}>
+<div class="z-[999]" transition:fly={{ duration: 100, y: 500 }}>
   <div
-      on:mousedown|stopPropagation|preventDefault={() => {drag_enabled = true}}
-      on:mouseup|stopPropagation|preventDefault={() => {drag_enabled = false}}
-      class="bg-surface-active-token w-full h-0.5 cursor-row-resize"
+    on:mousedown|stopPropagation|preventDefault={() => {
+      drag_enabled = true;
+    }}
+    on:mouseup|stopPropagation|preventDefault={() => {
+      drag_enabled = false;
+    }}
+    class="bg-surface-active-token w-full h-0.5 cursor-row-resize"
   />
   <div
-      bind:this={top_bar_element}
-      class="py-1 px-3 grid grid-cols-2 w-full bg-surface-200-700-token"
+    bind:this={top_bar_element}
+    class="py-1 px-3 grid grid-cols-2 w-full bg-surface-200-700-token"
   >
     <div class="flex flex-row gap-2 items-center">
       <div>
-        <TerminalIcon size={20}/>
+        <TerminalIcon size={18} />
       </div>
-      <h5 class="h5 font-bold">
+      <h5 class="h5 font-bold text-sm">
         {title}
       </h5>
     </div>
     <div class="w-full flex flex-row justify-end gap-2">
       <button
-          on:click={on_clear_logs}
-          type="button"
-          class="btn-icon-sm btn-icon variant-soft-error"
+        on:click={on_clear_logs}
+        type="button"
+        class="btn-icon-sm btn-icon variant-soft-error"
       >
-        <TrashIcon size={18}/>
+        <TrashIcon size={16} />
       </button>
       <button
-          on:click={on_close}
-          type="button"
-          class="btn-icon-sm btn-icon variant-soft"
+        on:click={on_close}
+        type="button"
+        class="btn-icon-sm btn-icon variant-soft"
       >
-        <CloseIcon size={18}/>
+        <CloseIcon size={16} />
       </button>
     </div>
   </div>
   <div
-      transition:fly={{duration:150}}
-      class="w-full h-full overflow-y-auto break-words p-2 bg-black"
-      bind:this={container_element}
-      style:height={`${height}px`}
-      tabindex="-1"
+    transition:fly={{ duration: 150 }}
+    class="w-full h-full overflow-y-auto break-words p-2 bg-black"
+    bind:this={container_element}
+    style:height={`${height}px`}
+    tabindex="-1"
   >
     <ol class="font-mono text-sm">
       {#each $ApplicationLogReader as log}
@@ -162,7 +179,9 @@
         {@const className = get_class_name(log.level)}
         <li class={className}>
           <span class="mr-2"> {date.toISOString()}</span>
-          <span class="inline-block w-12 mr-0.5"> {get_level_name(log.level)}</span>
+          <span class="inline-block w-12 mr-0.5">
+            {get_level_name(log.level)}</span
+          >
           <span>{log.message}</span>
         </li>
       {/each}

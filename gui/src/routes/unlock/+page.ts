@@ -1,10 +1,10 @@
-import type {PageLoad} from "./$types";
-import {RPC} from "$lib";
+import type { PageLoad } from "./$types";
+import { Api } from "$lib";
 
 export const load: PageLoad = async () => {
-  const configs = await RPC.load_configs();
+  const configs = await Api.load_configs();
 
   return {
-    is_db_created: configs.is_db_created
-  }
-}
+    is_db_created: configs.is_db_created,
+  };
+};

@@ -1,8 +1,9 @@
+pub mod backup;
 pub mod charsets;
 pub mod keys;
+pub mod login;
 pub mod password;
 pub mod utilities;
-pub mod login;
 
 #[macro_export]
 macro_rules! generate_keywich_handler {
@@ -29,6 +30,9 @@ macro_rules! generate_keywich_handler {
       $crate::commands::utilities::load_configs,
       $crate::commands::login::unlock_db,
       $crate::commands::login::lock_db,
+      $crate::commands::backup::backup_profile_db,
+      $crate::commands::backup::restore_profile_db,
+      $crate::commands::backup::verify_backup
     ]
   };
 }

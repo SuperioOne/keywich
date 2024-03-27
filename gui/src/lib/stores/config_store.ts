@@ -1,14 +1,18 @@
-import {modeCurrent, setModeUserPrefers, setModeCurrent} from '@skeletonlabs/skeleton';
-import {writable} from "svelte/store";
-import type {ConfigFile} from "@keywich/api";
-import {create_debouncer} from "@keywich/api/utils";
-import {RPC} from "$lib/rpc";
-import {Log} from "$lib/logger";
+import {
+  modeCurrent,
+  setModeUserPrefers,
+  setModeCurrent,
+} from "@skeletonlabs/skeleton";
+import { writable } from "svelte/store";
+import type { ConfigFile } from "../api";
+import { create_debouncer } from "../utils";
+import { Api } from "../api";
+import { Log } from "../logger";
 
 const CONFIG_DEFAULTS: ConfigFile = {
   color_theme: "crimson",
   is_light_theme: false,
-  locale: "en"
+  locale: "en",
 };
 
 export const ThemeOptions = [
@@ -25,17 +29,18 @@ export const ThemeOptions = [
   "wintry",
 ] as const;
 
-export type ThemeOptionType = typeof ThemeOptions[number];
+export type ThemeOptionType = (typeof ThemeOptions)[number];
 
 const light_switch = modeCurrent;
-const {set, update, subscribe} = writable<ConfigFile>(CONFIG_DEFAULTS);
+const { set, update, subscribe } = writable<ConfigFile>(CONFIG_DEFAULTS);
 const write_scheduler = create_debouncer(
-  (config: ConfigFile) => RPC.update_config_json(config),
+  (config: ConfigFile) => Api.update_config_json(config),
   {
     timeout: 750,
     onError: Log.error,
-    onSuccess: () => Log.debug("config.json updated")
-  });
+    onSuccess: () => Log.debug("config.json updated"),
+  },
+);
 
 function setMode(value: boolean) {
   light_switch.set(value);
@@ -43,29 +48,28 @@ function setMode(value: boolean) {
   setModeCurrent(value);
 }
 
-
 function set_locale(locale: string) {
-  update(current => {
+  update((current) => {
     current.locale = locale;
     write_scheduler.update(current);
 
     return current;
-  })
+  });
 }
 
 function set_theme(theme: ThemeOptionType) {
-  update(current => {
+  update((current) => {
     current.color_theme = theme;
     document?.body?.setAttribute("data-theme", theme ?? "crimson");
     write_scheduler.update(current);
 
     return current;
-  })
+  });
 }
 
 function set_dark_mode() {
   setMode(false);
-  update(current => {
+  update((current) => {
     current.is_light_theme = false;
     write_scheduler.update(current);
 
@@ -75,7 +79,7 @@ function set_dark_mode() {
 
 function set_light_mode() {
   setMode(true);
-  update(current => {
+  update((current) => {
     current.is_light_theme = true;
     write_scheduler.update(current);
 
@@ -84,17 +88,20 @@ function set_light_mode() {
 }
 
 function flip_mode() {
-  update(current => {
-    current.is_light_theme = !current.is_light_theme
+  update((current) => {
+    current.is_light_theme = !current.is_light_theme;
     setMode(current.is_light_theme);
     write_scheduler.update(current);
 
     return current;
-  })
+  });
 }
 
 function set_config(appConfig: ConfigFile) {
-  document?.body?.setAttribute("data-theme", appConfig.color_theme ?? "crimson");
+  document?.body?.setAttribute(
+    "data-theme",
+    appConfig.color_theme ?? "crimson",
+  );
   set(appConfig);
   write_scheduler.update(appConfig);
   setMode(appConfig.is_light_theme ?? false);
@@ -105,7 +112,10 @@ function set_config(appConfig: ConfigFile) {
  * @param appConfig
  */
 function init(appConfig: ConfigFile) {
-  document?.body?.setAttribute("data-theme", appConfig.color_theme ?? "crimson");
+  document?.body?.setAttribute(
+    "data-theme",
+    appConfig.color_theme ?? "crimson",
+  );
   set(appConfig);
   setMode(appConfig.is_light_theme ?? false);
 }
@@ -119,5 +129,5 @@ export const configStore = {
   set_light_mode,
   set_dark_mode,
   set_theme,
-  set_locale
+  set_locale,
 };
