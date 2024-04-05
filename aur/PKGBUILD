@@ -20,4 +20,4 @@ package() {
   install -m644 -D "./usr/share/icons/hicolor/32x32/apps/keywich.png" "${pkgdir}/usr/share/icons/hicolor/32x32/apps/keywich.png"
 }
 
-sha256sums=('1f7280f30d92b247f3e43314825337c77edaa4f2541aa843f652c8a16fb8c99e')
+sha256sums=('d2abadb17ddade2cbd9d453d435337611fa730049b807011f41fc4783f84e9af')
