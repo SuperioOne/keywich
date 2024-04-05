@@ -89,7 +89,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded "><a href="introduction.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li class="chapter-item expanded "><a href="installation.html"><strong aria-hidden="true">2.</strong> Installation</a></li><li class="chapter-item expanded "><a href="how_to_use.html"><strong aria-hidden="true">3.</strong> How to Use</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="setup_profile.html"><strong aria-hidden="true">3.1.</strong> Setup Profile</a></li><li class="chapter-item expanded "><a href="charsets.html"><strong aria-hidden="true">3.2.</strong> Charsets</a></li><li class="chapter-item expanded "><a href="managing_keys.html"><strong aria-hidden="true">3.3.</strong> Managing Keys</a></li><li class="chapter-item expanded "><a href="key_parameters.html"><strong aria-hidden="true">3.4.</strong> Key Parameters</a></li><li class="chapter-item expanded "><a href="settings.html"><strong aria-hidden="true">3.5.</strong> Settings</a></li><li class="chapter-item expanded "><a href="shortcuts.html"><strong aria-hidden="true">3.6.</strong> Shortcuts</a></li><li class="chapter-item expanded "><a href="cli.html"><strong aria-hidden="true">3.7.</strong> CLI</a></li></ol></li><li class="chapter-item expanded "><a href="changelog.html"><strong aria-hidden="true">4.</strong> Changelog</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="changelogs/v0_2_0.html"><strong aria-hidden="true">4.1.</strong> v0.2.0</a></li></ol></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded "><a href="introduction.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li class="chapter-item expanded "><a href="installation.html"><strong aria-hidden="true">2.</strong> Installation</a></li><li class="chapter-item expanded "><a href="how_to_use.html"><strong aria-hidden="true">3.</strong> How to Use</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="setup_profile.html"><strong aria-hidden="true">3.1.</strong> Setup Profile</a></li><li class="chapter-item expanded "><a href="charsets.html"><strong aria-hidden="true">3.2.</strong> Charsets</a></li><li class="chapter-item expanded "><a href="managing_keys.html"><strong aria-hidden="true">3.3.</strong> Managing Keys</a></li><li class="chapter-item expanded "><a href="key_parameters.html"><strong aria-hidden="true">3.4.</strong> Key Parameters</a></li><li class="chapter-item expanded "><a href="settings.html"><strong aria-hidden="true">3.5.</strong> Settings</a></li><li class="chapter-item expanded "><a href="shortcuts.html"><strong aria-hidden="true">3.6.</strong> Shortcuts</a></li><li class="chapter-item expanded "><a href="backup.html"><strong aria-hidden="true">3.7.</strong> Backup/Restore</a></li></ol></li><li class="chapter-item expanded "><a href="changelog.html"><strong aria-hidden="true">4.</strong> Changelog</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="changelog/v0_3_0.html"><strong aria-hidden="true">4.1.</strong> v0.3.0</a></li><li class="chapter-item expanded "><a href="changelog/v0_2_0.html"><strong aria-hidden="true">4.2.</strong> v0.2.0</a></li></ol></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle">
                 <div class="sidebar-resize-indicator"></div>
@@ -188,45 +188,13 @@
 Instead, it combines parameters such as the username, domain, and master password with a bit of salt and a hashing
 algorithm to create reproducible passwords with the specified length and character sets.</p>
 <br>
-<p><img src="./images/app_screens.webp" alt="application screen views" /></p>
-<pre><code> Application architecture overview      
-                                                                  
- ┌───────────────────┐     ┌──────────────────┐                                     
- │ OS Keyring        │     │ Profile Database │                                     
- │                   │     │                  │                                     
- │ - Master Password │     │ - Charsets       │                                     
- └─────────┬─────────┘     │ - Domains        │                                     
-           │               │ - Usernames      │                                     
-           │               │ - Tags           │                                     
-           │               └────────┬─────────┘                                     
-           │                        │                                               
-           └─────────┐    ┌─────────┘                                               
-                     │    │                                  Input in, password out 
-                     ▼    ▼                                  Nothing stored         
- ┌────────────────────────────────────────────┐              ┌───────────────┐      
- │                 Tauri App                  │              │    CLI App    │      
- └─────────────────────┬──────────────────────┘              └───────┬───────┘      
-                       │                                             │              
-                       └───────┐                 ┌───────────────────┘              
-                               │                 │                                  
-                               │                 │                                  
-                               ▼                 ▼                                  
- ┌───────────────────────────────────────────────────────────────────────────┐      
- │                               Keywich Password                            │      
- │                                  Generator                                │      
- └─────────────────────────────────────┬─────────────────────────────────────┘      
-                                       │                                            
-                                       ▼                                            
-                             ┌────────────────────┐                                 
-                             │ Generated Password │                                 
-                             └────────────────────┘                                 
-</code></pre>
+<p><img src="./images/screens.webp" alt="application screen views" /></p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="installation"><a class="header" href="#installation">Installation</a></h1>
-<p>See <a href="https://github.com/SuperioOne/keywich/releases/tag/v0.2.0">GitHub release page</a> for the all available binaries.</p>
+<p>See <a href="https://github.com/SuperioOne/keywich/releases/tag/v0.3.0">GitHub release page</a> for the all available binaries.</p>
 <h2 id="linux-x86_64-deb"><a class="header" href="#linux-x86_64-deb">Linux x86_64 (.deb)</a></h2>
 <ol>
 <li>
-<p>Download <a href="https://github.com/SuperioOne/keywich/releases/download/v0.2.0/keywich_0.2.0_amd64.deb"><code>.deb</code></a> package
+<p>Download <a href="https://github.com/SuperioOne/keywich/releases/download/v0.3.0/keywich_0.3.0_amd64.deb"><code>.deb</code></a> package
 from GitHub release page.</p>
 </li>
 <li>
@@ -239,7 +207,7 @@ from GitHub release page.</p>
 <p>PKGBUILD is created but not added to AUR yet.</p>
 <ol>
 <li>
-<p>Download <a href="https://github.com/SuperioOne/keywich/releases/download/v0.2.0/PKGBUILD"><code>PKGBUILD</code></a> file
+<p>Download <a href="https://github.com/SuperioOne/keywich/releases/download/v0.3.0/PKGBUILD"><code>PKGBUILD</code></a> file
 from GitHub release page.</p>
 </li>
 <li>
@@ -249,7 +217,7 @@ from GitHub release page.</p>
 <pre><code>makepkg --install
 </code></pre>
 <h2 id="windows-x86_64"><a class="header" href="#windows-x86_64">Windows x86_64</a></h2>
-<p>Download <a href="https://github.com/SuperioOne/keywich/releases/download/v0.2.0/Keywich_0.2.0_x64_en-US.msi"><code>.msi</code></a> installer
+<p>Download <a href="https://github.com/SuperioOne/keywich/releases/download/v0.3.0/Keywich_0.3.0_x64_en-US.msi"><code>.msi</code></a> installer
 package and execute it.</p>
 <h2 id="from-source"><a class="header" href="#from-source">From source</a></h2>
 <p>Requirements:</p>
@@ -411,6 +379,11 @@ TR)</em>.</p>
   "is_light_theme": false
 }
 </code></pre>
+<br/>
+<div align="center">
+<p><img src="./images/theme.gif" alt="app themes" /></p>
+<p><em>Example themes</em></p>
+</div>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="shortcuts"><a class="header" href="#shortcuts">Shortcuts</a></h1>
 <p><strong>General:</strong></p>
 <ul>
@@ -428,51 +401,70 @@ TR)</em>.</p>
 <blockquote>
 <p>Current version does not have configurable shortcuts.</p>
 </blockquote>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="cli"><a class="header" href="#cli">CLI</a></h1>
-<p>The password generator can be also accessed via the command-line interface (CLI) for general-purpose usage or when you
-don't have access to your graphical desktop environment. To view CLI command and options details use <code>keywich --help</code>.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="backuprestore"><a class="header" href="#backuprestore">Backup/Restore</a></h1>
+<p>The application's profile database can be exported into a backup file, which contains the following:</p>
+<ul>
+<li>Keys</li>
+<li>Charsets</li>
+<li>Custom key icons</li>
+</ul>
+<h2 id="backing-up-your-keys"><a class="header" href="#backing-up-your-keys">Backing Up Your Keys</a></h2>
+<ol>
+<li>Open <strong>Settings</strong> &gt; <strong>Backup/Restore</strong> menu.</li>
+<li>Click on the <strong>Backup</strong> button and save the file.</li>
+</ol>
+<h2 id="restoring-your-keys"><a class="header" href="#restoring-your-keys">Restoring Your Keys</a></h2>
+<p>Please note that restoring from a backup will <strong>OVERRIDE</strong> all of your profile database. Due to the possibility of a gap between the time of the backup and the restore, any modifications made after the backup file was created may be lost. Therefore, it's best practice to create a backup before performing a restore operation.</p>
+<p>For restoring from a backup:</p>
+<ol>
+<li>Open <strong>Settings</strong> &gt; <strong>Backup/Restore</strong> menu.</li>
+<li>Click on the <strong>Restore</strong> button.</li>
+<li>Select your backup (<code>.kb</code>) file and confirm the restore.</li>
+</ol>
+<div class="warning">
 <blockquote>
-<p>Current version is limited with password generator only. It does not have access to your profile database.</p>
+<p>All backup files are signed with your master password. If your current master password does not match the backup's signature, the application will display a warning. You can still restore from a backup with a different signature, but the generated passwords will not be the same as the backup source.</p>
 </blockquote>
-<pre><code class="language-shell">Usage: keywich generate [OPTIONS] --domain &lt;DOMAIN&gt; --charset &lt;CHARSET&gt; --username &lt;USERNAME&gt;
- --target-length &lt;TARGET_LENGTH&gt;
-
-Options:
-  -d, --domain &lt;DOMAIN&gt;                Domain for password
-  -c, --charset &lt;CHARSET&gt;              Password character set
-  -u, --username &lt;USERNAME&gt;            Username for password
-  -t, --target-length &lt;TARGET_LENGTH&gt;  Password target length
-  -p, --password &lt;PASSWORD&gt;            Password
-  -o, --output-type &lt;OUTPUT_TYPE&gt;      Password output type [default: text] [possible values:
- phc, text, base64, json, qr]
-      --revision &lt;REVISION&gt;            Seed number [default: 0]
-  -h, --help                           Print help
-</code></pre>
-<p>Examples:</p>
-<pre><code class="language-shell">keywich generate -d myserver -u admin -t 6 -c A..Za..z0..9 -p pass12345 -o base64
-# a3J5Tmlh
-
-keywich generate -d myserver -u admin -t 6 -c A..Za..z0..9 -p pass12345 -o text
-# kryNia
-
-keywich generate -d myserver -u admin -t 6 -c A..Za..z0..9 -p pass12345 -o phc
-# $kw_scrypt$v=v1$kryNia
-</code></pre>
+</div>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="changelogs"><a class="header" href="#changelogs">Changelogs</a></h1>
 <ul>
-<li><a href="./changelogs/v0_2_0.html"><strong>v0.2.0</strong> - <em>March 14, 2024</em></a></li>
+<li><a href="./changelog/v0_3_0.html"><strong>v0.3.0</strong> - <em>April 05, 2024</em></a></li>
+<li><a href="./changelog/v0_2_0.html"><strong>v0.2.0</strong> - <em>March 14, 2024</em></a></li>
+</ul>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="v030"><a class="header" href="#v030">v0.3.0</a></h1>
+<hr />
+<div align="right">
+<p><em>April 05, 2024</em></p>
+</div>
+<h2 id="added"><a class="header" href="#added">Added</a></h2>
+<ul>
+<li>Profile database backup and restore support.</li>
+<li>Visible log panel button at the footer section. In previous versions, It was only accessible with <code>Ctrl</code> + <code>I</code> shortcut.</li>
+<li>Version information at the footer section.</li>
+</ul>
+<h2 id="changed"><a class="header" href="#changed">Changed</a></h2>
+<ul>
+<li><code>--log_level</code> flag name changed to <code>--verbose</code>. App can now be started as <code>keywich --verbose debug</code>.</li>
+</ul>
+<h2 id="fixes"><a class="header" href="#fixes">Fixes</a></h2>
+<ul>
+<li>Profile databases cannot be initialized with certain master passwords.</li>
+</ul>
+<h2 id="deleted"><a class="header" href="#deleted">Deleted</a></h2>
+<ul>
+<li>CLI password generator sub-command deleted.</li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="v020"><a class="header" href="#v020">v0.2.0</a></h1>
 <hr />
 <div align="right">
 <p><em>March 14, 2024</em></p>
 </div>
-<h2 id="added"><a class="header" href="#added">Added</a></h2>
+<h2 id="added-1"><a class="header" href="#added-1">Added</a></h2>
 <ul>
 <li>Persisted log files and stdout logging.</li>
 <li>GUI can now be started with different log levels (default is <code>WARN</code>) via <code>keywich gui --log-level &lt;LOG_LEVEL&gt;</code>.</li>
 </ul>
-<h2 id="fixes"><a class="header" href="#fixes">Fixes</a></h2>
+<h2 id="fixes-1"><a class="header" href="#fixes-1">Fixes</a></h2>
 <ul>
 <li><strong><code>BREAKING</code></strong> Some master passwords generate invalid database encryption keys. All app databases will be
 automatically upgraded to the new passphrase generator. Note that downgrade will not possible after the upgrade.</li>

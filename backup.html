@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>v0.2.0 - Keywich Docs</title>
+        <title>Backup/Restore - Keywich Docs</title>
 
 
         <!-- Custom HTML head -->
@@ -12,21 +12,21 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="theme-color" content="#ffffff">
 
-        <link rel="icon" href="../favicon.svg">
-        <link rel="shortcut icon" href="../favicon.png">
-        <link rel="stylesheet" href="../css/variables.css">
-        <link rel="stylesheet" href="../css/general.css">
-        <link rel="stylesheet" href="../css/chrome.css">
-        <link rel="stylesheet" href="../css/print.css" media="print">
+        <link rel="icon" href="favicon.svg">
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
 
         <!-- Fonts -->
-        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
-        <link rel="stylesheet" href="../fonts/fonts.css">
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="fonts/fonts.css">
 
         <!-- Highlight.js Stylesheets -->
-        <link rel="stylesheet" href="../highlight.css">
-        <link rel="stylesheet" href="../tomorrow-night.css">
-        <link rel="stylesheet" href="../ayu-highlight.css">
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
 
         <!-- Custom theme stylesheets -->
 
@@ -35,7 +35,7 @@
     <div id="body-container">
         <!-- Provide site root to javascript -->
         <script>
-            var path_to_root = "../";
+            var path_to_root = "";
             var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "ayu" : "dark";
         </script>
 
@@ -88,7 +88,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded "><a href="../introduction.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li class="chapter-item expanded "><a href="../installation.html"><strong aria-hidden="true">2.</strong> Installation</a></li><li class="chapter-item expanded "><a href="../how_to_use.html"><strong aria-hidden="true">3.</strong> How to Use</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../setup_profile.html"><strong aria-hidden="true">3.1.</strong> Setup Profile</a></li><li class="chapter-item expanded "><a href="../charsets.html"><strong aria-hidden="true">3.2.</strong> Charsets</a></li><li class="chapter-item expanded "><a href="../managing_keys.html"><strong aria-hidden="true">3.3.</strong> Managing Keys</a></li><li class="chapter-item expanded "><a href="../key_parameters.html"><strong aria-hidden="true">3.4.</strong> Key Parameters</a></li><li class="chapter-item expanded "><a href="../settings.html"><strong aria-hidden="true">3.5.</strong> Settings</a></li><li class="chapter-item expanded "><a href="../shortcuts.html"><strong aria-hidden="true">3.6.</strong> Shortcuts</a></li><li class="chapter-item expanded "><a href="../cli.html"><strong aria-hidden="true">3.7.</strong> CLI</a></li></ol></li><li class="chapter-item expanded "><a href="../changelog.html"><strong aria-hidden="true">4.</strong> Changelog</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../changelogs/v0_2_0.html" class="active"><strong aria-hidden="true">4.1.</strong> v0.2.0</a></li></ol></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded "><a href="introduction.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li class="chapter-item expanded "><a href="installation.html"><strong aria-hidden="true">2.</strong> Installation</a></li><li class="chapter-item expanded "><a href="how_to_use.html"><strong aria-hidden="true">3.</strong> How to Use</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="setup_profile.html"><strong aria-hidden="true">3.1.</strong> Setup Profile</a></li><li class="chapter-item expanded "><a href="charsets.html"><strong aria-hidden="true">3.2.</strong> Charsets</a></li><li class="chapter-item expanded "><a href="managing_keys.html"><strong aria-hidden="true">3.3.</strong> Managing Keys</a></li><li class="chapter-item expanded "><a href="key_parameters.html"><strong aria-hidden="true">3.4.</strong> Key Parameters</a></li><li class="chapter-item expanded "><a href="settings.html"><strong aria-hidden="true">3.5.</strong> Settings</a></li><li class="chapter-item expanded "><a href="shortcuts.html"><strong aria-hidden="true">3.6.</strong> Shortcuts</a></li><li class="chapter-item expanded "><a href="backup.html" class="active"><strong aria-hidden="true">3.7.</strong> Backup/Restore</a></li></ol></li><li class="chapter-item expanded "><a href="changelog.html"><strong aria-hidden="true">4.</strong> Changelog</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="changelog/v0_3_0.html"><strong aria-hidden="true">4.1.</strong> v0.3.0</a></li><li class="chapter-item expanded "><a href="changelog/v0_2_0.html"><strong aria-hidden="true">4.2.</strong> v0.2.0</a></li></ol></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle">
                 <div class="sidebar-resize-indicator"></div>
@@ -144,7 +144,7 @@
                     <h1 class="menu-title">Keywich Docs</h1>
 
                     <div class="right-buttons">
-                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
                             <i id="print-button" class="fa fa-print"></i>
                         </a>
                         <a href="https://github.com/SuperioOne/keywich" title="Git repository" aria-label="Git repository">
@@ -176,42 +176,43 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1 id="v020"><a class="header" href="#v020">v0.2.0</a></h1>
-<hr />
-<div align="right">
-<p><em>March 14, 2024</em></p>
+                        <h1 id="backuprestore"><a class="header" href="#backuprestore">Backup/Restore</a></h1>
+<p>The application's profile database can be exported into a backup file, which contains the following:</p>
+<ul>
+<li>Keys</li>
+<li>Charsets</li>
+<li>Custom key icons</li>
+</ul>
+<h2 id="backing-up-your-keys"><a class="header" href="#backing-up-your-keys">Backing Up Your Keys</a></h2>
+<ol>
+<li>Open <strong>Settings</strong> &gt; <strong>Backup/Restore</strong> menu.</li>
+<li>Click on the <strong>Backup</strong> button and save the file.</li>
+</ol>
+<h2 id="restoring-your-keys"><a class="header" href="#restoring-your-keys">Restoring Your Keys</a></h2>
+<p>Please note that restoring from a backup will <strong>OVERRIDE</strong> all of your profile database. Due to the possibility of a gap between the time of the backup and the restore, any modifications made after the backup file was created may be lost. Therefore, it's best practice to create a backup before performing a restore operation.</p>
+<p>For restoring from a backup:</p>
+<ol>
+<li>Open <strong>Settings</strong> &gt; <strong>Backup/Restore</strong> menu.</li>
+<li>Click on the <strong>Restore</strong> button.</li>
+<li>Select your backup (<code>.kb</code>) file and confirm the restore.</li>
+</ol>
+<div class="warning">
+<blockquote>
+<p>All backup files are signed with your master password. If your current master password does not match the backup's signature, the application will display a warning. You can still restore from a backup with a different signature, but the generated passwords will not be the same as the backup source.</p>
+</blockquote>
 </div>
-<h2 id="added"><a class="header" href="#added">Added</a></h2>
-<ul>
-<li>Persisted log files and stdout logging.</li>
-<li>GUI can now be started with different log levels (default is <code>WARN</code>) via <code>keywich gui --log-level &lt;LOG_LEVEL&gt;</code>.</li>
-</ul>
-<h2 id="fixes"><a class="header" href="#fixes">Fixes</a></h2>
-<ul>
-<li><strong><code>BREAKING</code></strong> Some master passwords generate invalid database encryption keys. All app databases will be
-automatically upgraded to the new passphrase generator. Note that downgrade will not possible after the upgrade.</li>
-<li>A zero-byte <code>app.db</code> file no longer breaks profile initialization.</li>
-</ul>
-<h2 id="known-issues"><a class="header" href="#known-issues">Known issues</a></h2>
-<ul>
-<li>On Windows, the console is detached from GUI window, making the CLI unusable.</li>
-<li>On Linux, <code>webkit2gtk &gt;= 2.42.x</code> when used with Nvidia proprietary drivers, may display an empty window
-with the error message <code>KMS: DRM_IOCTL_MODE_CREATE_DUMB failed: Permission denied</code>. Current known solutions are:
-<ul>
-<li>Set <code>WEBKIT_DISABLE_DMABUF_RENDERER=1</code> environment variable.</li>
-<li>Enable <code>nvidia.drm_modeset=1</code> kernel parameters.</li>
-</ul>
-</li>
-</ul>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="../changelog.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="shortcuts.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
+                            <a rel="next prefetch" href="changelog.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
 
                         <div style="clear: both"></div>
                     </nav>
@@ -219,10 +220,13 @@ with the error message <code>KMS: DRM_IOCTL_MODE_CREATE_DUMB failed: Permission 
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="../changelog.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="shortcuts.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
 
+                    <a rel="next prefetch" href="changelog.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
             </nav>
 
         </div>
@@ -235,13 +239,13 @@ with the error message <code>KMS: DRM_IOCTL_MODE_CREATE_DUMB failed: Permission 
         </script>
 
 
-        <script src="../elasticlunr.min.js"></script>
-        <script src="../mark.min.js"></script>
-        <script src="../searcher.js"></script>
+        <script src="elasticlunr.min.js"></script>
+        <script src="mark.min.js"></script>
+        <script src="searcher.js"></script>
 
-        <script src="../clipboard.min.js"></script>
-        <script src="../highlight.js"></script>
-        <script src="../book.js"></script>
+        <script src="clipboard.min.js"></script>
+        <script src="highlight.js"></script>
+        <script src="book.js"></script>
 
         <!-- Custom JS scripts -->
 
