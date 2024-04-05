@@ -19,4 +19,12 @@ Here's an example of a `config.json` file:
   "is_light_theme": false
 }
 ```
+<br/>
 
+<div align="center">
+
+  ![app themes](./images/theme.gif)
+
+  *Example themes*
+
+</div>

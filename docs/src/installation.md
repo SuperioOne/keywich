@@ -1,10 +1,10 @@
 # Installation
 
-See [GitHub release page](https://github.com/SuperioOne/keywich/releases/tag/v0.2.0) for the all available binaries.
+See [GitHub release page](https://github.com/SuperioOne/keywich/releases/tag/v0.3.0) for the all available binaries.
 
 ## Linux x86_64 (.deb)
 
-1. Download [`.deb`](https://github.com/SuperioOne/keywich/releases/download/v0.2.0/keywich_0.2.0_amd64.deb) package
+1. Download [`.deb`](https://github.com/SuperioOne/keywich/releases/download/v0.3.0/keywich_0.3.0_amd64.deb) package
    from GitHub release page.
 
 2. Use `dpkg` to install the package.
@@ -17,7 +17,7 @@ dpkg -i keywich_0.1.0_amd64.deb
 
 PKGBUILD is created but not added to AUR yet.
 
-1. Download [`PKGBUILD`](https://github.com/SuperioOne/keywich/releases/download/v0.2.0/PKGBUILD) file
+1. Download [`PKGBUILD`](https://github.com/SuperioOne/keywich/releases/download/v0.3.0/PKGBUILD) file
    from GitHub release page.
 
 2. Use `makepkg` tool to install the package.
@@ -28,7 +28,7 @@ makepkg --install
 
 ## Windows x86_64
 
-Download [`.msi`](https://github.com/SuperioOne/keywich/releases/download/v0.2.0/Keywich_0.2.0_x64_en-US.msi) installer
+Download [`.msi`](https://github.com/SuperioOne/keywich/releases/download/v0.3.0/Keywich_0.3.0_x64_en-US.msi) installer
 package and execute it.
 
 ## From source

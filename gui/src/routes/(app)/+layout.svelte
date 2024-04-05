@@ -151,17 +151,17 @@
     >
       <div>
         {#if data.version}
-          <button class="text-sm" on:click|preventDefault={open_browser}>
+          <button class="text-xs" on:click|preventDefault={open_browser}>
             v{data.version}
           </button>
         {/if}
       </div>
       <div>
         <button
-          class="btn btn-sm text-sm font-light"
+          class="btn btn-sm text-xs font-light"
           on:click={() => logPanelStore.flip()}
         >
-          <ActivityIcon size={16} />
+          <ActivityIcon size={14} />
           <span>
             {$i18nStore.get_key("i18:/log-panel/title", "Logs")}
           </span>

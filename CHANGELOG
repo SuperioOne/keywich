@@ -1,3 +1,24 @@
+## v0.3.0 - April 05, 2024
+----------------
+
+## Added
+
+- Profile database backup and restore support.
+- Visible log panel button at the footer section. In previous versions, It was only accessible with `Ctrl` + `I` shortcut.
+- Version information at the footer section.
+
+## Changed
+
+- `--log_level` flag name changed to `--verbose`. App can now be started as `keywich --verbose debug`.
+
+## Fixes
+
+- Profile databases cannot be initialized with certain master passwords.
+
+## Deleted
+
+- CLI password generator sub-command deleted.
+
 # v0.2.0 - March 14, 2024
 ----------------
 

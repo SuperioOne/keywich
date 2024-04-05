@@ -15,40 +15,4 @@ algorithm to create reproducible passwords with the specified length and charact
 
 <br>
 
-![application screen views](./images/app_screens.webp)
-
-```
- Application architecture overview      
-                                                                  
- ┌───────────────────┐     ┌──────────────────┐                                     
- │ OS Keyring        │     │ Profile Database │                                     
- │                   │     │                  │                                     
- │ - Master Password │     │ - Charsets       │                                     
- └─────────┬─────────┘     │ - Domains        │                                     
-           │               │ - Usernames      │                                     
-           │               │ - Tags           │                                     
-           │               └────────┬─────────┘                                     
-           │                        │                                               
-           └─────────┐    ┌─────────┘                                               
-                     │    │                                  Input in, password out 
-                     ▼    ▼                                  Nothing stored         
- ┌────────────────────────────────────────────┐              ┌───────────────┐      
- │                 Tauri App                  │              │    CLI App    │      
- └─────────────────────┬──────────────────────┘              └───────┬───────┘      
-                       │                                             │              
-                       └───────┐                 ┌───────────────────┘              
-                               │                 │                                  
-                               │                 │                                  
-                               ▼                 ▼                                  
- ┌───────────────────────────────────────────────────────────────────────────┐      
- │                               Keywich Password                            │      
- │                                  Generator                                │      
- └─────────────────────────────────────┬─────────────────────────────────────┘      
-                                       │                                            
-                                       ▼                                            
-                             ┌────────────────────┐                                 
-                             │ Generated Password │                                 
-                             └────────────────────┘                                 
-```
-
-
+![application screen views](./images/screens.webp)
