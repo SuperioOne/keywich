@@ -35,7 +35,7 @@
 <div class="block card card-hover overflow-hidden">
   <a
     href="#"
-    class="inline-block variant-glass-secondary p-5 w-full h-full"
+    class="inline-block pin-btn variant-glass-secondary p-5 w-full h-full"
     on:click|preventDefault={quick_copy}
   >
     <div

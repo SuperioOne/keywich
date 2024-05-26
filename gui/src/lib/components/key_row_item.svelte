@@ -41,7 +41,7 @@
   <div class="flex-none gap-3 items-center">
     <button
       type="button"
-      class="text-primary-500 rounded-xl overflow-hidden aspect-square"
+      class="text-primary-500 rounded-xl overflow-hidden aspect-square pin-btn"
       on:click|preventDefault={() => dispatch("copy", item)}
     >
       <KeyIcon icon={item.custom_icon} size={48} />
@@ -122,4 +122,3 @@
 >
   <p class="font-light">{item.notes}</p>
 </div>
-

@@ -3,3 +3,17 @@
 @tailwind components;
 @tailwind utilities;
 @tailwind variants;
+
+@layer components {
+.pin-btn:active {
+    --tw-scale-x: 95%;
+    --tw-scale-y: 95%;
+    transform: translate(var(--tw-translate-x), var(--tw-translate-y))
+      rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y))
+      scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+    --tw-brightness: brightness(0.9);
+    filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast)
+      var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert)
+      var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
+  }
+}
