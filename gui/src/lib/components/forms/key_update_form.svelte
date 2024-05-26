@@ -19,7 +19,7 @@
   import { Api } from "../../api";
   import type { ValidationError } from "../../utils";
   import { getToastStore, i18nStore } from "../../stores";
-  import { onDestroy, onMount } from "svelte";
+  import { onMount } from "svelte";
   import {
     is_error_response,
     is_null_or_empty,
@@ -37,9 +37,10 @@
   let charset_list: CharsetItem[] = [];
   let field_errors: ValidationError<KeyRequest> = {};
   let form_element: HTMLFormElement;
-  let icon_element: HTMLInputElement;
   let selected_charset: string = data.charset;
-  let icon_file: File | string | null = data.custom_icon ?? null;
+  let icon_value: CustomIconType | undefined = data.custom_icon
+    ? { type: "name", name: data.custom_icon }
+    : undefined;
   let icon_url: string | undefined = data.custom_icon
     ? Api.convert_icon_src(data.custom_icon)
     : undefined;
@@ -74,13 +75,6 @@
     }
   });
 
-  onDestroy(() => {
-    if (!is_null_or_empty(icon_url)) {
-      URL.revokeObjectURL(icon_url);
-      Log.debug(`Removed temporary object: ${icon_url}.`);
-    }
-  });
-
   function on_popup_close() {
     const modal_inst = $modal_store[0];
     if (!modal_inst) {
@@ -111,21 +105,6 @@
       data.revision,
     );
     const tags = or_default(form.getAll("tags"), data.tags);
-
-    let icon_value: CustomIconType | undefined;
-    if (typeof icon_file === "string") {
-      icon_value = {
-        type: "name",
-        name: icon_file,
-      };
-    } else if (icon_file !== null) {
-      icon_file.webkitRelativePath;
-      const buffer = await icon_file.arrayBuffer();
-      icon_value = {
-        type: "buffer",
-        data: new Uint8Array(buffer),
-      };
-    }
 
     return {
       domain: domain as string,
@@ -193,28 +172,35 @@
     }
   }
 
-  function on_custom_icon(event: Event) {
-    const input_element = event.target as HTMLInputElement;
+  async function on_custom_icon() {
+    try {
+      const path = await Api.select_file(["png", "jpg", "jpeg"]);
 
-    if (input_element.files && input_element.files.length > 0) {
-      icon_file = input_element.files.item(0);
-
-      if (!is_null_or_empty(icon_url)) {
-        URL.revokeObjectURL(icon_url);
-        Log.debug(`Removed temporary object: ${icon_url}.`);
+      if (!is_null_or_empty(path)) {
+        icon_value = { type: "path", path: path };
+        icon_url = Api.convert_img_src(path);
       }
+    } catch (err) {
+      Log.error(err);
 
-      if (icon_file && icon_file.size > 0) {
-        icon_url = URL.createObjectURL(icon_file);
+      if (is_error_response(err)) {
+        toast_store.trigger_error(
+          $i18nStore.get_key(`i18:/errors/${err.code}`, err.message),
+        );
+      } else {
+        toast_store.trigger_error(
+          $i18nStore.get_key(
+            "i18:/key-form/errors/unknown-error",
+            "Icon selection failed.",
+          ),
+        );
       }
     }
   }
 
   function on_clear_icon() {
-    icon_file = null;
     icon_url = undefined;
-    icon_element.files = null;
-    icon_element.value = "";
+    icon_value = undefined;
   }
 </script>
 
@@ -295,18 +281,19 @@
           <span class="font-bold">
             {$i18nStore.get_key("i18:/key-form/labels/icon", "Custom Icon")}
           </span>
-          <input
-            bind:this={icon_element}
-            class="input"
-            type="file"
+          <button
+            class="input p-1 flex justify-start gap-2 items-center"
             name="custom_icon"
-            accept="image/png, image/jpeg"
-            on:change={on_custom_icon}
-            placeholder={$i18nStore.get_key(
-              "i18:/key-form/desc/icon",
-              "Upload a image or drag and drop",
-            )}
-          />
+            on:click={on_custom_icon}
+          >
+            <span class="btn-sm rounded-container-token variant-filled">
+              {$i18nStore.get_key("i18:/generic/select-file", "Choose a file")}
+            </span>
+            <span>
+              {$i18nStore.get_key("i18:/key-form/desc/icon", "Upload a image")}
+            </span>
+          </button>
+
           {#if icon_url}
             <span class="font-bold inline-block py-2">
               {$i18nStore.get_key("i18:/generic/preview", "Preview")}

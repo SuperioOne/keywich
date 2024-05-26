@@ -106,7 +106,7 @@ type BaseKeyRequest = {
 
 export type KeyRequest = BaseKeyRequest & {
   /** Optional custom icon data for the key. */
-  custom_icon?: Uint8Array;
+  custom_icon?: string;
 };
 
 export type KeyUpdateRequest = BaseKeyRequest & {
@@ -115,7 +115,7 @@ export type KeyUpdateRequest = BaseKeyRequest & {
 };
 
 export type CustomIconType =
-  | { type: "buffer"; data: Uint8Array }
+  | { type: "path"; path: string }
   | { type: "name"; name: string };
 
 export type KeyItem = {
@@ -170,9 +170,11 @@ export interface CharsetApi {
 
 export interface UtilityApi {
   save_file(fileData: Uint8Array, path?: string): Promise<boolean>;
+  select_file(extensions?: string[]): Promise<string | undefined>;
   convert_icon_src(icon_name: string): string;
+  convert_img_src(img_path: string): string;
   copy_to_clipboard(value: string): Promise<void>;
-  upload_icon(data: Uint8Array): Promise<string>;
+  upload_icon(path: string): Promise<string>;
   backup(path?: string): Promise<void>;
   restore(path?: string): Promise<void>;
   verify_backup(path?: string): Promise<VerifyResponse>;

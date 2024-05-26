@@ -18,7 +18,7 @@
     is_validation_error_response,
     or_default,
   } from "../../utils";
-  import { onDestroy, onMount } from "svelte";
+  import { onMount } from "svelte";
 
   const modal_store = getModalStore();
   const toast_store = getToastStore();
@@ -29,9 +29,7 @@
   let selected_charset: string | null = null;
   let field_errors: ValidationError<KeyRequest> = {};
   let form_element: HTMLFormElement;
-  let icon_element: HTMLInputElement;
-  let icon_url: string | undefined;
-  let icon: File | null = null;
+  let icon_path: string | undefined = undefined;
   let slider_value: number = 32;
   let note_value: string | null = null;
   let submitting: boolean = false;
@@ -57,21 +55,8 @@
     }
   });
 
-  onDestroy(() => revoke_local_img());
-
-  function revoke_local_img() {
-    if (!is_null_or_empty(icon_url)) {
-      Log.debug(`Revoke local object ${icon_url}`);
-      URL.revokeObjectURL(icon_url);
-      icon_url = undefined;
-    }
-  }
-
   function on_clear_icon() {
-    icon_url = undefined;
-    icon = null;
-    icon_element.files = null;
-    icon_element.value = "";
+    icon_path = undefined;
   }
 
   function on_popup_close() {
@@ -105,16 +90,10 @@
     );
     const tags = form.getAll("tags");
 
-    let icon_data;
-    if (icon instanceof File && icon.size > 0) {
-      const buffer = await icon.arrayBuffer();
-      icon_data = new Uint8Array(buffer);
-    }
-
     return {
       domain: domain as string,
       charset: charset as string,
-      custom_icon: icon_data,
+      custom_icon: icon_path,
       notes: notes as string,
       revision: revision,
       tags: tags as string[],
@@ -176,14 +155,27 @@
     }
   }
 
-  function on_custom_icon(event: Event) {
-    const input_element = event.target as HTMLInputElement;
-    revoke_local_img();
+  async function on_custom_icon() {
+    try {
+      const path = await Api.select_file(["png", "jpeg", "jpg"]);
 
-    if (input_element.files && input_element.files.length > 0) {
-      icon = input_element.files.item(0);
-      if (icon) {
-        icon_url = URL.createObjectURL(icon);
+      if (!is_null_or_empty(path)) {
+        icon_path = path;
+      }
+    } catch (err) {
+      Log.error(err);
+
+      if (is_error_response(err)) {
+        toast_store.trigger_error(
+          $i18nStore.get_key(`i18:/errors/${err.code}`, err.message),
+        );
+      } else {
+        toast_store.trigger_error(
+          $i18nStore.get_key(
+            "i18:/key-form/errors/unknown-error",
+            "Icon selection failed.",
+          ),
+        );
       }
     }
   }
@@ -232,11 +224,8 @@
       <div>
         <label class="label">
           <span class="font-bold"
-            >{$i18nStore.get_key(
-              "i18:/key-form/labels/username",
-              "Username",
-            )}</span
-          >
+            >{$i18nStore.get_key("i18:/key-form/labels/username", "Username")}
+          </span>
           <input
             class:input-error={field_errors.username}
             class="input"
@@ -439,24 +428,28 @@
           <span class="font-bold">
             {$i18nStore.get_key("i18:/key-form/labels/icon", "Custom Icon")}
           </span>
-          <input
-            bind:this={icon_element}
-            class="input"
-            type="file"
+          <button
+            class="input p-1 flex justify-start gap-2 items-center"
             name="custom_icon"
-            accept="image/png, image/jpeg"
-            on:change={on_custom_icon}
-            placeholder={$i18nStore.get_key(
-              "i18:/key-form/desc/icon",
-              "Upload a image or drag and drop",
-            )}
-          />
-          {#if icon_url}
+            on:click={on_custom_icon}
+          >
+            <span class="btn-sm rounded-container-token variant-filled">
+              {$i18nStore.get_key("i18:/generic/select-file", "Choose a file")}
+            </span>
+            <span>
+              {$i18nStore.get_key("i18:/key-form/desc/icon", "Upload a image")}
+            </span>
+          </button>
+          {#if icon_path}
             <span class="font-bold inline-block py-2">
               {$i18nStore.get_key("i18:/generic/preview", "Preview")}
             </span>
             <span class="card p-3 flex flex-col justify-center items-center">
-              <img width="128px" src={icon_url} alt="icon" />
+              <img
+                width="128px"
+                src={Api.convert_img_src(icon_path)}
+                alt="icon"
+              />
             </span>
             <span class="flex flex-row justify-end py-2">
               <button

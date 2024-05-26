@@ -6,6 +6,7 @@
   import { getToastStore, i18nStore, Log, Api } from "$lib";
   import { goto } from "$app/navigation";
   import { is_null_or_empty } from "$lib";
+  import { onMount } from "svelte";
 
   type PassForm = { password?: string; re_password?: string };
 
@@ -14,6 +15,11 @@
   const toast_store = getToastStore();
   let field_errors: ValidationError<PassForm> = {};
   let unlocking: boolean = false;
+
+  onMount(() => {
+    const input: HTMLElement | null = document.querySelector("#password-input");
+    input?.focus();
+  });
 
   async function on_submit(event: Event) {
     const form_element = event.target as HTMLFormElement;
@@ -120,6 +126,7 @@
           )}</span
         >
         <input
+          id="password-input"
           class:input-error={field_errors.password}
           class="input"
           name="password"
@@ -191,4 +198,3 @@
     </form>
   </div>
 </div>
-

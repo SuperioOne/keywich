@@ -60,6 +60,7 @@
   "/generic/delete": "Sil",
   "/generic/preview": "Ön izleme",
   "/generic/save": "Kaydet",
+  "/generic/select-file": "Dosya Seç",
   "/home/no-pinned-keys": "Pinlenmiş anahtar bulunamadı.",
   "/home/pinned-keys": "Pinlenmiş Anahtarlar",
   "/key-form/advanced": "Gelişmiş Seçenekler",

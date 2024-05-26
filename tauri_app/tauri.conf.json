@@ -25,7 +25,6 @@
           "$APPLOCALDATA/config.json",
           "$APPLOCALDATA/locales/*",
           "$APPLOCALDATA/contents/*",
-          "$APPLOCALDATA/temp/*",
           "$RESOURCE/locales/*"
         ]
       },
@@ -86,7 +85,7 @@
       }
     },
     "security": {
-      "csp": "style-src 'unsafe-inline' 'self'; default-src 'self'; img-src 'self' blob: tauri://localhost asset: https://asset.localhost kwicon: https://kwicon.localhost",
+      "csp": "style-src 'unsafe-inline' 'self'; default-src 'self'; img-src 'self' blob: tauri://localhost asset: https://asset.localhost kwicon: https://kwicon.localhost kwimg: https://kwimg.localhost",
       "dangerousDisableAssetCspModification": [
         "style-src"
       ]

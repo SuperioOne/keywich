@@ -104,32 +104,6 @@ pub async fn process_icon(handle: AppHandle, file_path: String) -> Result<String
 }
 
 #[tauri::command(rename_all = "snake_case")]
-pub async fn alloc_temp_path(handle: AppHandle) -> Result<String, AppErrors> {
-  let local_data_dir = handle
-    .path_resolver()
-    .app_local_data_dir()
-    .ok_or(AppErrors::LocalDataDirNotFound)
-    .log_err()?;
-
-  let mut temp_path = Path::join(&local_data_dir, "temp");
-
-  if let Ok(false) = temp_path.try_exists() {
-    fs::create_dir(&temp_path)
-      .map_err(|_err| AppErrors::TempFolderFailed)
-      .log_err()?;
-  }
-
-  let file_name = uuid::Uuid::now_v7().to_string();
-  temp_path.push(&file_name);
-  let path = temp_path
-    .to_str()
-    .ok_or(AppErrors::TempFolderFailed)
-    .log_err()?;
-
-  Ok(String::from(path))
-}
-
-#[tauri::command(rename_all = "snake_case")]
 pub async fn load_configs(
   app: AppHandle,
   log_level: State<'_, LogLevel>,

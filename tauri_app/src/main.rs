@@ -4,16 +4,19 @@
 )]
 
 mod commands;
+mod custom_protocols;
 mod errors;
-mod icon_scheme;
 mod log_event_appender;
 mod result_log;
 
-use crate::icon_scheme::{icon_protocol_handler, ICON_PROTOCOL};
+use self::{
+  custom_protocols::{icon_protocol_handler, img_protocol_handler, ICON_PROTOCOL, IMG_PROTOCOL},
+  log_event_appender::LogEventAppender,
+};
 use clap::Parser;
 use keyring::Entry;
 use keywich_lib::profile::ProfileDB;
-use log::{info, LevelFilter};
+use log::{debug, info, warn, LevelFilter};
 use log4rs::{
   append::{console::ConsoleAppender, file::FileAppender},
   config::{Appender, Root},
@@ -22,8 +25,6 @@ use log4rs::{
 };
 use std::{io::Write, path::Path, sync::Arc};
 use tauri::{async_runtime::RwLock, AppHandle, Manager};
-
-use self::log_event_appender::{LogEventAppender, LogEventAppenderBuilder};
 
 #[derive(Debug, Parser)]
 #[command(name = "keywich")]
@@ -64,10 +65,10 @@ impl DbNotifier for AppHandle {
 }
 
 fn main() {
-  tauri::Builder::default()
-    .setup(move |app| {
+  let app = tauri::Builder::default()
+    .setup(move |app_handle| {
       let args = KeywichArgs::parse();
-      let log_file_path = &app
+      let log_file_path = &app_handle
         .path_resolver()
         .app_log_dir()
         .unwrap()
@@ -77,7 +78,7 @@ fn main() {
         .encoder(Box::new(PatternEncoder::new("{d} {l} {m}{n}")))
         .build(log_file_path)
         .unwrap();
-      let event_logger = LogEventAppender::builder().build(app.handle(), "app_log");
+      let event_logger = LogEventAppender::builder().build(app_handle.handle(), "app_log");
       let log_level = args.verbose.unwrap_or(LevelFilter::Warn);
       let config = Config::builder()
         .appender(Appender::builder().build("stdout", Box::new(console_logger)))
@@ -94,7 +95,7 @@ fn main() {
 
       log4rs::init_config(config).unwrap();
 
-      let local_data_dir = &app.path_resolver().app_local_data_dir().unwrap();
+      let local_data_dir = &app_handle.path_resolver().app_local_data_dir().unwrap();
       let keyring_entry = Entry::new("keywich", "mdb")?;
       let config_file = Path::join(local_data_dir, "config.json");
 
@@ -105,15 +106,15 @@ fn main() {
         fs.flush().unwrap();
       }
 
-      app.manage(AppDbState {
+      app_handle.manage(AppDbState {
         profile_db: Arc::from(RwLock::from(None)),
       });
 
-      app.manage(KeyState {
+      app_handle.manage(KeyState {
         entry: Arc::from(keyring_entry),
       });
 
-      app.manage(LogLevel {
+      app_handle.manage(LogLevel {
         level: Arc::from(log_level),
       });
 
@@ -121,6 +122,24 @@ fn main() {
     })
     .invoke_handler(generate_keywich_handler!())
     .register_uri_scheme_protocol(ICON_PROTOCOL, icon_protocol_handler)
-    .run(tauri::generate_context!())
-    .expect("error while running tauri application");
+    .register_uri_scheme_protocol(IMG_PROTOCOL, img_protocol_handler)
+    .build(tauri::generate_context!())
+    .expect("Error while building Keywich application");
+
+  app.run(|app_handle, e| match e {
+    tauri::RunEvent::ExitRequested { .. } => {
+      let key_state = app_handle.state::<KeyState>();
+
+      match key_state.entry.delete_password() {
+        Err(keyring::error::Error::NoEntry) => {
+          debug!("Keyring entry already removed.");
+        }
+        Err(err) => {
+          warn!("Unable to clear keyring entry, {}", err);
+        }
+        _ => {}
+      }
+    }
+    _ => {}
+  })
 }

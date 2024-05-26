@@ -5,27 +5,16 @@ import {
   writeBinaryFile,
   readTextFile,
   writeTextFile,
-  removeFile,
 } from "@tauri-apps/api/fs";
 import { writeText } from "@tauri-apps/api/clipboard";
-import { Log } from "./logger";
 import type { KeyOptions, KeywichApi, VerifyResponse } from "./api/types";
 
 export * from "./api/types";
 
 const DEFAULT_HASH_VERSION = "kw_scrypt:v1";
 
-async function upload_icon(data: Uint8Array): Promise<string> {
-  const temp_path: string = await invoke("alloc_temp_path");
-  await writeBinaryFile(temp_path, data);
-
-  setTimeout(() => {
-    removeFile(temp_path)
-      .then(() => Log.debug("temp file removed."))
-      .catch((err) => Log.error(err));
-  }, 0);
-
-  return await invoke("process_icon", { file_path: temp_path });
+function upload_icon(path: string): Promise<string> {
+  return invoke("process_icon", { file_path: path });
 }
 
 export const Api: KeywichApi = {
@@ -48,7 +37,7 @@ export const Api: KeywichApi = {
   insert_key: async function (data) {
     let icon_name: string | undefined = undefined;
 
-    if (data.custom_icon && data.custom_icon.length > 0) {
+    if (!is_null_or_empty(data.custom_icon)) {
       icon_name = await upload_icon(data.custom_icon);
     }
 
@@ -84,8 +73,8 @@ export const Api: KeywichApi = {
 
     if (data.custom_icon) {
       switch (data.custom_icon.type) {
-        case "buffer":
-          icon_name = await upload_icon(data.custom_icon.data);
+        case "path":
+          icon_name = await upload_icon(data.custom_icon.path);
           break;
         case "name":
           icon_name = data.custom_icon.name;
@@ -157,6 +146,10 @@ export const Api: KeywichApi = {
 
   convert_icon_src: function (icon_name) {
     return convertFileSrc(icon_name, "kwicon");
+  },
+
+  convert_img_src: function (img_path) {
+    return convertFileSrc(img_path, "kwimg");
   },
 
   update_config_json: async function (configs) {
@@ -235,5 +228,19 @@ export const Api: KeywichApi = {
     }
 
     return await invoke("verify_backup", { import_path: target });
+  },
+
+  select_file: async function (
+    extensions?: string[] | undefined,
+  ): Promise<string | undefined> {
+    const selected = await open({
+      multiple: false,
+      directory: false,
+      filters: extensions
+        ? [{ name: "File", extensions: extensions }]
+        : undefined,
+    });
+
+    return (selected as string) ?? undefined;
   },
 };
