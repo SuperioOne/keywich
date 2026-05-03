@@ -2,9 +2,9 @@ use std::string::FromUtf8Error;
 use std::sync::Arc;
 
 use log4rs::append::Append;
-use log4rs::encode::json::JsonEncoder;
 use log4rs::encode::Encode;
-use tauri::{AppHandle, Manager};
+use log4rs::encode::json::JsonEncoder;
+use tauri::{AppHandle, Emitter};
 
 #[derive(Debug)]
 pub struct LogEventAppender {
@@ -86,7 +86,7 @@ impl Append for LogEventAppender {
     self
       .emitter
       .as_ref()
-      .emit_all(self.event_name.as_ref(), message)?;
+      .emit(self.event_name.as_ref(), message)?;
 
     Ok(())
   }

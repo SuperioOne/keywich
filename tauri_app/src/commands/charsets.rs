@@ -1,9 +1,9 @@
 use crate::errors::AppErrors;
+use crate::result_log::ResultLog;
 use crate::{AppDbState, DbNotifier};
 use keywich_lib::profile::charsets::CharsetItem;
 use std::ops::Deref;
 use tauri::{AppHandle, State};
-use crate::result_log::ResultLog;
 
 #[tauri::command(rename_all = "snake_case")]
 pub async fn get_charsets(

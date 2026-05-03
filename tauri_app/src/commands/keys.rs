@@ -3,7 +3,7 @@ use crate::result_log::ResultLog;
 use crate::{AppDbState, DbNotifier};
 use keywich_lib::profile::keys::{KeyData, KeyItem};
 use std::ops::Deref;
-use tauri::{AppHandle, State};
+use tauri::{AppHandle, Manager as _, State};
 
 #[tauri::command(rename_all = "snake_case")]
 pub async fn get_keys(
@@ -181,12 +181,7 @@ pub async fn get_key_by_id(
 }
 
 fn delete_icon(handle: &AppHandle, icon_name: &str) -> Result<(), AppErrors> {
-  let mut dest_path = handle
-    .path_resolver()
-    .app_local_data_dir()
-    .ok_or(AppErrors::LocalDataDirNotFound)
-    .log_err()?;
-
+  let mut dest_path = handle.path().app_local_data_dir().log_err()?;
   dest_path.push("contents");
   dest_path.push(icon_name);
 

@@ -1,12 +1,8 @@
-import { convertFileSrc, invoke } from "@tauri-apps/api/tauri";
+import { convertFileSrc, invoke } from "@tauri-apps/api/core";
 import { is_null_or_empty, or_default } from "./utils";
-import { save, open } from "@tauri-apps/api/dialog";
-import {
-  writeBinaryFile,
-  readTextFile,
-  writeTextFile,
-} from "@tauri-apps/api/fs";
-import { writeText } from "@tauri-apps/api/clipboard";
+import { save, open } from "@tauri-apps/plugin-dialog";
+import { writeFile, readTextFile, writeTextFile } from "@tauri-apps/plugin-fs";
+import { writeText } from "@tauri-apps/plugin-clipboard-manager";
 import type { KeyOptions, KeywichApi, VerifyResponse } from "./api/types";
 
 export * from "./api/types";
@@ -117,7 +113,7 @@ export const Api: KeywichApi = {
       }
     }
 
-    await writeBinaryFile(target_path, fileData);
+    await writeFile(target_path, fileData);
     return true;
   },
 

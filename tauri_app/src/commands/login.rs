@@ -3,10 +3,10 @@ use crate::result_log::ResultLog;
 use crate::{AppDbState, DbNotifier, KeyState};
 use keywich_lib::charset::Charset;
 use keywich_lib::profile::{ProfileDB, ProfileDBSqliteOptions, SqlitePassphrase};
-use keywich_lib::scrypt::{scrypt, Params};
+use keywich_lib::scrypt::{Params, scrypt};
 use log::{debug, error, info, warn};
 use std::path::Path;
-use tauri::{AppHandle, State};
+use tauri::{AppHandle, Manager as _, State};
 
 pub(super) const APP_DB_NAME: &str = "app.db";
 
@@ -19,11 +19,7 @@ pub async fn unlock_db(
 ) -> Result<(), AppErrors> {
   key_state.entry.set_password(&master_pass).log_err()?;
 
-  let local_data_dir = &app
-    .path_resolver()
-    .app_local_data_dir()
-    .ok_or(AppErrors::LocalDataDirNotFound)
-    .log_err()?;
+  let local_data_dir = &app.path().app_local_data_dir().log_err()?;
 
   let db_path = Path::join(local_data_dir, APP_DB_NAME);
   let path_str = db_path

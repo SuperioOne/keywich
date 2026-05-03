@@ -1,5 +1,5 @@
+use core::fmt::Display;
 use log::error;
-use std::fmt::Display;
 
 pub(crate) trait ResultLog {
   fn log_err(self) -> Self;
@@ -20,6 +20,7 @@ where
   ///  // Do other stuff...
   /// }
   /// ```
+  #[inline]
   fn log_err(self) -> Self {
     if let Err(err) = &self {
       error!("{}", err);

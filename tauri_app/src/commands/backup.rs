@@ -1,10 +1,10 @@
-use crate::{errors::AppErrors, result_log::ResultLog, AppDbState, DbNotifier, KeyState};
+use crate::{AppDbState, DbNotifier, KeyState, errors::AppErrors, result_log::ResultLog};
 use keywich_lib::profile::backup::{
-  file_backup::FileBackupReader, reader::BackupReader, BackupOptions, BackupTarget, RestoreOptions,
+  BackupOptions, BackupTarget, RestoreOptions, file_backup::FileBackupReader, reader::BackupReader,
 };
 use serde::Serialize;
 use std::{ops::Deref, path::Path};
-use tauri::{AppHandle, State};
+use tauri::{AppHandle, Manager as _, State};
 
 #[derive(Debug, Serialize)]
 pub struct VerifyResponse {
@@ -20,11 +20,7 @@ pub async fn backup_profile_db(
   export_path: String,
 ) -> Result<(), AppErrors> {
   let read_lock = state.profile_db.read().await;
-  let local_data_dir = app
-    .path_resolver()
-    .app_local_data_dir()
-    .ok_or(AppErrors::LocalDataDirNotFound)
-    .log_err()?;
+  let local_data_dir = app.path().app_local_data_dir().log_err()?;
 
   let content_dir = Path::join(&local_data_dir, "contents");
   let password = match key_state.entry.get_password() {
@@ -61,11 +57,7 @@ pub async fn restore_profile_db(
   import_path: String,
 ) -> Result<(), AppErrors> {
   let read_lock = state.profile_db.read().await;
-  let local_data_dir = app
-    .path_resolver()
-    .app_local_data_dir()
-    .ok_or(AppErrors::LocalDataDirNotFound)
-    .log_err()?;
+  let local_data_dir = app.path().app_local_data_dir().log_err()?;
 
   let content_dir = Path::join(&local_data_dir, "contents");
 

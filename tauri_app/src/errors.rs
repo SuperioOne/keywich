@@ -24,6 +24,7 @@ pub enum AppErrors {
   NoKeyEntry,
   DuplicateKeyEntry,
   BackupError(String),
+  TauriError(tauri::Error),
 }
 
 impl AppErrors {
@@ -53,6 +54,7 @@ impl AppErrors {
       AppErrors::ConfigPathFailed => 402,
       AppErrors::LocalePathFailed => 403,
       AppErrors::ContentPathFailed => 404,
+      AppErrors::TauriError(_) => 405,
     };
 
     format!("{:0>5}", code)
@@ -79,6 +81,13 @@ impl From<keywich_lib::errors::Error> for AppErrors {
       keywich_lib::errors::Error::InvalidQrError(detail) => Self::OutputError(detail),
       keywich_lib::errors::Error::BackupError(detail) => Self::BackupError(detail),
     }
+  }
+}
+
+impl From<tauri::Error> for AppErrors {
+  #[inline]
+  fn from(value: tauri::Error) -> Self {
+    Self::TauriError(value)
   }
 }
 
@@ -124,6 +133,7 @@ impl Display for AppErrors {
       AppErrors::NoKeyEntry => write!(f, "No master key entry found."),
       AppErrors::DuplicateKeyEntry => write!(f, "Duplicate master key entry detected."),
       AppErrors::BackupError(err) => write!(f, "Backup action failed, {}", err),
+      AppErrors::TauriError(err) => write!(f, "Tauri error {}", err),
     }
   }
 }

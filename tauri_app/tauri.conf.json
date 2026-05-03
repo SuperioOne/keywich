@@ -1,106 +1,81 @@
 {
-  "$schema": "./node_modules/@tauri-apps/cli/schema.json",
+  "$schema": "./node_modules/@tauri-apps/cli/config.schema.json",
   "build": {
     "beforeBuildCommand": "pnpm -C ../gui run build",
     "beforeDevCommand": "pnpm -C ../gui run dev",
-    "devPath": "http://localhost:5173",
-    "distDir": "../gui/build"
+    "frontendDist": "../gui/build",
+    "devUrl": "http://localhost:5173"
   },
-  "package": {
-    "productName": "Keywich",
-    "version": "0.3.0"
-  },
-  "tauri": {
-    "allowlist": {
-      "shell": {
-        "open": true
-      },
-      "fs": {
-        "readFile": true,
-        "writeFile": true,
-        "removeFile": true,
-        "exists": true,
-        "scope": [
-          "$APPLOCALDATA",
-          "$APPLOCALDATA/config.json",
-          "$APPLOCALDATA/locales/*",
-          "$APPLOCALDATA/contents/*",
-          "$RESOURCE/locales/*"
-        ]
-      },
-      "dialog": {
-        "open": true,
-        "save": true
-      },
-      "protocol": {
-        "asset": true,
-        "assetScope": [
-          "$APPLOCALDATA",
-          "$APPLOCALDATA/contents/*"
-        ]
-      },
-      "clipboard": {
-        "writeText": true
-      },
-      "all": false
+  "bundle": {
+    "active": true,
+    "category": "Utility",
+    "copyright": "",
+    "targets": [
+      "deb",
+      "msi",
+      "app",
+      "dmg"
+    ],
+    "externalBin": [],
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
+    "windows": {
+      "certificateThumbprint": null,
+      "digestAlgorithm": "sha256",
+      "timestampUrl": ""
     },
-    "bundle": {
-      "active": true,
-      "category": "Utility",
-      "copyright": "",
+    "longDescription": "",
+    "macOS": {
+      "entitlements": null,
+      "exceptionDomain": "",
+      "frameworks": [],
+      "providerShortName": null,
+      "signingIdentity": null
+    },
+    "resources": [
+      "locales/*"
+    ],
+    "shortDescription": "",
+    "linux": {
       "deb": {
         "depends": []
-      },
-      "externalBin": [],
-      "icon": [
-        "icons/32x32.png",
-        "icons/128x128.png",
-        "icons/128x128@2x.png",
-        "icons/icon.icns",
-        "icons/icon.ico"
-      ],
-      "identifier": "com.superiorone.keywich",
-      "longDescription": "",
-      "macOS": {
-        "entitlements": null,
-        "exceptionDomain": "",
-        "frameworks": [],
-        "providerShortName": null,
-        "signingIdentity": null
-      },
-      "resources": [
-        "locales/*"
-      ],
-      "shortDescription": "",
-      "targets": [
-        "deb",
-        "msi",
-        "app",
-        "dmg"
-      ],
-      "windows": {
-        "certificateThumbprint": null,
-        "digestAlgorithm": "sha256",
-        "timestampUrl": ""
       }
-    },
-    "security": {
-      "csp": "style-src 'unsafe-inline' 'self'; default-src 'self'; img-src 'self' blob: tauri://localhost asset: https://asset.localhost kwicon: https://kwicon.localhost kwimg: https://kwimg.localhost",
-      "dangerousDisableAssetCspModification": [
-        "style-src"
-      ]
-    },
-    "updater": {
-      "active": false
-    },
+    }
+  },
+  "productName": "Keywich",
+  "mainBinaryName": "Keywich",
+  "version": "0.3.0",
+  "identifier": "com.superiorone.keywich",
+  "plugins": {},
+  "app": {
     "windows": [
       {
         "fullscreen": false,
         "height": 840,
         "resizable": true,
         "title": "Keywich",
-        "width": 860
+        "width": 860,
+        "useHttpsScheme": true
       }
-    ]
+    ],
+    "security": {
+      "assetProtocol": {
+        "scope": [
+          "$APPLOCALDATA",
+          "$APPLOCALDATA/contents/*",
+          "$APPLOCALDATA/locales/*"
+        ],
+        "enable": true
+      },
+      "dangerousDisableAssetCspModification": [
+        "style-src"
+      ],
+      "csp": "style-src 'unsafe-inline' 'self'; default-src 'self'; img-src 'self' blob: tauri://localhost asset: https://asset.localhost kwicon: https://kwicon.localhost kwimg: https://kwimg.localhost; connect-src ipc: http://ipc.localhost"
+    }
   }
 }

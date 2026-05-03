@@ -1,67 +1,73 @@
-use crate::errors::AppErrors;
-use const_format::concatcp;
 use std::fs;
 use std::path::{Path, PathBuf};
-use tauri::http::{Request, Response, ResponseBuilder};
-use tauri::AppHandle;
+use tauri::http::{Request, Response};
+use tauri::{Manager as _, UriSchemeContext};
 
 pub(crate) const ICON_PROTOCOL: &str = "kwicon";
 pub(crate) const IMG_PROTOCOL: &str = "kwimg";
 
-const ICON_PREFIX: &str = concatcp!("", ICON_PROTOCOL, "://localhost/");
-const IMG_PREFIX: &str = concatcp!("", IMG_PROTOCOL, "://localhost/");
-
-pub(crate) fn icon_protocol_handler<R>(
-  app: &AppHandle<R>,
-  request: &Request,
-) -> Result<Response, Box<dyn std::error::Error>>
+pub(crate) fn icon_protocol_handler<'a, R>(
+  context: UriSchemeContext<'a, R>,
+  request: Request<Vec<u8>>,
+) -> Response<Vec<u8>>
 where
   R: tauri::Runtime,
 {
-  let path = request.uri().strip_prefix(ICON_PREFIX).unwrap();
+  let path = request.uri().path().trim_start_matches("/");
   let path = percent_encoding::percent_decode(path.as_bytes())
     .decode_utf8_lossy()
     .to_string();
+  let response = Response::builder();
 
-  let local_data_dir = app
-    .path_resolver()
-    .app_local_data_dir()
-    .ok_or(AppErrors::LocalDataDirNotFound)?;
+  let local_data_dir = match context.app_handle().path().app_local_data_dir() {
+    Ok(v) => v,
+    Err(err) => {
+      return response
+        .status(400)
+        .body(err.to_string().into_bytes())
+        .expect("");
+    }
+  };
 
   let mut icon_path = Path::join(&local_data_dir, "contents");
   icon_path.push(&path);
 
-  let response = ResponseBuilder::new();
   if icon_path.is_file() {
     match fs::read(icon_path) {
-      Ok(data) => response.status(200).body(data),
-      Err(err) => response.status(400).body(err.to_string().into_bytes()),
+      Ok(data) => response.status(200).body(data).expect(""),
+      Err(err) => response
+        .status(400)
+        .body(err.to_string().into_bytes())
+        .expect(""),
     }
   } else {
-    response.status(404).body(Vec::new())
+    response.status(404).body(Vec::new()).expect("")
   }
 }
 
-pub(crate) fn img_protocol_handler<R>(
-  _app: &AppHandle<R>,
-  request: &Request,
-) -> Result<Response, Box<dyn std::error::Error>>
+pub(crate) fn img_protocol_handler<'a, R>(
+  _app: UriSchemeContext<'a, R>,
+  request: Request<Vec<u8>>,
+) -> Response<Vec<u8>>
 where
   R: tauri::Runtime,
 {
-  let path = request.uri().strip_prefix(IMG_PREFIX).unwrap();
+  let path = request.uri().path();
   let path = percent_encoding::percent_decode(path.as_bytes())
     .decode_utf8_lossy()
     .to_string();
   let path = PathBuf::from(path);
-  let response = ResponseBuilder::new();
+  let response = Response::builder();
 
   if path.is_file() {
     match fs::read(path) {
-      Ok(data) => response.status(200).body(data),
-      Err(err) => response.status(400).body(err.to_string().into_bytes()),
+      Ok(data) => response.status(200).body(data).expect(""),
+      Err(err) => response
+        .status(400)
+        .body(err.to_string().into_bytes())
+        .expect(""),
     }
   } else {
-    response.status(404).body(Vec::new())
+    response.status(404).body(Vec::new()).expect("")
   }
 }

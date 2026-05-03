@@ -16,7 +16,7 @@
   } from "$lib";
   import { is_error_response } from "$lib";
   import { goto } from "$app/navigation";
-  import { open } from "@tauri-apps/api/shell";
+  import { open } from "@tauri-apps/plugin-shell";
 
   const toast_store = getToastStore();
   const nav_items = [
